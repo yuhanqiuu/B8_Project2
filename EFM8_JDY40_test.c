@@ -218,12 +218,12 @@ void waitms_or_RI1 (unsigned int ms)
 void SendATCommand (char * s)
 {
 	printf("Command: %s", s);
-	P2_0=0; // 'set' pin to 0 is 'AT' mode.
+	P3_0=0; // 'set' pin to 0 is 'AT' mode.
 	waitms(5);
 	sendstr1(s);
 	getstr1(buff);
 	waitms(10);
-	P2_0=1; // 'set' pin to 1 is normal operation mode.
+	P3_0=1; // 'set' pin to 1 is normal operation mode.
 	printf("Response: %s\r\n", buff);
 }
 
@@ -249,7 +249,7 @@ void main (void)
 	
 	// We should select an unique device ID.  The device ID can be a hex
 	// number from 0x0000 to 0xFFFF.  In this case is set to 0xABBA
-	SendATCommand("AT+DVIDABBA\r\n");  
+	SendATCommand("AT+DVID9944\r\n");  
 
 	// To check configuration
 	SendATCommand("AT+VER\r\n");
