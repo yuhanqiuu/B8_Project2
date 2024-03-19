@@ -1,11 +1,30 @@
+// main remote code
+
+
 #include <EFM8LB1.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-#define SYSCLK 72000000
+#define SYSCLK 72000000L
 #define BAUDRATE 115200L
-#define VDD 3.3035 // The measured value of VDD in volts
+#define SARCLK 18000000L
+
+#define VDD 4.85 // The measured value of VDD in volts
+
+// for remote control 
+#define control_x QFP32_MUX_P1_4
+#define control_y QFP32_MUX_P1_5
+//#define speaker QFP32_MUX_P0_4
+
+#define LCD_RS P1_7
+// #define LCD_RW Px_x // Not used in this code.  Connect to GND
+#define LCD_E  P2_0
+#define LCD_D4 P1_3
+#define LCD_D5 P1_2
+#define LCD_D6 P1_1
+#define LCD_D7 P1_0
+#define CHARS_PER_LINE 16
 
 idata char buff[20];
 
@@ -396,12 +415,17 @@ void LCDprint(char * string, unsigned char line, bit clear)
 void main (void)
 {
 	unsigned int cnt;
+	float volt_x;
+	float volt_y;
 
 	// use p2.4 for joystick vry, p2.5 for vrx
-	
+	InitADC();
 	waitms(500);
 	printf("\r\nJDY-40 test\r\n");
 	UART1_Init(9600);
+	InitPinADC(2,4); //for y remote
+	InitPinADC(2,5); //for x remote
+
 
 	// To configure the device (shown here using default values).
 	// For some changes to take effect, the JDY-40 needs to be power cycled.
@@ -432,18 +456,32 @@ void main (void)
 	
 	cnt=0;
 	while(1)
-	{
+	{	
+
+
+		// read the voltage from the remote control 
+		volt_x = Volts_at_Pin(QFP32_MUX_P1_4);
+		volt_y = Volts_at_Pin(QFP32_MUX_P1_5);
+		printf("x: %4.2f\r\n",volt_x);
+		printf("y: %4.2f\r\n",volt_y);
+		waitms(500);
+
+		// speaker play sounds if metal was detected -> frequency increase
+		// frequency get from the robot. recieve 
+
 		if(P3_7==0)
 		{
 			sprintf(buff, "JDY40 test %d\r\n", cnt++);
 			sendstr1(buff);
 			putchar('.');
 			waitms_or_RI1(200);
+			
 		}
 		if(RXU1())
-		{
+		{	
+			
 			getstr1(buff);
-			printf("RX: %s\r\n", buff);
+			printf("Freq: %s\r\n", buff);
 		}
 	}
 }
