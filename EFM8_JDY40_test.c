@@ -418,6 +418,8 @@ void main (void)
 	float volt_x;
 	float volt_y;
 
+	float frequency;
+
 	// use p2.4 for joystick vry, p2.5 for vrx
 	InitADC();
 	waitms(500);
@@ -452,7 +454,7 @@ void main (void)
 	SendATCommand("AT+POWE\r\n");
 	SendATCommand("AT+CLSS\r\n");
 	
-	printf("\r\Press and hold the BOOT button to transmit.\r\n");
+	printf("\r\nPress and hold the BOOT button to transmit.\r\n");
 	
 	cnt=0;
 	while(1)
@@ -462,12 +464,18 @@ void main (void)
 		// read the voltage from the remote control 
 		volt_x = Volts_at_Pin(QFP32_MUX_P1_4);
 		volt_y = Volts_at_Pin(QFP32_MUX_P1_5);
-		printf("x: %4.2f\r\n",volt_x);
-		printf("y: %4.2f\r\n",volt_y);
-		waitms(500);
+		// printf("x: %4.2f\r\n",volt_x);
+		// printf("y: %4.2f\r\n",volt_y);
+		// waitms(500);
+		
+		// This should send the joystick control data to the robot.
+
+		// sprintf(buff, "%f %f\r\n", volt_x, volt_y);
+		// sendstr1(buff);
+		// waitms_or_RI1(200);
 
 		// speaker play sounds if metal was detected -> frequency increase
-		// frequency get from the robot. recieve 
+		// frequency get from the robot.
 
 		if(P3_7==0)
 		{
@@ -479,9 +487,16 @@ void main (void)
 		}
 		if(RXU1())
 		{	
-			
+			//get freq data from robot, get them in buffer
 			getstr1(buff);
 			printf("Freq: %s\r\n", buff);
-		}
+			frequency = atof(buff); // change string -> float 
+
+			// if the metal is detected (freq goes up), then beep in speaker
+			if(frequency >= 2500){ //2500 is just a radom number we pick for now
+				return;
+			}
+
+		 }
 	}
 }
