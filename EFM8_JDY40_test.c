@@ -10,6 +10,10 @@
 #define BAUDRATE 115200L
 #define SARCLK 18000000L
 
+#define DEFAULT_F 15500L
+
+#define OUT0 P3_3 //speaker connnect to pin 3.3
+
 #define VDD 4.85 // The measured value of VDD in volts
 
 // for remote control 
@@ -162,6 +166,27 @@ void TIMER0_Init(void)
 	TMOD&=0b_1111_0000; // Set the bits of Timer/Counter 0 to zero
 	TMOD|=0b_0000_0001; // Timer/Counter 0 used as a 16-bit timer
 	TR0=0; // Stop Timer/Counter 0
+}
+
+
+// initalize timer2 for speaker
+
+void TIMER2_Init(void){
+	// Initialize timer 2 for periodic interrupts
+	TMR2CN0=0x00;   // Stop Timer2; Clear TF2;
+	CKCON0|=0b_0001_0000;
+	TMR2RL=(-(SYSCLK/(2*DEFAULT_F))); // Initialize reload value
+	TMR2=0xffff;   // Set to reload immediately
+	ET2=1;         // Enable Timer2 interrupts
+	TR2=1;         // Start Timer2
+	EA=1; // Global interrupt enable
+}
+
+void Timer2_ISR (void) //interrupt INTERRUPT_TIMER2
+{
+	TF2H = 0; // Clear Timer2 interrupt flag
+	OUT0=!OUT0;
+	//OUT1=!OUT0;
 }
 
 void waitms (unsigned int ms)
@@ -418,6 +443,8 @@ void main (void)
 	float volt_x;
 	float volt_y;
 
+	float frequency;
+
 	// use p2.4 for joystick vry, p2.5 for vrx
 	InitADC();
 	waitms(500);
@@ -425,6 +452,8 @@ void main (void)
 	UART1_Init(9600);
 	InitPinADC(2,4); //for y remote
 	InitPinADC(2,5); //for x remote
+
+	//TIMER2_Init();
 
 
 	// To configure the device (shown here using default values).
@@ -452,7 +481,7 @@ void main (void)
 	SendATCommand("AT+POWE\r\n");
 	SendATCommand("AT+CLSS\r\n");
 	
-	printf("\r\Press and hold the BOOT button to transmit.\r\n");
+	printf("\r\nPress and hold the BOOT button to transmit.\r\n");
 	
 	cnt=0;
 	while(1)
@@ -462,12 +491,18 @@ void main (void)
 		// read the voltage from the remote control 
 		volt_x = Volts_at_Pin(QFP32_MUX_P1_4);
 		volt_y = Volts_at_Pin(QFP32_MUX_P1_5);
-		printf("x: %4.2f\r\n",volt_x);
-		printf("y: %4.2f\r\n",volt_y);
-		waitms(500);
+		// printf("x: %4.2f\r\n",volt_x);
+		// printf("y: %4.2f\r\n",volt_y);
+		// waitms(500);
+		
+		// This should send the joystick control data to the robot.
+
+		sprintf(buff, "%f %f\r\n", volt_x, volt_y);
+		sendstr1(buff);
+		waitms_or_RI1(200);
 
 		// speaker play sounds if metal was detected -> frequency increase
-		// frequency get from the robot. recieve 
+		// frequency get from the robot.
 
 		if(P3_7==0)
 		{
@@ -479,9 +514,16 @@ void main (void)
 		}
 		if(RXU1())
 		{	
-			
+			//get freq data from robot, get them in buffer
 			getstr1(buff);
 			printf("Freq: %s\r\n", buff);
-		}
+			frequency = atof(buff); // change string -> float 
+
+			// if the metal is detected (freq goes up), then beep in speaker
+			if(frequency >= 2500){ //2500 is just a radom number we pick for now
+				return;
+			}
+
+		 }
 	}
 }
