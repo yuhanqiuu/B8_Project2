@@ -1,14 +1,11 @@
 ;--------------------------------------------------------
 ; File Created by C51
 ; Version 1.0.0 #1170 (Feb 16 2022) (MSVC)
-<<<<<<< HEAD
-; This file was generated Fri Mar 22 17:16:22 2024
-=======
-; This file was generated Fri Mar 22 16:24:49 2024
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
+; This file was generated Sat Mar 23 14:57:14 2024
 ;--------------------------------------------------------
 $name EFM8_JDY40_test
 $optc51 --model-small
+$printf_float
 	R_DSEG    segment data
 	R_CSEG    segment code
 	R_BSEG    segment bit
@@ -510,6 +507,8 @@ _LCDprint_PARM_2:
 	ds 1
 _main_volt_x_1_123:
 	ds 4
+_main_buff1_1_123:
+	ds 17
 ;--------------------------------------------------------
 ; overlayable items in internal ram 
 ;--------------------------------------------------------
@@ -579,17 +578,12 @@ _LCDprint_PARM_3:
 ;Allocation info for local variables in function '_c51_external_startup'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:35: char _c51_external_startup (void)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:31: char _c51_external_startup (void)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function _c51_external_startup
 ;	-----------------------------------------
 __c51_external_startup:
 	using	0
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:38: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
 ;	EFM8_JDY40_test.c:39: WDTCN = 0xDE; //First key
@@ -647,81 +641,17 @@ L002004?:
 ;	EFM8_JDY40_test.c:99: TI = 1;  // Indicate TX0 ready
 	setb	_TI
 ;	EFM8_JDY40_test.c:101: return 0;
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:34: SFRPAGE = 0x00;
-	mov	_SFRPAGE,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:35: WDTCN = 0xDE; //First key
-	mov	_WDTCN,#0xDE
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:36: WDTCN = 0xAD; //Second key
-	mov	_WDTCN,#0xAD
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:38: VDM0CN=0x80;       // enable VDD monitor
-	mov	_VDM0CN,#0x80
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:39: RSTSRC=0x02|0x04;  // Enable reset on missing clock detector and VDD
-	mov	_RSTSRC,#0x06
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:46: SFRPAGE = 0x10;
-	mov	_SFRPAGE,#0x10
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:47: PFE0CN  = 0x20; // SYSCLK < 75 MHz.
-	mov	_PFE0CN,#0x20
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:48: SFRPAGE = 0x00;
-	mov	_SFRPAGE,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:69: CLKSEL = 0x00;
-	mov	_CLKSEL,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:70: CLKSEL = 0x00;
-	mov	_CLKSEL,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:71: while ((CLKSEL & 0x80) == 0);
-L002001?:
-	mov	a,_CLKSEL
-	jnb	acc.7,L002001?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:72: CLKSEL = 0x03;
-	mov	_CLKSEL,#0x03
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:73: CLKSEL = 0x03;
-	mov	_CLKSEL,#0x03
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:74: while ((CLKSEL & 0x80) == 0);
-L002004?:
-	mov	a,_CLKSEL
-	jnb	acc.7,L002004?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:79: P0MDOUT |= 0x11; // Enable UART0 TX (P0.4) and UART1 TX (P0.0) as push-pull outputs
-	orl	_P0MDOUT,#0x11
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:80: P2MDOUT |= 0x01; // P2.0 in push-pull mode
-	orl	_P2MDOUT,#0x01
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:81: XBR0     = 0x01; // Enable UART0 on P0.4(TX) and P0.5(RX)                     
-	mov	_XBR0,#0x01
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:82: XBR1     = 0X00;
-	mov	_XBR1,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:83: XBR2     = 0x41; // Enable crossbar and uart 1
-	mov	_XBR2,#0x41
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:89: SCON0 = 0x10;
-	mov	_SCON0,#0x10
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:90: TH1 = 0x100-((SYSCLK/BAUDRATE)/(2L*12L));
-	mov	_TH1,#0xE6
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:91: TL1 = TH1;      // Init Timer1
-	mov	_TL1,_TH1
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:92: TMOD &= ~0xf0;  // TMOD: timer 1 in 8-bit auto-reload
-	anl	_TMOD,#0x0F
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:93: TMOD |=  0x20;                       
-	orl	_TMOD,#0x20
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:94: TR1 = 1; // START Timer1
-	setb	_TR1
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:95: TI = 1;  // Indicate TX0 ready
-	setb	_TI
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:97: return 0;
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	dpl,#0x00
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'InitADC'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:104: void InitADC (void)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:100: void InitADC (void)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function InitADC
 ;	-----------------------------------------
 _InitADC:
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:106: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
 ;	EFM8_JDY40_test.c:107: ADEN=0; // Disable ADC
@@ -739,25 +669,6 @@ _InitADC:
 ;	EFM8_JDY40_test.c:138: (0x0 << 0) ; // ADCM. 0x0: ADBUSY, 0x1: TIMER0, 0x2: TIMER2, 0x3: TIMER3, 0x4: CNVSTR, 0x5: CEX5, 0x6: TIMER4, 0x7: TIMER5, 0x8: CLU0, 0x9: CLU1, 0xA: CLU2, 0xB: CLU3
 	mov	_ADC0CN2,#0x00
 ;	EFM8_JDY40_test.c:140: ADEN=1; // Enable ADC
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:102: SFRPAGE = 0x00;
-	mov	_SFRPAGE,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:103: ADEN=0; // Disable ADC
-	clr	_ADEN
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:108: (0x0 << 0) ; // Accumulate n conversions: 0x0: 1, 0x1:4, 0x2:8, 0x3:16, 0x4:32
-	mov	_ADC0CN1,#0x80
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:112: (0x0 << 2); // 0:SYSCLK ADCCLK = SYSCLK. 1:HFOSC0 ADCCLK = HFOSC0.
-	mov	_ADC0CF0,#0x20
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:116: (0x1E << 0); // Conversion Tracking Time. Tadtk = ADTK / (Fsarclk)
-	mov	_ADC0CF1,#0x1E
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:125: (0x0 << 0) ; // TEMPE. 0: Disable the Temperature Sensor. 1: Enable the Temperature Sensor.
-	mov	_ADC0CN0,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:130: (0x1F << 0); // ADPWR. Power Up Delay Time. Tpwrtime = ((4 * (ADPWR + 1)) + 2) / (Fadcclk)
-	mov	_ADC0CF2,#0x3F
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:134: (0x0 << 0) ; // ADCM. 0x0: ADBUSY, 0x1: TIMER0, 0x2: TIMER2, 0x3: TIMER3, 0x4: CNVSTR, 0x5: CEX5, 0x6: TIMER4, 0x7: TIMER5, 0x8: CLU0, 0x9: CLU1, 0xA: CLU2, 0xB: CLU3
-	mov	_ADC0CN2,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:136: ADEN=1; // Enable ADC
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	setb	_ADEN
 	ret
 ;------------------------------------------------------------
@@ -766,17 +677,12 @@ _InitADC:
 ;us                        Allocated to registers r2 
 ;i                         Allocated to registers r3 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:145: void Timer3us(unsigned char us)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:141: void Timer3us(unsigned char us)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function Timer3us
 ;	-----------------------------------------
 _Timer3us:
 	mov	r2,dpl
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:150: CKCON0|=0b_0100_0000;
 	orl	_CKCON0,#0x40
 ;	EFM8_JDY40_test.c:152: TMR3RL = (-(SYSCLK)/1000000L); // Set Timer3 to overflow in 1us.
@@ -788,26 +694,12 @@ _Timer3us:
 ;	EFM8_JDY40_test.c:155: TMR3CN0 = 0x04;                 // Sart Timer3 and clear overflow flag
 	mov	_TMR3CN0,#0x04
 ;	EFM8_JDY40_test.c:156: for (i = 0; i < us; i++)       // Count <us> overflows
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:146: CKCON0|=0b_0100_0000;
-	orl	_CKCON0,#0x40
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:148: TMR3RL = (-(SYSCLK)/1000000L); // Set Timer3 to overflow in 1us.
-	mov	_TMR3RL,#0xB8
-	mov	(_TMR3RL >> 8),#0xFF
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:149: TMR3 = TMR3RL;                 // Initialize Timer3 for first overflow
-	mov	_TMR3,_TMR3RL
-	mov	(_TMR3 >> 8),(_TMR3RL >> 8)
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:151: TMR3CN0 = 0x04;                 // Sart Timer3 and clear overflow flag
-	mov	_TMR3CN0,#0x04
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:152: for (i = 0; i < us; i++)       // Count <us> overflows
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	r3,#0x00
 L004004?:
 	clr	c
 	mov	a,r3
 	subb	a,r2
 	jnc	L004007?
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:158: while (!(TMR3CN0 & 0x80));  // Wait for overflow
 L004001?:
 	mov	a,_TMR3CN0
@@ -819,47 +711,22 @@ L004001?:
 	sjmp	L004004?
 L004007?:
 ;	EFM8_JDY40_test.c:161: TMR3CN0 = 0 ;                   // Stop Timer3 and clear overflow flag
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:154: while (!(TMR3CN0 & 0x80));  // Wait for overflow
-L004001?:
-	mov	a,_TMR3CN0
-	jnb	acc.7,L004001?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:155: TMR3CN0 &= ~(0x80);         // Clear overflow indicator
-	anl	_TMR3CN0,#0x7F
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:152: for (i = 0; i < us; i++)       // Count <us> overflows
-	inc	r3
-	sjmp	L004004?
-L004007?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:157: TMR3CN0 = 0 ;                   // Stop Timer3 and clear overflow flag
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	_TMR3CN0,#0x00
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'TIMER0_Init'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:164: void TIMER0_Init(void)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:160: void TIMER0_Init(void)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function TIMER0_Init
 ;	-----------------------------------------
 _TIMER0_Init:
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:166: TMOD&=0b_1111_0000; // Set the bits of Timer/Counter 0 to zero
 	anl	_TMOD,#0xF0
 ;	EFM8_JDY40_test.c:167: TMOD|=0b_0000_0001; // Timer/Counter 0 used as a 16-bit timer
 	orl	_TMOD,#0x01
 ;	EFM8_JDY40_test.c:168: TR0=0; // Stop Timer/Counter 0
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:162: TMOD&=0b_1111_0000; // Set the bits of Timer/Counter 0 to zero
-	anl	_TMOD,#0xF0
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:163: TMOD|=0b_0000_0001; // Timer/Counter 0 used as a 16-bit timer
-	orl	_TMOD,#0x01
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:164: TR0=0; // Stop Timer/Counter 0
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	clr	_TR0
 	ret
 ;------------------------------------------------------------
@@ -909,22 +776,14 @@ _Timer2_ISR:
 ;j                         Allocated to registers r4 r5 
 ;k                         Allocated to registers r6 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:192: void waitms (unsigned int ms)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:167: void waitms (unsigned int ms)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function waitms
 ;	-----------------------------------------
 _waitms:
 	mov	r2,dpl
 	mov	r3,dph
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:196: for(j=0; j<ms; j++)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:171: for(j=0; j<ms; j++)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	r4,#0x00
 	mov	r5,#0x00
 L008005?:
@@ -933,13 +792,8 @@ L008005?:
 	subb	a,r2
 	mov	a,r5
 	subb	a,r3
-<<<<<<< HEAD
 	jnc	L008009?
 ;	EFM8_JDY40_test.c:197: for (k=0; k<4; k++) Timer3us(250);
-=======
-	jnc	L006009?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:172: for (k=0; k<4; k++) Timer3us(250);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	r6,#0x00
 L008001?:
 	cjne	r6,#0x04,L008018?
@@ -958,15 +812,9 @@ L008018?:
 	pop	ar3
 	pop	ar2
 	inc	r6
-<<<<<<< HEAD
 	sjmp	L008001?
 L008007?:
 ;	EFM8_JDY40_test.c:196: for(j=0; j<ms; j++)
-=======
-	sjmp	L006001?
-L006007?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:171: for(j=0; j<ms; j++)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	inc	r4
 	cjne	r4,#0x00,L008005?
 	inc	r5
@@ -980,21 +828,13 @@ L008009?:
 ;portno                    Allocated to registers r2 
 ;mask                      Allocated to registers r3 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:200: void InitPinADC (unsigned char portno, unsigned char pinno)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:175: void InitPinADC (unsigned char portno, unsigned char pinno)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function InitPinADC
 ;	-----------------------------------------
 _InitPinADC:
 	mov	r2,dpl
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:204: mask=1<<pinno;
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:179: mask=1<<pinno;
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	b,_InitPinADC_PARM_2
 	inc	b
 	mov	a,#0x01
@@ -1004,7 +844,6 @@ L009011?:
 L009013?:
 	djnz	b,L009011?
 	mov	r3,a
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:206: SFRPAGE = 0x20;
 	mov	_SFRPAGE,#0x20
 ;	EFM8_JDY40_test.c:207: switch (portno)
@@ -1019,27 +858,10 @@ L009015?:
 	sjmp	L009003?
 L009001?:
 ;	EFM8_JDY40_test.c:210: P0MDIN &= (~mask); // Set pin as analog input
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:181: SFRPAGE = 0x20;
-	mov	_SFRPAGE,#0x20
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:182: switch (portno)
-	cjne	r2,#0x00,L007014?
-	sjmp	L007001?
-L007014?:
-	cjne	r2,#0x01,L007015?
-	sjmp	L007002?
-L007015?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:184: case 0:
-	cjne	r2,#0x02,L007005?
-	sjmp	L007003?
-L007001?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:185: P0MDIN &= (~mask); // Set pin as analog input
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	a,r3
 	cpl	a
 	mov	r2,a
 	anl	_P0MDIN,a
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:211: P0SKIP |= mask; // Skip Crossbar decoding for this pin
 	mov	a,r3
 	orl	_P0SKIP,a
@@ -1048,21 +870,10 @@ L007001?:
 	sjmp	L009005?
 L009002?:
 ;	EFM8_JDY40_test.c:214: P1MDIN &= (~mask); // Set pin as analog input
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:186: P0SKIP |= mask; // Skip Crossbar decoding for this pin
-	mov	a,r3
-	orl	_P0SKIP,a
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:187: break;
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:188: case 1:
-	sjmp	L007005?
-L007002?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:189: P1MDIN &= (~mask); // Set pin as analog input
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	a,r3
 	cpl	a
 	mov	r2,a
 	anl	_P1MDIN,a
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:215: P1SKIP |= mask; // Skip Crossbar decoding for this pin
 	mov	a,r3
 	orl	_P1SKIP,a
@@ -1071,35 +882,16 @@ L007002?:
 	sjmp	L009005?
 L009003?:
 ;	EFM8_JDY40_test.c:218: P2MDIN &= (~mask); // Set pin as analog input
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:190: P1SKIP |= mask; // Skip Crossbar decoding for this pin
-	mov	a,r3
-	orl	_P1SKIP,a
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:191: break;
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:192: case 2:
-	sjmp	L007005?
-L007003?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:193: P2MDIN &= (~mask); // Set pin as analog input
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	a,r3
 	cpl	a
 	mov	r2,a
 	anl	_P2MDIN,a
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:219: P2SKIP |= mask; // Skip Crossbar decoding for this pin
 	mov	a,r3
 	orl	_P2SKIP,a
 ;	EFM8_JDY40_test.c:223: }
 L009005?:
 ;	EFM8_JDY40_test.c:224: SFRPAGE = 0x00;
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:194: P2SKIP |= mask; // Skip Crossbar decoding for this pin
-	mov	a,r3
-	orl	_P2SKIP,a
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:198: }
-L007005?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:199: SFRPAGE = 0x00;
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	_SFRPAGE,#0x00
 	ret
 ;------------------------------------------------------------
@@ -1107,17 +899,12 @@ L007005?:
 ;------------------------------------------------------------
 ;pin                       Allocated to registers 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:227: unsigned int ADC_at_Pin(unsigned char pin)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:202: unsigned int ADC_at_Pin(unsigned char pin)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function ADC_at_Pin
 ;	-----------------------------------------
 _ADC_at_Pin:
 	mov	_ADC0MX,dpl
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:230: ADINT = 0;
 	clr	_ADINT
 ;	EFM8_JDY40_test.c:231: ADBUSY = 1;     // Convert voltage at the pin
@@ -1126,16 +913,6 @@ _ADC_at_Pin:
 L010001?:
 	jnb	_ADINT,L010001?
 ;	EFM8_JDY40_test.c:233: return (ADC0);
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:205: ADINT = 0;
-	clr	_ADINT
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:206: ADBUSY = 1;     // Convert voltage at the pin
-	setb	_ADBUSY
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:207: while (!ADINT); // Wait for conversion to complete
-L008001?:
-	jnb	_ADINT,L008001?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:208: return (ADC0);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	dpl,_ADC0
 	mov	dph,(_ADC0 >> 8)
 	ret
@@ -1143,16 +920,11 @@ L008001?:
 ;Allocation info for local variables in function 'Get_ADC'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:236: unsigned int Get_ADC (void)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:211: unsigned int Get_ADC (void)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function Get_ADC
 ;	-----------------------------------------
 _Get_ADC:
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:238: ADINT = 0;
 	clr	_ADINT
 ;	EFM8_JDY40_test.c:239: ADBUSY = 1;
@@ -1161,16 +933,6 @@ _Get_ADC:
 L011001?:
 	jnb	_ADINT,L011001?
 ;	EFM8_JDY40_test.c:241: return (ADC0);
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:213: ADINT = 0;
-	clr	_ADINT
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:214: ADBUSY = 1;
-	setb	_ADBUSY
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:215: while (!ADINT); // Wait for conversion to complete
-L009001?:
-	jnb	_ADINT,L009001?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:216: return (ADC0);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	dpl,_ADC0
 	mov	dph,(_ADC0 >> 8)
 	ret
@@ -1179,20 +941,12 @@ L009001?:
 ;------------------------------------------------------------
 ;pin                       Allocated to registers r2 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:245: float Volts_at_Pin(unsigned char pin)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:220: float Volts_at_Pin(unsigned char pin)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function Volts_at_Pin
 ;	-----------------------------------------
 _Volts_at_Pin:
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:247: return ((ADC_at_Pin(pin)*VDD)/0b_0011_1111_1111_1111);
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:222: return ((ADC_at_Pin(pin)*VDD)/0b_0011_1111_1111_1111);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	lcall	_ADC_at_Pin
 	lcall	___uint2fs
 	mov	r2,dpl
@@ -1244,11 +998,7 @@ _Volts_at_Pin:
 ;------------------------------------------------------------
 ;baudrate                  Allocated to registers r2 r3 r4 r5 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:250: void UART1_Init (unsigned long baudrate)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:225: void UART1_Init (unsigned long baudrate)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function UART1_Init
 ;	-----------------------------------------
@@ -1257,7 +1007,6 @@ _UART1_Init:
 	mov	r3,dph
 	mov	r4,b
 	mov	r5,a
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:252: SFRPAGE = 0x20;
 	mov	_SFRPAGE,#0x20
 ;	EFM8_JDY40_test.c:253: SMOD1 = 0x0C; // no parity, 8 data bits, 1 stop bit
@@ -1267,17 +1016,6 @@ _UART1_Init:
 ;	EFM8_JDY40_test.c:255: SBCON1 =0x00;   // disable baud rate generator
 	mov	_SBCON1,#0x00
 ;	EFM8_JDY40_test.c:256: SBRL1 = 0x10000L-((SYSCLK/baudrate)/(12L*2L));
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:227: SFRPAGE = 0x20;
-	mov	_SFRPAGE,#0x20
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:228: SMOD1 = 0x0C; // no parity, 8 data bits, 1 stop bit
-	mov	_SMOD1,#0x0C
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:229: SCON1 = 0x10;
-	mov	_SCON1,#0x10
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:230: SBCON1 =0x00;   // disable baud rate generator
-	mov	_SBCON1,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:231: SBRL1 = 0x10000L-((SYSCLK/baudrate)/(12L*2L));
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	__divulong_PARM_2,r2
 	mov	(__divulong_PARM_2 + 1),r3
 	mov	(__divulong_PARM_2 + 2),r4
@@ -1317,19 +1055,11 @@ _UART1_Init:
 	subb	a,r5
 	mov	_SBRL1,r2
 	mov	(_SBRL1 >> 8),r3
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:257: TI1 = 1; // indicate ready for TX
 	setb	_TI1
 ;	EFM8_JDY40_test.c:258: SBCON1 |= 0x40;   // enable baud rate generator
 	orl	_SBCON1,#0x40
 ;	EFM8_JDY40_test.c:259: SFRPAGE = 0x00;
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:232: TI1 = 1; // indicate ready for TX
-	setb	_TI1
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:233: SBCON1 |= 0x40;   // enable baud rate generator
-	orl	_SBCON1,#0x40
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:234: SFRPAGE = 0x00;
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	_SFRPAGE,#0x00
 	ret
 ;------------------------------------------------------------
@@ -1337,17 +1067,12 @@ _UART1_Init:
 ;------------------------------------------------------------
 ;c                         Allocated to registers r2 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:262: void putchar1 (char c) 
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:237: void putchar1 (char c) 
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function putchar1
 ;	-----------------------------------------
 _putchar1:
 	mov	r2,dpl
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:264: SFRPAGE = 0x20;
 	mov	_SFRPAGE,#0x20
 ;	EFM8_JDY40_test.c:265: while (!TI1);
@@ -1359,19 +1084,6 @@ L014008?:
 ;	EFM8_JDY40_test.c:267: SBUF1 = c;
 	mov	_SBUF1,r2
 ;	EFM8_JDY40_test.c:268: SFRPAGE = 0x00;
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:239: SFRPAGE = 0x20;
-	mov	_SFRPAGE,#0x20
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:240: while (!TI1);
-L012001?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:241: TI1=0;
-	jbc	_TI1,L012008?
-	sjmp	L012001?
-L012008?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:242: SBUF1 = c;
-	mov	_SBUF1,r2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:243: SFRPAGE = 0x00;
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	_SFRPAGE,#0x00
 	ret
 ;------------------------------------------------------------
@@ -1379,11 +1091,7 @@ L012008?:
 ;------------------------------------------------------------
 ;s                         Allocated to registers r2 r3 r4 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:271: void sendstr1 (char * s)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:246: void sendstr1 (char * s)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function sendstr1
 ;	-----------------------------------------
@@ -1391,25 +1099,15 @@ _sendstr1:
 	mov	r2,dpl
 	mov	r3,dph
 	mov	r4,b
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:273: while(*s)
 L015001?:
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:248: while(*s)
-L013001?:
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	dpl,r2
 	mov	dph,r3
 	mov	b,r4
 	lcall	__gptrget
 	mov	r5,a
-<<<<<<< HEAD
 	jz	L015004?
 ;	EFM8_JDY40_test.c:275: putchar1(*s);
-=======
-	jz	L013004?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:250: putchar1(*s);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	dpl,r5
 	push	ar2
 	push	ar3
@@ -1418,11 +1116,7 @@ L013001?:
 	pop	ar4
 	pop	ar3
 	pop	ar2
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:276: s++;	
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:251: s++;	
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	inc	r2
 	cjne	r2,#0x00,L015001?
 	inc	r3
@@ -1434,16 +1128,11 @@ L015004?:
 ;------------------------------------------------------------
 ;c                         Allocated to registers 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:280: char getchar1 (void)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:255: char getchar1 (void)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function getchar1
 ;	-----------------------------------------
 _getchar1:
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:283: SFRPAGE = 0x20;
 	mov	_SFRPAGE,#0x20
 ;	EFM8_JDY40_test.c:284: while (!RI1);
@@ -1453,76 +1142,12 @@ L016001?:
 	sjmp	L016001?
 L016008?:
 ;	EFM8_JDY40_test.c:287: SCON1&=0b_0011_1111;
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:258: SFRPAGE = 0x20;
-	mov	_SFRPAGE,#0x20
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:259: while (!RI1);
-L014001?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:260: RI1=0;
-	jbc	_RI1,L014008?
-	sjmp	L014001?
-L014008?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:262: SCON1&=0b_0011_1111;
 	anl	_SCON1,#0x3F
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:263: c = SBUF1;
+;	EFM8_JDY40_test.c:288: c = SBUF1;
 	mov	dpl,_SBUF1
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:264: SFRPAGE = 0x00;
+;	EFM8_JDY40_test.c:289: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:265: return (c);
-	ret
-;------------------------------------------------------------
-;Allocation info for local variables in function 'getchar1_with_timeout'
-;------------------------------------------------------------
-;c                         Allocated to registers 
-;timeout                   Allocated to registers r2 r3 
-;------------------------------------------------------------
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:268: char getchar1_with_timeout (void)
-;	-----------------------------------------
-;	 function getchar1_with_timeout
-;	-----------------------------------------
-_getchar1_with_timeout:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:272: SFRPAGE = 0x20;
-	mov	_SFRPAGE,#0x20
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:274: while (!RI1)
-	mov	r2,#0x00
-	mov	r3,#0x00
-L015003?:
-	jb	_RI1,L015005?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:276: SFRPAGE = 0x00;
-	mov	_SFRPAGE,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:277: Timer3us(20);
-	mov	dpl,#0x14
-	push	ar2
-	push	ar3
-	lcall	_Timer3us
-	pop	ar3
-	pop	ar2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:278: SFRPAGE = 0x20;
-	mov	_SFRPAGE,#0x20
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:279: timeout++;
-	inc	r2
-	cjne	r2,#0x00,L015012?
-	inc	r3
-L015012?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:280: if(timeout==25000)
-	cjne	r2,#0xA8,L015003?
-	cjne	r3,#0x61,L015003?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:282: SFRPAGE = 0x00;
-	mov	_SFRPAGE,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:283: return ('\n'); // Timeout after half second
-	mov	dpl,#0x0A
-	ret
-L015005?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:286: RI1=0;
-	clr	_RI1
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:288: SCON1&=0b_0011_1111;
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
-	anl	_SCON1,#0x3F
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:289: c = SBUF1;
-	mov	dpl,_SBUF1
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:290: SFRPAGE = 0x00;
-	mov	_SFRPAGE,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:291: return (c);
+;	EFM8_JDY40_test.c:290: return (c);
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'getchar1_with_timeout'
@@ -1583,11 +1208,7 @@ L017005?:
 ;s                         Allocated to registers r2 r3 r4 
 ;c                         Allocated to registers r5 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:319: void getstr1 (char * s)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:294: void getstr1 (char * s)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function getstr1
 ;	-----------------------------------------
@@ -1595,15 +1216,9 @@ _getstr1:
 	mov	r2,dpl
 	mov	r3,dph
 	mov	r4,b
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:323: while(1)
 L018004?:
 ;	EFM8_JDY40_test.c:325: c=getchar1_with_timeout();
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:298: while(1)
-L016004?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:300: c=getchar1_with_timeout();
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	push	ar2
 	push	ar3
 	push	ar4
@@ -1612,30 +1227,17 @@ L016004?:
 	pop	ar4
 	pop	ar3
 	pop	ar2
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:326: if(c=='\n')
 	cjne	r5,#0x0A,L018002?
 ;	EFM8_JDY40_test.c:328: *s=0;
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:301: if(c=='\n')
-	cjne	r5,#0x0A,L016002?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:303: *s=0;
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	dpl,r2
 	mov	dph,r3
 	mov	b,r4
 	clr	a
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:329: return;
 	ljmp	__gptrput
 L018002?:
 ;	EFM8_JDY40_test.c:331: *s=c;
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:304: return;
-	ljmp	__gptrput
-L016002?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:306: *s=c;
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	dpl,r2
 	mov	dph,r3
 	mov	b,r4
@@ -1644,27 +1246,17 @@ L016002?:
 	inc	dptr
 	mov	r2,dpl
 	mov	r3,dph
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:332: s++;
 	sjmp	L018004?
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:307: s++;
-	sjmp	L016004?
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'RXU1'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:337: bit RXU1 (void)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:312: bit RXU1 (void)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function RXU1
 ;	-----------------------------------------
 _RXU1:
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:340: SFRPAGE = 0x20;
 	mov	_SFRPAGE,#0x20
 ;	EFM8_JDY40_test.c:341: mybit=RI1;
@@ -1672,15 +1264,6 @@ _RXU1:
 ;	EFM8_JDY40_test.c:342: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
 ;	EFM8_JDY40_test.c:343: return mybit;
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:315: SFRPAGE = 0x20;
-	mov	_SFRPAGE,#0x20
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:316: mybit=RI1;
-	mov	c,_RI1
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:317: SFRPAGE = 0x00;
-	mov	_SFRPAGE,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:318: return mybit;
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'waitms_or_RI1'
@@ -1689,22 +1272,14 @@ _RXU1:
 ;j                         Allocated to registers r4 r5 
 ;k                         Allocated to registers r6 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:346: void waitms_or_RI1 (unsigned int ms)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:321: void waitms_or_RI1 (unsigned int ms)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function waitms_or_RI1
 ;	-----------------------------------------
 _waitms_or_RI1:
 	mov	r2,dpl
 	mov	r3,dph
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:350: for(j=0; j<ms; j++)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:325: for(j=0; j<ms; j++)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	r4,#0x00
 	mov	r5,#0x00
 L020007?:
@@ -1713,7 +1288,6 @@ L020007?:
 	subb	a,r2
 	mov	a,r5
 	subb	a,r3
-<<<<<<< HEAD
 	jnc	L020011?
 ;	EFM8_JDY40_test.c:352: for (k=0; k<4; k++)
 	mov	r6,#0x00
@@ -1722,16 +1296,6 @@ L020003?:
 L020019?:
 	jnc	L020009?
 ;	EFM8_JDY40_test.c:354: if(RXU1()) return;
-=======
-	jnc	L018011?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:327: for (k=0; k<4; k++)
-	mov	r6,#0x00
-L018003?:
-	cjne	r6,#0x04,L018019?
-L018019?:
-	jnc	L018009?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:329: if(RXU1()) return;
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	push	ar2
 	push	ar3
 	push	ar4
@@ -1747,13 +1311,8 @@ L018019?:
 	pop	ar2
 	jz	L020002?
 	ret
-<<<<<<< HEAD
 L020002?:
 ;	EFM8_JDY40_test.c:355: Timer3us(250);
-=======
-L018002?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:330: Timer3us(250);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	dpl,#0xFA
 	push	ar2
 	push	ar3
@@ -1766,19 +1325,11 @@ L018002?:
 	pop	ar4
 	pop	ar3
 	pop	ar2
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:352: for (k=0; k<4; k++)
 	inc	r6
 	sjmp	L020003?
 L020009?:
 ;	EFM8_JDY40_test.c:350: for(j=0; j<ms; j++)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:327: for (k=0; k<4; k++)
-	inc	r6
-	sjmp	L018003?
-L018009?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:325: for(j=0; j<ms; j++)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	inc	r4
 	cjne	r4,#0x00,L020007?
 	inc	r5
@@ -1790,11 +1341,7 @@ L020011?:
 ;------------------------------------------------------------
 ;s                         Allocated to registers r2 r3 r4 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:360: void SendATCommand (char * s)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:335: void SendATCommand (char * s)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function SendATCommand
 ;	-----------------------------------------
@@ -1802,11 +1349,7 @@ _SendATCommand:
 	mov	r2,dpl
 	mov	r3,dph
 	mov	r4,b
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:362: printf("Command: %s", s);
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:337: printf("Command: %s", s);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	push	ar2
 	push	ar3
 	push	ar4
@@ -1823,30 +1366,19 @@ _SendATCommand:
 	mov	a,sp
 	add	a,#0xfa
 	mov	sp,a
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:363: P3_0=0; // 'set' pin to 0 is 'AT' mode.
 	clr	_P3_0
 ;	EFM8_JDY40_test.c:364: waitms(5);
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:338: P3_0=0; // 'set' pin to 0 is 'AT' mode.
-	clr	_P3_0
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:339: waitms(5);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	dptr,#0x0005
 	lcall	_waitms
 	pop	ar4
 	pop	ar3
 	pop	ar2
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:365: sendstr1(s);
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:340: sendstr1(s);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	dpl,r2
 	mov	dph,r3
 	mov	b,r4
 	lcall	_sendstr1
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:366: getstr1(buff);
 	mov	dptr,#_buff
 	mov	b,#0x40
@@ -1857,18 +1389,6 @@ _SendATCommand:
 ;	EFM8_JDY40_test.c:368: P3_0=1; // 'set' pin to 1 is normal operation mode.
 	setb	_P3_0
 ;	EFM8_JDY40_test.c:369: printf("Response: %s\r\n", buff);
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:341: getstr1(buff);
-	mov	dptr,#_buff
-	mov	b,#0x40
-	lcall	_getstr1
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:342: waitms(10);
-	mov	dptr,#0x000A
-	lcall	_waitms
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:343: P3_0=1; // 'set' pin to 1 is normal operation mode.
-	setb	_P3_0
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:344: printf("Response: %s\r\n", buff);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	a,#_buff
 	push	acc
 	mov	a,#(_buff >> 8)
@@ -1890,30 +1410,17 @@ _SendATCommand:
 ;Allocation info for local variables in function 'LCD_pulse'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:374: void LCD_pulse (void)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:349: void LCD_pulse (void)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function LCD_pulse
 ;	-----------------------------------------
 _LCD_pulse:
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:376: LCD_E=1;
 	setb	_P2_0
 ;	EFM8_JDY40_test.c:377: Timer3us(40);
 	mov	dpl,#0x28
 	lcall	_Timer3us
 ;	EFM8_JDY40_test.c:378: LCD_E=0;
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:351: LCD_E=1;
-	setb	_P2_0
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:352: Timer3us(40);
-	mov	dpl,#0x28
-	lcall	_Timer3us
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:353: LCD_E=0;
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	clr	_P2_0
 	ret
 ;------------------------------------------------------------
@@ -1921,17 +1428,12 @@ _LCD_pulse:
 ;------------------------------------------------------------
 ;x                         Allocated to registers r2 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:381: void LCD_byte (unsigned char x)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:356: void LCD_byte (unsigned char x)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function LCD_byte
 ;	-----------------------------------------
 _LCD_byte:
 	mov	r2,dpl
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:384: ACC=x; //Send high nible
 	mov	_ACC,r2
 ;	EFM8_JDY40_test.c:385: LCD_D7=ACC_7;
@@ -1968,75 +1470,24 @@ _LCD_byte:
 	mov	c,_ACC_0
 	mov	_P1_3,c
 ;	EFM8_JDY40_test.c:396: LCD_pulse();
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:359: ACC=x; //Send high nible
-	mov	_ACC,r2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:360: LCD_D7=ACC_7;
-	mov	c,_ACC_7
-	mov	_P1_0,c
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:361: LCD_D6=ACC_6;
-	mov	c,_ACC_6
-	mov	_P1_1,c
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:362: LCD_D5=ACC_5;
-	mov	c,_ACC_5
-	mov	_P1_2,c
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:363: LCD_D4=ACC_4;
-	mov	c,_ACC_4
-	mov	_P1_3,c
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:364: LCD_pulse();
-	push	ar2
-	lcall	_LCD_pulse
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:365: Timer3us(40);
-	mov	dpl,#0x28
-	lcall	_Timer3us
-	pop	ar2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:366: ACC=x; //Send low nible
-	mov	_ACC,r2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:367: LCD_D7=ACC_3;
-	mov	c,_ACC_3
-	mov	_P1_0,c
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:368: LCD_D6=ACC_2;
-	mov	c,_ACC_2
-	mov	_P1_1,c
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:369: LCD_D5=ACC_1;
-	mov	c,_ACC_1
-	mov	_P1_2,c
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:370: LCD_D4=ACC_0;
-	mov	c,_ACC_0
-	mov	_P1_3,c
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:371: LCD_pulse();
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	ljmp	_LCD_pulse
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'WriteData'
 ;------------------------------------------------------------
 ;x                         Allocated to registers r2 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:399: void WriteData (unsigned char x)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:374: void WriteData (unsigned char x)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function WriteData
 ;	-----------------------------------------
 _WriteData:
 	mov	r2,dpl
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:401: LCD_RS=1;
 	setb	_P1_7
 ;	EFM8_JDY40_test.c:402: LCD_byte(x);
 	mov	dpl,r2
 	lcall	_LCD_byte
 ;	EFM8_JDY40_test.c:403: waitms(2);
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:376: LCD_RS=1;
-	setb	_P1_7
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:377: LCD_byte(x);
-	mov	dpl,r2
-	lcall	_LCD_byte
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:378: waitms(2);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	dptr,#0x0002
 	ljmp	_waitms
 ;------------------------------------------------------------
@@ -2044,47 +1495,29 @@ _WriteData:
 ;------------------------------------------------------------
 ;x                         Allocated to registers r2 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:406: void WriteCommand (unsigned char x)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:381: void WriteCommand (unsigned char x)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function WriteCommand
 ;	-----------------------------------------
 _WriteCommand:
 	mov	r2,dpl
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:408: LCD_RS=0;
 	clr	_P1_7
 ;	EFM8_JDY40_test.c:409: LCD_byte(x);
 	mov	dpl,r2
 	lcall	_LCD_byte
 ;	EFM8_JDY40_test.c:410: waitms(5);
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:383: LCD_RS=0;
-	clr	_P1_7
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:384: LCD_byte(x);
-	mov	dpl,r2
-	lcall	_LCD_byte
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:385: waitms(5);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	dptr,#0x0005
 	ljmp	_waitms
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'LCD_4BIT'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:413: void LCD_4BIT (void)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:388: void LCD_4BIT (void)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function LCD_4BIT
 ;	-----------------------------------------
 _LCD_4BIT:
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:415: LCD_E=0; // Resting state of LCD's enable is zero
 	clr	_P2_0
 ;	EFM8_JDY40_test.c:417: waitms(20);
@@ -2109,32 +1542,6 @@ _LCD_4BIT:
 	mov	dpl,#0x01
 	lcall	_WriteCommand
 ;	EFM8_JDY40_test.c:427: waitms(20); // Wait for clear screen command to finsih.
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:390: LCD_E=0; // Resting state of LCD's enable is zero
-	clr	_P2_0
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:392: waitms(20);
-	mov	dptr,#0x0014
-	lcall	_waitms
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:394: WriteCommand(0x33);
-	mov	dpl,#0x33
-	lcall	_WriteCommand
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:395: WriteCommand(0x33);
-	mov	dpl,#0x33
-	lcall	_WriteCommand
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:396: WriteCommand(0x32); // Change to 4-bit mode
-	mov	dpl,#0x32
-	lcall	_WriteCommand
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:399: WriteCommand(0x28);
-	mov	dpl,#0x28
-	lcall	_WriteCommand
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:400: WriteCommand(0x0c);
-	mov	dpl,#0x0C
-	lcall	_WriteCommand
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:401: WriteCommand(0x01); // Clear screen command (takes some time)
-	mov	dpl,#0x01
-	lcall	_WriteCommand
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:402: waitms(20); // Wait for clear screen command to finsih.
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	dptr,#0x0014
 	ljmp	_waitms
 ;------------------------------------------------------------
@@ -2144,11 +1551,7 @@ _LCD_4BIT:
 ;string                    Allocated to registers r2 r3 r4 
 ;j                         Allocated to registers r5 r6 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:430: void LCDprint(char * string, unsigned char line, bit clear)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:405: void LCDprint(char * string, unsigned char line, bit clear)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function LCDprint
 ;	-----------------------------------------
@@ -2156,11 +1559,7 @@ _LCDprint:
 	mov	r2,dpl
 	mov	r3,dph
 	mov	r4,b
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:434: WriteCommand(line==2?0xc0:0x80);
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:409: WriteCommand(line==2?0xc0:0x80);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	a,#0x02
 	cjne	a,_LCDprint_PARM_2,L027013?
 	mov	r5,#0xC0
@@ -2173,21 +1572,13 @@ L027014?:
 	push	ar3
 	push	ar4
 	lcall	_WriteCommand
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:435: waitms(5);
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:410: waitms(5);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	dptr,#0x0005
 	lcall	_waitms
 	pop	ar4
 	pop	ar3
 	pop	ar2
-<<<<<<< HEAD
 ;	EFM8_JDY40_test.c:436: for(j=0; string[j]!=0; j++)	WriteData(string[j]);// Write the message
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:411: for(j=0; string[j]!=0; j++)	WriteData(string[j]);// Write the message
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	r5,#0x00
 	mov	r6,#0x00
 L027003?:
@@ -2219,17 +1610,10 @@ L027003?:
 	inc	r5
 	cjne	r5,#0x00,L027003?
 	inc	r6
-<<<<<<< HEAD
 	sjmp	L027003?
 L027006?:
 ;	EFM8_JDY40_test.c:437: if(clear) for(; j<CHARS_PER_LINE; j++) WriteData(' '); // Clear the rest of the line
 	jnb	_LCDprint_PARM_3,L027011?
-=======
-	sjmp	L025003?
-L025006?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:412: if(clear) for(; j<CHARS_PER_LINE; j++) WriteData(' '); // Clear the rest of the line
-	jnb	_LCDprint_PARM_3,L025011?
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	ar2,r5
 	mov	ar3,r6
 L027007?:
@@ -2256,38 +1640,22 @@ L027011?:
 ;Allocation info for local variables in function 'main'
 ;------------------------------------------------------------
 ;cnt                       Allocated to registers r2 r3 
-<<<<<<< HEAD
 ;volt_x                    Allocated with name '_main_volt_x_1_123'
 ;volt_y                    Allocated to registers r4 r5 r6 r7 
 ;frequency                 Allocated to registers r4 r5 r6 r7 
+;buff1                     Allocated with name '_main_buff1_1_123'
 ;------------------------------------------------------------
 ;	EFM8_JDY40_test.c:440: void main (void)
-=======
-;volt_x                    Allocated to registers 
-;volt_y                    Allocated to registers 
-;frequency                 Allocated to registers r4 r5 r6 r7 
-;------------------------------------------------------------
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:415: void main (void)
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 _main:
-<<<<<<< HEAD
-;	EFM8_JDY40_test.c:449: InitADC();
+;	EFM8_JDY40_test.c:452: InitADC();
 	lcall	_InitADC
-;	EFM8_JDY40_test.c:450: waitms(500);
+;	EFM8_JDY40_test.c:453: waitms(500);
 	mov	dptr,#0x01F4
 	lcall	_waitms
-;	EFM8_JDY40_test.c:451: printf("\r\nJDY-40 test\r\n");
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:424: InitADC();
-	lcall	_InitADC
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:425: waitms(500);
-	mov	dptr,#0x01F4
-	lcall	_waitms
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:426: printf("\r\nJDY-40 test\r\n");
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
+;	EFM8_JDY40_test.c:454: printf("\r\nJDY-40 test\r\n");
 	mov	a,#__str_2
 	push	acc
 	mov	a,#(__str_2 >> 8)
@@ -2298,100 +1666,54 @@ _main:
 	dec	sp
 	dec	sp
 	dec	sp
-<<<<<<< HEAD
-;	EFM8_JDY40_test.c:452: UART1_Init(9600);
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:427: UART1_Init(9600);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
+;	EFM8_JDY40_test.c:455: UART1_Init(9600);
 	mov	dptr,#0x2580
 	clr	a
 	mov	b,a
 	lcall	_UART1_Init
-<<<<<<< HEAD
-;	EFM8_JDY40_test.c:453: InitPinADC(2,4); //for y remote
+;	EFM8_JDY40_test.c:456: InitPinADC(2,4); //for y remote
 	mov	_InitPinADC_PARM_2,#0x04
 	mov	dpl,#0x02
 	lcall	_InitPinADC
-;	EFM8_JDY40_test.c:454: InitPinADC(2,5); //for x remote
+;	EFM8_JDY40_test.c:457: InitPinADC(2,5); //for x remote
 	mov	_InitPinADC_PARM_2,#0x05
 	mov	dpl,#0x02
 	lcall	_InitPinADC
-;	EFM8_JDY40_test.c:473: SendATCommand("AT+DVID9944\r\n");  
+;	EFM8_JDY40_test.c:462: LCD_4BIT();
+	lcall	_LCD_4BIT
+;	EFM8_JDY40_test.c:480: SendATCommand("AT+DVID9944\r\n");  
 	mov	dptr,#__str_3
 	mov	b,#0x80
 	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:476: SendATCommand("AT+VER\r\n");
+;	EFM8_JDY40_test.c:483: SendATCommand("AT+VER\r\n");
 	mov	dptr,#__str_4
 	mov	b,#0x80
 	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:477: SendATCommand("AT+BAUD\r\n");
+;	EFM8_JDY40_test.c:484: SendATCommand("AT+BAUD\r\n");
 	mov	dptr,#__str_5
 	mov	b,#0x80
 	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:478: SendATCommand("AT+RFID\r\n");
+;	EFM8_JDY40_test.c:485: SendATCommand("AT+RFID\r\n");
 	mov	dptr,#__str_6
 	mov	b,#0x80
 	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:479: SendATCommand("AT+DVID\r\n");
+;	EFM8_JDY40_test.c:486: SendATCommand("AT+DVID\r\n");
 	mov	dptr,#__str_7
 	mov	b,#0x80
 	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:480: SendATCommand("AT+RFC\r\n");
+;	EFM8_JDY40_test.c:487: SendATCommand("AT+RFC\r\n");
 	mov	dptr,#__str_8
 	mov	b,#0x80
 	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:481: SendATCommand("AT+POWE\r\n");
+;	EFM8_JDY40_test.c:488: SendATCommand("AT+POWE\r\n");
 	mov	dptr,#__str_9
 	mov	b,#0x80
 	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:482: SendATCommand("AT+CLSS\r\n");
+;	EFM8_JDY40_test.c:489: SendATCommand("AT+CLSS\r\n");
 	mov	dptr,#__str_10
 	mov	b,#0x80
 	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:484: printf("\r\nPress and hold the BOOT button to transmit.\r\n");
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:428: InitPinADC(2,4); //for y remote
-	mov	_InitPinADC_PARM_2,#0x04
-	mov	dpl,#0x02
-	lcall	_InitPinADC
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:429: InitPinADC(2,5); //for x remote
-	mov	_InitPinADC_PARM_2,#0x05
-	mov	dpl,#0x02
-	lcall	_InitPinADC
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:446: SendATCommand("AT+DVID9944\r\n");  
-	mov	dptr,#__str_3
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:449: SendATCommand("AT+VER\r\n");
-	mov	dptr,#__str_4
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:450: SendATCommand("AT+BAUD\r\n");
-	mov	dptr,#__str_5
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:451: SendATCommand("AT+RFID\r\n");
-	mov	dptr,#__str_6
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:452: SendATCommand("AT+DVID\r\n");
-	mov	dptr,#__str_7
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:453: SendATCommand("AT+RFC\r\n");
-	mov	dptr,#__str_8
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:454: SendATCommand("AT+POWE\r\n");
-	mov	dptr,#__str_9
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:455: SendATCommand("AT+CLSS\r\n");
-	mov	dptr,#__str_10
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:457: printf("\r\nPress and hold the BOOT button to transmit.\r\n");
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
+;	EFM8_JDY40_test.c:491: printf("\r\nPress and hold the BOOT button to transmit.\r\n");
 	mov	a,#__str_11
 	push	acc
 	mov	a,#(__str_11 >> 8)
@@ -2402,36 +1724,27 @@ _main:
 	dec	sp
 	dec	sp
 	dec	sp
-<<<<<<< HEAD
-;	EFM8_JDY40_test.c:487: while(1)
+;	EFM8_JDY40_test.c:494: while(1)
 	mov	r2,#0x00
 	mov	r3,#0x00
 L028008?:
-;	EFM8_JDY40_test.c:492: volt_x = Volts_at_Pin(QFP32_MUX_P1_4);
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:460: while(1)
-	mov	r2,#0x00
-	mov	r3,#0x00
-L026008?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:465: volt_x = Volts_at_Pin(QFP32_MUX_P1_4);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
+;	EFM8_JDY40_test.c:499: volt_x = Volts_at_Pin(QFP32_MUX_P1_4);
 	mov	dpl,#0x0A
 	push	ar2
 	push	ar3
 	lcall	_Volts_at_Pin
-<<<<<<< HEAD
 	mov	_main_volt_x_1_123,dpl
 	mov	(_main_volt_x_1_123 + 1),dph
 	mov	(_main_volt_x_1_123 + 2),b
 	mov	(_main_volt_x_1_123 + 3),a
-;	EFM8_JDY40_test.c:493: volt_y = Volts_at_Pin(QFP32_MUX_P1_5);
+;	EFM8_JDY40_test.c:500: volt_y = Volts_at_Pin(QFP32_MUX_P1_5);
 	mov	dpl,#0x0B
 	lcall	_Volts_at_Pin
 	mov	r4,dpl
 	mov	r5,dph
 	mov	r6,b
 	mov	r7,a
-;	EFM8_JDY40_test.c:500: sprintf(buff, "%f %f\r\n", volt_x, volt_y);
+;	EFM8_JDY40_test.c:507: sprintf(buff, "%f %f\r\n", volt_x, volt_y);
 	push	ar4
 	push	ar5
 	push	ar6
@@ -2440,26 +1753,6 @@ L026008?:
 	push	(_main_volt_x_1_123 + 1)
 	push	(_main_volt_x_1_123 + 2)
 	push	(_main_volt_x_1_123 + 3)
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:466: volt_y = Volts_at_Pin(QFP32_MUX_P1_5);
-	mov	dpl,#0x0B
-	lcall	_Volts_at_Pin
-	pop	ar3
-	pop	ar2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:480: if(P3_7==0)
-	jb	_P3_7,L026002?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:482: sprintf(buff, "JDY40 test %d\r\n", cnt++);
-	mov	ar4,r2
-	mov	ar5,r3
-	inc	r2
-	cjne	r2,#0x00,L026018?
-	inc	r3
-L026018?:
-	push	ar2
-	push	ar3
-	push	ar4
-	push	ar5
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	a,#__str_12
 	push	acc
 	mov	a,#(__str_12 >> 8)
@@ -2474,34 +1767,20 @@ L026018?:
 	push	acc
 	lcall	_sprintf
 	mov	a,sp
-<<<<<<< HEAD
 	add	a,#0xf2
 	mov	sp,a
-;	EFM8_JDY40_test.c:501: sendstr1(buff);
+;	EFM8_JDY40_test.c:508: sendstr1(buff);
 	mov	dptr,#_buff
 	mov	b,#0x40
 	lcall	_sendstr1
-;	EFM8_JDY40_test.c:502: waitms_or_RI1(200);
-=======
-	add	a,#0xf8
-	mov	sp,a
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:483: sendstr1(buff);
-	mov	dptr,#_buff
-	mov	b,#0x40
-	lcall	_sendstr1
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:484: putchar('.');
-	mov	dpl,#0x2E
-	lcall	_putchar
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:485: waitms_or_RI1(200);
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
+;	EFM8_JDY40_test.c:509: waitms_or_RI1(200);
 	mov	dptr,#0x00C8
 	lcall	_waitms_or_RI1
 	pop	ar3
 	pop	ar2
-<<<<<<< HEAD
-;	EFM8_JDY40_test.c:507: if(P3_7==0)
+;	EFM8_JDY40_test.c:514: if(P3_7==0)
 	jb	_P3_7,L028002?
-;	EFM8_JDY40_test.c:509: sprintf(buff, "JDY40 test %d\r\n", cnt++);
+;	EFM8_JDY40_test.c:516: sprintf(buff, "JDY40 test %d\r\n", cnt++);
 	mov	ar4,r2
 	mov	ar5,r3
 	inc	r2
@@ -2512,29 +1791,6 @@ L028018?:
 	push	ar3
 	push	ar4
 	push	ar5
-=======
-L026002?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:488: if(RXU1())
-	push	ar2
-	push	ar3
-	lcall	_RXU1
-	pop	ar3
-	pop	ar2
-	jnc	L026008?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:491: getstr1(buff);
-	mov	dptr,#_buff
-	mov	b,#0x40
-	push	ar2
-	push	ar3
-	lcall	_getstr1
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:492: printf("Freq: %s\r\n", buff);
-	mov	a,#_buff
-	push	acc
-	mov	a,#(_buff >> 8)
-	push	acc
-	mov	a,#0x40
-	push	acc
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	mov	a,#__str_13
 	push	acc
 	mov	a,#(__str_13 >> 8)
@@ -2551,20 +1807,20 @@ L026002?:
 	mov	a,sp
 	add	a,#0xf8
 	mov	sp,a
-;	EFM8_JDY40_test.c:510: sendstr1(buff);
+;	EFM8_JDY40_test.c:517: sendstr1(buff);
 	mov	dptr,#_buff
 	mov	b,#0x40
 	lcall	_sendstr1
-;	EFM8_JDY40_test.c:511: putchar('.');
+;	EFM8_JDY40_test.c:518: putchar('.');
 	mov	dpl,#0x2E
 	lcall	_putchar
-;	EFM8_JDY40_test.c:512: waitms_or_RI1(200);
+;	EFM8_JDY40_test.c:519: waitms_or_RI1(200);
 	mov	dptr,#0x00C8
 	lcall	_waitms_or_RI1
 	pop	ar3
 	pop	ar2
 L028002?:
-;	EFM8_JDY40_test.c:515: if(RXU1())
+;	EFM8_JDY40_test.c:522: if(RXU1())
 	push	ar2
 	push	ar3
 	lcall	_RXU1
@@ -2573,19 +1829,29 @@ L028002?:
 	jc	L028019?
 	ljmp	L028008?
 L028019?:
-;	EFM8_JDY40_test.c:518: getstr1(buff);
+;	EFM8_JDY40_test.c:525: getstr1(buff);
 	mov	dptr,#_buff
 	mov	b,#0x40
 	push	ar2
 	push	ar3
 	lcall	_getstr1
-;	EFM8_JDY40_test.c:519: printf("Freq: %s\r\n", buff);
-	mov	a,#_buff
-	push	acc
-	mov	a,#(_buff >> 8)
-	push	acc
-	mov	a,#0x40
-	push	acc
+;	EFM8_JDY40_test.c:527: frequency = atof(buff); // change string -> float 
+	mov	dptr,#_buff
+	mov	b,#0x40
+	lcall	_atof
+	mov	r4,dpl
+	mov	r5,dph
+	mov	r6,b
+	mov	r7,a
+;	EFM8_JDY40_test.c:528: printf("Freq: %.2f\r\n", frequency);
+	push	ar4
+	push	ar5
+	push	ar6
+	push	ar7
+	push	ar4
+	push	ar5
+	push	ar6
+	push	ar7
 	mov	a,#__str_14
 	push	acc
 	mov	a,#(__str_14 >> 8)
@@ -2594,25 +1860,48 @@ L028019?:
 	push	acc
 	lcall	_printf
 	mov	a,sp
-	add	a,#0xfa
+	add	a,#0xf9
 	mov	sp,a
-<<<<<<< HEAD
-;	EFM8_JDY40_test.c:520: frequency = atof(buff); // change string -> float 
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:493: frequency = atof(buff); // change string -> float 
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
-	mov	dptr,#_buff
+	pop	ar7
+	pop	ar6
+	pop	ar5
+	pop	ar4
+;	EFM8_JDY40_test.c:530: sprintf(buff1,"Stength: %.1f",frequency);
+	push	ar4
+	push	ar5
+	push	ar6
+	push	ar7
+	push	ar4
+	push	ar5
+	push	ar6
+	push	ar7
+	mov	a,#__str_15
+	push	acc
+	mov	a,#(__str_15 >> 8)
+	push	acc
+	mov	a,#0x80
+	push	acc
+	mov	a,#_main_buff1_1_123
+	push	acc
+	mov	a,#(_main_buff1_1_123 >> 8)
+	push	acc
+	mov	a,#0x40
+	push	acc
+	lcall	_sprintf
+	mov	a,sp
+	add	a,#0xf6
+	mov	sp,a
+;	EFM8_JDY40_test.c:531: LCDprint(buff1,1,1);
+	mov	_LCDprint_PARM_2,#0x01
+	setb	_LCDprint_PARM_3
+	mov	dptr,#_main_buff1_1_123
 	mov	b,#0x40
-	lcall	_atof
-	mov	r4,dpl
-	mov	r5,dph
-	mov	r6,b
-	mov	r7,a
-<<<<<<< HEAD
-;	EFM8_JDY40_test.c:523: if(frequency >= 2500){ //2500 is just a radom number we pick for now
-=======
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:496: if(frequency >= 2500){ //2500 is just a radom number we pick for now
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
+	lcall	_LCDprint
+	pop	ar7
+	pop	ar6
+	pop	ar5
+	pop	ar4
+;	EFM8_JDY40_test.c:533: if(frequency >= 2500){ //2500 is just a radom number we pick for now
 	clr	a
 	push	acc
 	mov	a,#0x40
@@ -2633,17 +1922,10 @@ L028019?:
 	pop	ar3
 	pop	ar2
 	mov	a,r4
-<<<<<<< HEAD
 	jz	L028020?
 	ljmp	L028008?
 L028020?:
-;	EFM8_JDY40_test.c:524: return;
-=======
-	jz	L026020?
-	ljmp	L026008?
-L026020?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\EFM8_JDY40_test.c:497: return;
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
+;	EFM8_JDY40_test.c:534: return;
 	ret
 	rseg R_CSEG
 
@@ -2713,26 +1995,22 @@ __str_11:
 	db 0x0A
 	db 0x00
 __str_12:
-<<<<<<< HEAD
 	db '%f %f'
-=======
-	db 'JDY40 test %d'
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
 	db 0x0D
 	db 0x0A
 	db 0x00
 __str_13:
-<<<<<<< HEAD
 	db 'JDY40 test %d'
 	db 0x0D
 	db 0x0A
 	db 0x00
 __str_14:
-=======
->>>>>>> 24db02c123a3c0efc890de0856246d5bdc07e639
-	db 'Freq: %s'
+	db 'Freq: %.2f'
 	db 0x0D
 	db 0x0A
+	db 0x00
+__str_15:
+	db 'Stength: %.1f'
 	db 0x00
 
 	CSEG
