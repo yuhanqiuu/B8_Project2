@@ -443,7 +443,10 @@ void main (void)
 	float volt_x;
 	float volt_y;
 
+	// float strength = 0.0; //display the “strength” of the signal of the metal detector in the robot
+	// the period of oscillator i assume, nvm i think it's teh same as freqency
 	float frequency;
+	char buff1[17]; // for lcd display
 
 	// use p2.4 for joystick vry, p2.5 for vrx
 	InitADC();
@@ -454,6 +457,10 @@ void main (void)
 	InitPinADC(2,5); //for x remote
 
 	//TIMER2_Init();
+
+	// initalize lcd
+	LCD_4BIT();
+
 
 
 	// To configure the device (shown here using default values).
@@ -516,9 +523,12 @@ void main (void)
 		{	
 			//get freq data from robot, get them in buffer
 			getstr1(buff);
-			printf("Freq: %s\r\n", buff);
+	
 			frequency = atof(buff); // change string -> float 
+			printf("Freq: %.2f\r\n", frequency);
 
+			sprintf(buff1,"Stength: %.1f",frequency);
+			LCDprint(buff1,1,1);
 			// if the metal is detected (freq goes up), then beep in speaker
 			if(frequency >= 2500){ //2500 is just a radom number we pick for now
 				return;
