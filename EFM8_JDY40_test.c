@@ -470,9 +470,9 @@ void main (void)
 		
 		// This should send the joystick control data to the robot.
 
-		// sprintf(buff, "%f %f\r\n", volt_x, volt_y);
-		// sendstr1(buff);
-		// waitms_or_RI1(200);
+		sprintf(buff, "%f %f\r\n", volt_x, volt_y);
+		sendstr1(buff);
+		waitms_or_RI1(200);
 
 		// speaker play sounds if metal was detected -> frequency increase
 		// frequency get from the robot.
