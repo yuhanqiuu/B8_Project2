@@ -39,7 +39,7 @@
 #define FREQ 100000L // We need the ISR for timer 1 every 10 us
 #define Baud2BRG(desired_baud)( (SYSCLK / (16*desired_baud))-1)
 #define Baud1BRG(desired_baud)( (SYSCLK / (16*desired_baud))-1)
-volatile int ISR_pwm1=150, ISR_pwm2=150, ISR_cnt=0;
+volatile int ISR_pwm1=0, ISR_pwm2=0, ISR_cnt=0;
 
 // The Interrupt Service Routine for timer 1 is used to generate one or more standard
 // hobby servo signals.  The servo signal has a fixed period of 20ms and a pulse width
@@ -49,19 +49,29 @@ void __ISR(_TIMER_1_VECTOR, IPL5SOFT) Timer1_Handler(void)
 	IFS0CLR=_IFS0_T1IF_MASK; // Clear timer 1 interrupt flag, bit 4 of IFS0
 
 	ISR_cnt++;
-	if(ISR_cnt==ISR_pwm1)
+	if(ISR_cnt<ISR_pwm1)
 	{
-		LATAbits.LATA3 = 0;
+		LATAbits.LATA0 = 1;
+		LATAbits.LATA1 = 0;
+	}else{
+		LATAbits.LATA0 = 0;
+		LATAbits.LATA1 = 0;
 	}
-	if(ISR_cnt==ISR_pwm2)
+	if(ISR_cnt<ISR_pwm2)
 	{
-		LATBbits.LATB4 = 0;
+		LATBbits.LATB0 = 1;
+		LATAbits.LATA2 = 0;
+	}else{
+		LATBbits.LATB0 = 0;
+		LATAbits.LATA2 = 0;
 	}
-	if(ISR_cnt>=2000)
+	if(ISR_cnt>=10000)
 	{
-		ISR_cnt=0; // 2000 * 10us=20ms
-		LATAbits.LATA3 = 1;
-		LATBbits.LATB4 = 1;
+		ISR_cnt=0; // 10000 * 10us=100ms
+		LATAbits.LATA0 = 0;
+		LATAbits.LATA1 = 0;
+		LATBbits.LATB0 = 0;
+		LATAbits.LATA2 = 0;
 	}
 }
 
@@ -314,30 +324,12 @@ int ADCRead(char analogPIN)
 
 void ConfigurePins(void)
 {
-    // Configure pins as analog inputs
-    ANSELBbits.ANSB2 = 1;   // set RB2 (AN4, pin 6 of DIP28) as analog pin
-    TRISBbits.TRISB2 = 1;   // set RB2 as an input
-    ANSELBbits.ANSB3 = 1;   // set RB3 (AN5, pin 7 of DIP28) as analog pin
-    TRISBbits.TRISB3 = 1;   // set RB3 as an input
-    
-	// Configure digital input pin to measure signal period
-	ANSELB &= ~(1<<6); // Set RB5 as a digital I/O (pin 14 of DIP28)
-    TRISB |= (1<<6);   // configure pin RB5 as input
-    CNPUB |= (1<<6);   // Enable pull-up resistor for RB5
-    
-    // We can do the three lines above using this instead:
-    // ANSELBbits.ANSELB5=0;  Not needed because RB5 can not be analog input?
-    // TRISBbits.TRISB5=1;
-    // CNPUBbits.CNPUB5=1;
     
     // Configure output pins
 	TRISAbits.TRISA0 = 0; // pin  2 of DIP28
 	TRISAbits.TRISA1 = 0; // pin  3 of DIP28
 	TRISBbits.TRISB0 = 0; // pin  4 of DIP28
-	TRISBbits.TRISB1 = 0; // pin  5 of DIP28
 	TRISAbits.TRISA2 = 0; // pin  9 of DIP28
-	TRISAbits.TRISA3 = 0; // pin 10 of DIP28
-	TRISBbits.TRISB4 = 0; // pin 11 of DIP28
 	INTCONbits.MVEC = 1;
 }
 
@@ -357,6 +349,28 @@ void delayms(int len)
 {
 	while(len--) wait_1ms();
 }
+
+void tostring(char str[], int num)
+{
+    int i, rem, len = 0, n;
+ 
+    n = num;
+    while (n != 0)
+    {
+        len++;
+        n /= 10;
+    }
+    for (i = 0; i < len; i++)
+    {
+        rem = num % 10;
+        num = num / 10;
+        str[len - (i + 1)] = rem + '0';
+    }
+    str[len] = '\r';
+	str[len+1] = '\n';
+	str[len+2] = '\0';
+}
+
 
 void SendATCommand (char * s)
 {
@@ -381,6 +395,7 @@ void main(void)
 	int cnt = 0;
 	unsigned long int count, f;
 	unsigned char LED_toggle=0;
+	int x, y;
 	
 	DDPCON = 0;
 	CFGCON = 0;
@@ -420,107 +435,51 @@ void main(void)
 	SendATCommand("AT+POWE\r\n");
 	SendATCommand("AT+CLSS\r\n");
 
-    //skip
-	
+    //skip?
+
+	ANSELB &= ~(1<<6); // Set RB6 as a digital I/O
+    TRISB |= (1<<6);   // configure pin RB6 as input
+    CNPUB |= (1<<6);   // Enable pull-up resistor for RB6
 	cnt=0;
 	while(1)
 	{
-    	// adcval = ADCRead(4); // note that we call pin AN4 (RB2) by it's analog number
-		// uart_puts("ADC[4]=0x");
-		// PrintNumber(adcval, 16, 3);
-		// uart_puts(", V=");
-		// v=(adcval*3290L)/1023L; // 3.290 is VDD
-		// PrintFixedPoint(v, 3);
-		// uart_puts("V ");
+	
+	//calculate frequency value 
+	count=GetPeriod(100);
+		if(count>0)
+		{
+			f=((SYSCLK/2L)*100L)/count;
+			//uart_puts("f=");
+			//PrintNumber(f, 10, 7);
+			//uart_puts("Hz, count=");
+			//PrintNumber(count, 10, 6);
+			//uart_puts("          \r");
+			//printf("f = %d",f); //just for testing
+			waitms(10);
+		}
+		else
+		{
+			uart_puts("NO SIGNAL                     \r");
+		}
 
-		// adcval=ADCRead(5);
-		// uart_puts("ADC[5]=0x");
-		// PrintNumber(adcval, 16, 3);
-		// uart_puts(", V=");
-		// v=(adcval*3290L)/1023L; // 3.290 is VDD
-		// PrintFixedPoint(v, 3);
-		// uart_puts("V ");
+		//sending frequency in buffer all the time
+		//tostring(buff, f); //f is frequency and it converts from integer to string
+		
+		sprintf(buff,"%d\r\n",f);
+		SerialTransmit1(buff);
+		//delayms(200);
 
 		//radio code
-		if((PORTB&(1<<6))==0)
-		{
-			sprintf(buff, "JDY40 test %d\r\n", cnt++);
-			SerialTransmit1(buff);
-			printf(".");
-			delayms(200);
-		}
 		if(U1STAbits.URXDA) // Something has arrived
 		{
 			SerialReceive1(buff, sizeof(buff)-1);
-			printf("RX: %s\r\n", buff);
+			
+			//convert recieved x and y values to int
+			x = atoi(buff);
+			//y = atoi(buff,4); //**check if 4 is the correct starting point for the y value in buff[]
+
+			printf("x=%d ",x); //just for testing that x and y are recieved properly
 		}
-
-		// count=GetPeriod(100);
-		// if(count>0)
-		// {
-		// 	f=((SYSCLK/2L)*100L)/count;
-		// 	uart_puts("f=");
-		// 	PrintNumber(f, 10, 7);
-		// 	uart_puts("Hz, count=");
-		// 	PrintNumber(count, 10, 6);
-		// 	uart_puts("          \r");
-		// }
-		// else
-		// {
-		// 	uart_puts("NO SIGNAL                     \r");
-		// }
-
-		// // Now toggle the pins on/off to see if they are working.
-		// // First turn all off:
-		// LATAbits.LATA0 = 0;	
-		// LATAbits.LATA1 = 0;			
-		// LATBbits.LATB0 = 0;			
-		// LATBbits.LATB1 = 0;		
-		// LATAbits.LATA2 = 0;			
-		// // Now turn on one of the outputs per loop cycle to check
-		// switch (LED_toggle++)
-		// {
-		// 	case 0:
-		// 		LATAbits.LATA0 = 1;
-		// 		break;
-		// 	case 1:
-		// 		LATAbits.LATA1 = 1;
-		// 		break;
-		// 	case 2:
-		// 		LATBbits.LATB0 = 1;
-		// 		break;
-		// 	case 3:
-		// 		LATBbits.LATB1 = 1;
-		// 		break;
-		// 	case 4:
-		// 		LATAbits.LATA2 = 1;
-		// 		break;
-		// 	default:
-		// 		break;
-		// }
-		// if(LED_toggle>4) LED_toggle=0;
-
-		// // Change the servo PWM signals
-		// if (ISR_pwm1<200)
-		// {
-		// 	ISR_pwm1++;
-		// }
-		// else
-		// {
-		// 	ISR_pwm1=100;	
-		// }
-
-		// if (ISR_pwm2>100)
-		// {
-		// 	ISR_pwm2--;
-		// }
-		// else
-		// {
-		// 	ISR_pwm2=200;	
-		// }
-
-		// waitms(200);
-
 
 	}
 }
