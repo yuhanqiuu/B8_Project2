@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #define SYSCLK 72000000L
 #define BAUDRATE 115200L
@@ -440,13 +441,15 @@ void LCDprint(char * string, unsigned char line, bit clear)
 void main (void)
 {
 	unsigned int cnt;
-	float volt_x;
-	float volt_y;
+	//unsigned int timeout_cnt;
+
+	int volt_x;
+	int volt_y;
 
 	// float strength = 0.0; //display the “strength” of the signal of the metal detector in the robot
 	// the period of oscillator i assume, nvm i think it's teh same as freqency
-	float frequency;
-	char buff1[17]; // for lcd display
+	//float frequency;
+	//char buff1[17]; // for lcd display
 
 	// use p2.4 for joystick vry, p2.5 for vrx
 	InitADC();
@@ -492,21 +495,39 @@ void main (void)
 	
 	cnt=0;
 	while(1)
+
 	{	
 
 
 		// read the voltage from the remote control 
-		volt_x = Volts_at_Pin(QFP32_MUX_P1_4);
-		volt_y = Volts_at_Pin(QFP32_MUX_P1_5);
-		// printf("x: %4.2f\r\n",volt_x);
-		// printf("y: %4.2f\r\n",volt_y);
-		// waitms(500);
+		volt_x = 10*(Volts_at_Pin(QFP32_MUX_P1_4));
+		volt_y = 10*(Volts_at_Pin(QFP32_MUX_P1_5));
+		//printf("x: %d\r\n",volt_x);
+		//printf("y: %d\r\n",volt_y);
+		//waitms(500);
 		
 		// This should send the joystick control data to the robot.
-
-		sprintf(buff, "%f %f\r\n", volt_x, volt_y);
+		sprintf(buff, "%d %d\r\n", volt_x, volt_y);
 		sendstr1(buff);
 		waitms_or_RI1(200);
+
+
+		//send request signal, for metal signal freq
+		// putchar("M"); // for metal signal
+		// // Wait for reply from robot WITH timeout:
+		// timeout_cnt=0;
+		// while(1)
+		// {
+		// 	if(RXU1()) break; // Got something! Get out of loop.
+		// 	Timer3us(100); // Check if something has arrived every 100us
+		// 	timeout_cnt++;
+
+		// 	if(timeout_cnt>=1000) break; // timeout after 100ms, get out of loop
+		// }
+
+		
+
+		
 
 		// speaker play sounds if metal was detected -> frequency increase
 		// frequency get from the robot.
@@ -519,21 +540,29 @@ void main (void)
 			waitms_or_RI1(200);
 			
 		}
+		
+		// if read 
 		if(RXU1())
 		{	
 			//get freq data from robot, get them in buffer
 			getstr1(buff);
-	
-			frequency = atof(buff); // change string -> float 
-			printf("Freq: %.2f\r\n", frequency);
-
-			sprintf(buff1,"Stength: %.1f",frequency);
-			LCDprint(buff1,1,1);
+			// if(strlen(buff)==5) // Assuming a good message from the robot has exactly 5 bytes
+			// {
+			// 	frequency = atof(buff); // change string -> float
+			// }
+			//frequency = atof(buff);
+			//printf("Freq: %.7f\r\n", frequency);
+			
+			printf("%s\r\n",buff);
+			//sprintf(buff1,"Stength: %.7f",frequency);
+			
+			//LCDprint(buff1,1,1);
 			// if the metal is detected (freq goes up), then beep in speaker
-			if(frequency >= 2500){ //2500 is just a radom number we pick for now
-				return;
-			}
+			//if(frequency >= 2500){ //2500 is just a radom number we pick for now
+			//	return;
+			//}
 
 		 }
+
 	}
 }
