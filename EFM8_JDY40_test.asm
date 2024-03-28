@@ -1,7 +1,7 @@
 ;--------------------------------------------------------
 ; File Created by C51
 ; Version 1.0.0 #1170 (Feb 16 2022) (MSVC)
-; This file was generated Thu Mar 28 10:17:08 2024
+; This file was generated Thu Mar 28 10:25:49 2024
 ;--------------------------------------------------------
 $name EFM8_JDY40_test
 $optc51 --model-small
@@ -1783,7 +1783,7 @@ L028006?:
 	lcall	___fs2sint
 	mov	r4,dpl
 	mov	r5,dph
-;	EFM8_JDY40_test.c:505: printf("x: %d\r\n",volt_x);
+;	EFM8_JDY40_test.c:510: sprintf(buff, "%d %d\r\n", volt_x, volt_y);
 	push	ar4
 	push	ar5
 	push	_main_volt_x_1_145
@@ -1791,36 +1791,6 @@ L028006?:
 	mov	a,#__str_12
 	push	acc
 	mov	a,#(__str_12 >> 8)
-	push	acc
-	mov	a,#0x80
-	push	acc
-	lcall	_printf
-	mov	a,sp
-	add	a,#0xfb
-	mov	sp,a
-	pop	ar5
-	pop	ar4
-;	EFM8_JDY40_test.c:506: printf("y: %d\r\n",volt_y);
-	push	ar4
-	push	ar5
-	push	ar4
-	push	ar5
-	mov	a,#__str_13
-	push	acc
-	mov	a,#(__str_13 >> 8)
-	push	acc
-	mov	a,#0x80
-	push	acc
-	lcall	_printf
-	mov	a,sp
-	add	a,#0xfb
-	mov	sp,a
-;	EFM8_JDY40_test.c:510: sprintf(buff, "%d %d\r\n", volt_x, volt_y);
-	push	_main_volt_x_1_145
-	push	(_main_volt_x_1_145 + 1)
-	mov	a,#__str_14
-	push	acc
-	mov	a,#(__str_14 >> 8)
 	push	acc
 	mov	a,#0x80
 	push	acc
@@ -1856,9 +1826,9 @@ L028014?:
 	push	ar3
 	push	ar4
 	push	ar5
-	mov	a,#__str_15
+	mov	a,#__str_13
 	push	acc
-	mov	a,#(__str_15 >> 8)
+	mov	a,#(__str_13 >> 8)
 	push	acc
 	mov	a,#0x80
 	push	acc
@@ -1907,9 +1877,9 @@ L028015?:
 	push	acc
 	mov	a,#0x40
 	push	acc
-	mov	a,#__str_16
+	mov	a,#__str_14
 	push	acc
-	mov	a,#(__str_16 >> 8)
+	mov	a,#(__str_14 >> 8)
 	push	acc
 	mov	a,#0x80
 	push	acc
@@ -1988,26 +1958,16 @@ __str_11:
 	db 0x0A
 	db 0x00
 __str_12:
-	db 'x: %d'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_13:
-	db 'y: %d'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_14:
 	db '%d %d'
 	db 0x0D
 	db 0x0A
 	db 0x00
-__str_15:
+__str_13:
 	db 'JDY40 test %d'
 	db 0x0D
 	db 0x0A
 	db 0x00
-__str_16:
+__str_14:
 	db '%s'
 	db 0x0D
 	db 0x0A

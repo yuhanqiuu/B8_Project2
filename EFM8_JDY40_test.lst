@@ -1,7 +1,7 @@
 0000              1   ;--------------------------------------------------------
 0000              2   ; File Created by C51
 0000              3   ; Version 1.0.0 #1170 (Feb 16 2022) (MSVC)
-0000              4   ; This file was generated Thu Mar 28 10:17:08 2024
+0000              4   ; This file was generated Thu Mar 28 10:25:49 2024
 0000              5   ;--------------------------------------------------------
                   5   $name EFM8_JDY40_test
                   6   $optc51 --model-small
@@ -1783,7 +1783,7 @@
 05D2 120000    1783            lcall   ___fs2sint
 05D5 AC82      1784            mov     r4,dpl
 05D7 AD83      1785            mov     r5,dph
-05D9           1786   ;        EFM8_JDY40_test.c:505: printf("x: %d\r\n",volt_x);
+05D9           1786   ;        EFM8_JDY40_test.c:510: sprintf(buff, "%d %d\r\n", volt_x, volt_y);
 05D9 C004      1787            push    ar4
 05DB C005      1788            push    ar5
 05DD C0E0      1789            push    _main_volt_x_1_145
@@ -1794,211 +1794,181 @@
 05E7 C0E0      1794            push    acc
 05E9 7480      1795            mov     a,#0x80
 05EB C0E0      1796            push    acc
-05ED 120000    1797            lcall   _printf
-05F0 E581      1798            mov     a,sp
-05F2 24FB      1799            add     a,#0xfb
-05F4 F581      1800            mov     sp,a
-05F6 D005      1801            pop     ar5
-05F8 D004      1802            pop     ar4
-05FA           1803   ;        EFM8_JDY40_test.c:506: printf("y: %d\r\n",volt_y);
-05FA C004      1804            push    ar4
-05FC C005      1805            push    ar5
-05FE C004      1806            push    ar4
-0600 C005      1807            push    ar5
-0602 7430      1808            mov     a,#__str_13
-0604 C0E0      1809            push    acc
-0606 74CA      1810            mov     a,#(__str_13 >> 8)
-0608 C0E0      1811            push    acc
-060A 7480      1812            mov     a,#0x80
-060C C0E0      1813            push    acc
-060E 120000    1814            lcall   _printf
-0611 E581      1815            mov     a,sp
-0613 24FB      1816            add     a,#0xfb
-0615 F581      1817            mov     sp,a
-0617           1818   ;        EFM8_JDY40_test.c:510: sprintf(buff, "%d %d\r\n", volt_x, volt_y);
-0617 C0E0      1819            push    _main_volt_x_1_145
-0619 C0E1      1820            push    (_main_volt_x_1_145 + 1)
-061B 7470      1821            mov     a,#__str_14
-061D C0E0      1822            push    acc
-061F 74CA      1823            mov     a,#(__str_14 >> 8)
-0621 C0E0      1824            push    acc
-0623 7480      1825            mov     a,#0x80
-0625 C0E0      1826            push    acc
-0627 74D0      1827            mov     a,#_buff
-0629 C0E0      1828            push    acc
-062B 7418      1829            mov     a,#(_buff >> 8)
-062D C0E0      1830            push    acc
-062F 7440      1831            mov     a,#0x40
-0631 C0E0      1832            push    acc
-0633 120000    1833            lcall   _sprintf
-0636 E581      1834            mov     a,sp
-0638 24F6      1835            add     a,#0xf6
-063A F581      1836            mov     sp,a
-063C           1837   ;        EFM8_JDY40_test.c:511: sendstr1(buff);
-063C 9018D0    1838            mov     dptr,#_buff
-063F 75F040    1839            mov     b,#0x40
-0642 120000    1840            lcall   _sendstr1
-0645           1841   ;        EFM8_JDY40_test.c:512: waitms_or_RI1(200);
-0645 9000C8    1842            mov     dptr,#0x00C8
-0648 120000    1843            lcall   _waitms_or_RI1
-064B D003      1844            pop     ar3
-064D D002      1845            pop     ar2
-064F           1846   ;        EFM8_JDY40_test.c:535: if(P3_7==0)
-064F 20B7F0    1847            jb      _P3_7,L028002?
-0652           1848   ;        EFM8_JDY40_test.c:537: sprintf(buff, "JDY40 test %d\r\n", cnt++);
-0652 8A04      1849            mov     ar4,r2
-0654 8B05      1850            mov     ar5,r3
-0656 0A        1851            inc     r2
-0657 BA0030    1852            cjne    r2,#0x00,L028014?
-065A 0B        1853            inc     r3
-065B           1854   L028014?:
-065B C002      1855            push    ar2
-065D C003      1856            push    ar3
-065F C004      1857            push    ar4
-0661 C005      1858            push    ar5
-0663 7470      1859            mov     a,#__str_15
-0665 C0E0      1860            push    acc
-0667 74CB      1861            mov     a,#(__str_15 >> 8)
-0669 C0E0      1862            push    acc
-066B 7480      1863            mov     a,#0x80
-066D C0E0      1864            push    acc
-066F 74D0      1865            mov     a,#_buff
-0671 C0E0      1866            push    acc
-0673 7418      1867            mov     a,#(_buff >> 8)
-0675 C0E0      1868            push    acc
-0677 7440      1869            mov     a,#0x40
-0679 C0E0      1870            push    acc
-067B 120000    1871            lcall   _sprintf
-067E E581      1872            mov     a,sp
-0680 24F8      1873            add     a,#0xf8
-0682 F581      1874            mov     sp,a
-0684           1875   ;        EFM8_JDY40_test.c:538: sendstr1(buff);
-0684 9018D0    1876            mov     dptr,#_buff
-0687 75F040    1877            mov     b,#0x40
-068A 120000    1878            lcall   _sendstr1
-068D           1879   ;        EFM8_JDY40_test.c:539: putchar('.');
-068D 75822E    1880            mov     dpl,#0x2E
-0690 120000    1881            lcall   _putchar
-0693           1882   ;        EFM8_JDY40_test.c:540: waitms_or_RI1(200);
-0693 9000C8    1883            mov     dptr,#0x00C8
-0696 120000    1884            lcall   _waitms_or_RI1
-0699 D003      1885            pop     ar3
-069B D002      1886            pop     ar2
-069D           1887   L028002?:
-069D           1888   ;        EFM8_JDY40_test.c:545: if(RXU1())
-069D C002      1889            push    ar2
-069F C003      1890            push    ar3
-06A1 120000    1891            lcall   _RXU1
-06A4 D003      1892            pop     ar3
-06A6 D002      1893            pop     ar2
-06A8 4000      1894            jc      L028015?
-06AA 020000    1895            ljmp    L028006?
-06AD           1896   L028015?:
-06AD           1897   ;        EFM8_JDY40_test.c:548: getstr1(buff);
-06AD 9018D0    1898            mov     dptr,#_buff
-06B0 75F040    1899            mov     b,#0x40
-06B3 C002      1900            push    ar2
-06B5 C003      1901            push    ar3
-06B7 120000    1902            lcall   _getstr1
-06BA           1903   ;        EFM8_JDY40_test.c:556: printf("%s\r\n",buff);
-06BA 74D0      1904            mov     a,#_buff
-06BC C0E0      1905            push    acc
-06BE 7418      1906            mov     a,#(_buff >> 8)
-06C0 C0E0      1907            push    acc
-06C2 7440      1908            mov     a,#0x40
-06C4 C0E0      1909            push    acc
-06C6 7430      1910            mov     a,#__str_16
-06C8 C0E0      1911            push    acc
-06CA 74CC      1912            mov     a,#(__str_16 >> 8)
-06CC C0E0      1913            push    acc
-06CE 7480      1914            mov     a,#0x80
-06D0 C0E0      1915            push    acc
-06D2 120000    1916            lcall   _printf
-06D5 E581      1917            mov     a,sp
-06D7 24FA      1918            add     a,#0xfa
-06D9 F581      1919            mov     sp,a
-06DB D003      1920            pop     ar3
-06DD D002      1921            pop     ar2
-06DF 020000    1922            ljmp    L028006?
-06E2           1923            rseg R_CSEG
-06E2           1924   
-0000           1925            rseg R_XINIT
-0000           1926   
-0000           1927            rseg R_CONST
-0000           1928   __str_0:
-0000 436F6D6D  1929            db 'Command: %s'
+05ED 74D0      1797            mov     a,#_buff
+05EF C0E0      1798            push    acc
+05F1 7418      1799            mov     a,#(_buff >> 8)
+05F3 C0E0      1800            push    acc
+05F5 7440      1801            mov     a,#0x40
+05F7 C0E0      1802            push    acc
+05F9 120000    1803            lcall   _sprintf
+05FC E581      1804            mov     a,sp
+05FE 24F6      1805            add     a,#0xf6
+0600 F581      1806            mov     sp,a
+0602           1807   ;        EFM8_JDY40_test.c:511: sendstr1(buff);
+0602 9018D0    1808            mov     dptr,#_buff
+0605 75F040    1809            mov     b,#0x40
+0608 120000    1810            lcall   _sendstr1
+060B           1811   ;        EFM8_JDY40_test.c:512: waitms_or_RI1(200);
+060B 9000C8    1812            mov     dptr,#0x00C8
+060E 120000    1813            lcall   _waitms_or_RI1
+0611 D003      1814            pop     ar3
+0613 D002      1815            pop     ar2
+0615           1816   ;        EFM8_JDY40_test.c:535: if(P3_7==0)
+0615 20B770    1817            jb      _P3_7,L028002?
+0618           1818   ;        EFM8_JDY40_test.c:537: sprintf(buff, "JDY40 test %d\r\n", cnt++);
+0618 8A04      1819            mov     ar4,r2
+061A 8B05      1820            mov     ar5,r3
+061C 0A        1821            inc     r2
+061D BA00B0    1822            cjne    r2,#0x00,L028014?
+0620 0B        1823            inc     r3
+0621           1824   L028014?:
+0621 C002      1825            push    ar2
+0623 C003      1826            push    ar3
+0625 C004      1827            push    ar4
+0627 C005      1828            push    ar5
+0629 74F0      1829            mov     a,#__str_13
+062B C0E0      1830            push    acc
+062D 74CA      1831            mov     a,#(__str_13 >> 8)
+062F C0E0      1832            push    acc
+0631 7480      1833            mov     a,#0x80
+0633 C0E0      1834            push    acc
+0635 74D0      1835            mov     a,#_buff
+0637 C0E0      1836            push    acc
+0639 7418      1837            mov     a,#(_buff >> 8)
+063B C0E0      1838            push    acc
+063D 7440      1839            mov     a,#0x40
+063F C0E0      1840            push    acc
+0641 120000    1841            lcall   _sprintf
+0644 E581      1842            mov     a,sp
+0646 24F8      1843            add     a,#0xf8
+0648 F581      1844            mov     sp,a
+064A           1845   ;        EFM8_JDY40_test.c:538: sendstr1(buff);
+064A 9018D0    1846            mov     dptr,#_buff
+064D 75F040    1847            mov     b,#0x40
+0650 120000    1848            lcall   _sendstr1
+0653           1849   ;        EFM8_JDY40_test.c:539: putchar('.');
+0653 75822E    1850            mov     dpl,#0x2E
+0656 120000    1851            lcall   _putchar
+0659           1852   ;        EFM8_JDY40_test.c:540: waitms_or_RI1(200);
+0659 9000C8    1853            mov     dptr,#0x00C8
+065C 120000    1854            lcall   _waitms_or_RI1
+065F D003      1855            pop     ar3
+0661 D002      1856            pop     ar2
+0663           1857   L028002?:
+0663           1858   ;        EFM8_JDY40_test.c:545: if(RXU1())
+0663 C002      1859            push    ar2
+0665 C003      1860            push    ar3
+0667 120000    1861            lcall   _RXU1
+066A D003      1862            pop     ar3
+066C D002      1863            pop     ar2
+066E 4000      1864            jc      L028015?
+0670 020000    1865            ljmp    L028006?
+0673           1866   L028015?:
+0673           1867   ;        EFM8_JDY40_test.c:548: getstr1(buff);
+0673 9018D0    1868            mov     dptr,#_buff
+0676 75F040    1869            mov     b,#0x40
+0679 C002      1870            push    ar2
+067B C003      1871            push    ar3
+067D 120000    1872            lcall   _getstr1
+0680           1873   ;        EFM8_JDY40_test.c:556: printf("%s\r\n",buff);
+0680 74D0      1874            mov     a,#_buff
+0682 C0E0      1875            push    acc
+0684 7418      1876            mov     a,#(_buff >> 8)
+0686 C0E0      1877            push    acc
+0688 7440      1878            mov     a,#0x40
+068A C0E0      1879            push    acc
+068C 74B0      1880            mov     a,#__str_14
+068E C0E0      1881            push    acc
+0690 74CB      1882            mov     a,#(__str_14 >> 8)
+0692 C0E0      1883            push    acc
+0694 7480      1884            mov     a,#0x80
+0696 C0E0      1885            push    acc
+0698 120000    1886            lcall   _printf
+069B E581      1887            mov     a,sp
+069D 24FA      1888            add     a,#0xfa
+069F F581      1889            mov     sp,a
+06A1 D003      1890            pop     ar3
+06A3 D002      1891            pop     ar2
+06A5 020000    1892            ljmp    L028006?
+06A8           1893            rseg R_CSEG
+06A8           1894   
+0000           1895            rseg R_XINIT
+0000           1896   
+0000           1897            rseg R_CONST
+0000           1898   __str_0:
+0000 436F6D6D  1899            db 'Command: %s'
      616E643A
      202573
-000B 00        1930            db 0x00
-000C           1931   __str_1:
-000C 52657370  1932            db 'Response: %s'
+000B 00        1900            db 0x00
+000C           1901   __str_1:
+000C 52657370  1902            db 'Response: %s'
      6F6E7365
      3A202573
-0018 0D        1933            db 0x0D
-0019 0A        1934            db 0x0A
-001A 00        1935            db 0x00
-001B           1936   __str_2:
-001B 0D        1937            db 0x0D
-001C 0A        1938            db 0x0A
-001D 4A44592D  1939            db 'JDY-40 test'
+0018 0D        1903            db 0x0D
+0019 0A        1904            db 0x0A
+001A 00        1905            db 0x00
+001B           1906   __str_2:
+001B 0D        1907            db 0x0D
+001C 0A        1908            db 0x0A
+001D 4A44592D  1909            db 'JDY-40 test'
      34302074
      657374
-0028 0D        1940            db 0x0D
-0029 0A        1941            db 0x0A
-002A 00        1942            db 0x00
-002B           1943   __str_3:
-002B 41542B44  1944            db 'AT+DVID9944'
+0028 0D        1910            db 0x0D
+0029 0A        1911            db 0x0A
+002A 00        1912            db 0x00
+002B           1913   __str_3:
+002B 41542B44  1914            db 'AT+DVID9944'
      56494439
      393434
-0036 0D        1945            db 0x0D
-0037 0A        1946            db 0x0A
-0038 00        1947            db 0x00
-0039           1948   __str_4:
-0039 41542B56  1949            db 'AT+VER'
+0036 0D        1915            db 0x0D
+0037 0A        1916            db 0x0A
+0038 00        1917            db 0x00
+0039           1918   __str_4:
+0039 41542B56  1919            db 'AT+VER'
      4552
-003F 0D        1950            db 0x0D
-0040 0A        1951            db 0x0A
-0041 00        1952            db 0x00
-0042           1953   __str_5:
-0042 41542B42  1954            db 'AT+BAUD'
+003F 0D        1920            db 0x0D
+0040 0A        1921            db 0x0A
+0041 00        1922            db 0x00
+0042           1923   __str_5:
+0042 41542B42  1924            db 'AT+BAUD'
      415544
-0049 0D        1955            db 0x0D
-004A 0A        1956            db 0x0A
-004B 00        1957            db 0x00
-004C           1958   __str_6:
-004C 41542B52  1959            db 'AT+RFID'
+0049 0D        1925            db 0x0D
+004A 0A        1926            db 0x0A
+004B 00        1927            db 0x00
+004C           1928   __str_6:
+004C 41542B52  1929            db 'AT+RFID'
      464944
-0053 0D        1960            db 0x0D
-0054 0A        1961            db 0x0A
-0055 00        1962            db 0x00
-0056           1963   __str_7:
-0056 41542B44  1964            db 'AT+DVID'
+0053 0D        1930            db 0x0D
+0054 0A        1931            db 0x0A
+0055 00        1932            db 0x00
+0056           1933   __str_7:
+0056 41542B44  1934            db 'AT+DVID'
      564944
-005D 0D        1965            db 0x0D
-005E 0A        1966            db 0x0A
-005F 00        1967            db 0x00
-0060           1968   __str_8:
-0060 41542B52  1969            db 'AT+RFC'
+005D 0D        1935            db 0x0D
+005E 0A        1936            db 0x0A
+005F 00        1937            db 0x00
+0060           1938   __str_8:
+0060 41542B52  1939            db 'AT+RFC'
      4643
-0066 0D        1970            db 0x0D
-0067 0A        1971            db 0x0A
-0068 00        1972            db 0x00
-0069           1973   __str_9:
-0069 41542B50  1974            db 'AT+POWE'
+0066 0D        1940            db 0x0D
+0067 0A        1941            db 0x0A
+0068 00        1942            db 0x00
+0069           1943   __str_9:
+0069 41542B50  1944            db 'AT+POWE'
      4F5745
-0070 0D        1975            db 0x0D
-0071 0A        1976            db 0x0A
-0072 00        1977            db 0x00
-0073           1978   __str_10:
-0073 41542B43  1979            db 'AT+CLSS'
+0070 0D        1945            db 0x0D
+0071 0A        1946            db 0x0A
+0072 00        1947            db 0x00
+0073           1948   __str_10:
+0073 41542B43  1949            db 'AT+CLSS'
      4C5353
-007A 0D        1980            db 0x0D
-007B 0A        1981            db 0x0A
-007C 00        1982            db 0x00
-007D           1983   __str_11:
-007D 0D        1984            db 0x0D
-007E 0A        1985            db 0x0A
-007F 50726573  1986            db 'Press and hold the BOOT button to transmit.'
+007A 0D        1950            db 0x0D
+007B 0A        1951            db 0x0A
+007C 00        1952            db 0x00
+007D           1953   __str_11:
+007D 0D        1954            db 0x0D
+007E 0A        1955            db 0x0A
+007F 50726573  1956            db 'Press and hold the BOOT button to transmit.'
      7320616E
      6420686F
      6C642074
@@ -2009,41 +1979,29 @@
      6F207472
      616E736D
      69742E
-00AA 0D        1987            db 0x0D
-00AB 0A        1988            db 0x0A
-00AC 00        1989            db 0x00
-00AD           1990   __str_12:
-00AD 783A2025  1991            db 'x: %d'
+00AA 0D        1957            db 0x0D
+00AB 0A        1958            db 0x0A
+00AC 00        1959            db 0x00
+00AD           1960   __str_12:
+00AD 25642025  1961            db '%d %d'
      64
-00B2 0D        1992            db 0x0D
-00B3 0A        1993            db 0x0A
-00B4 00        1994            db 0x00
-00B5           1995   __str_13:
-00B5 793A2025  1996            db 'y: %d'
-     64
-00BA 0D        1997            db 0x0D
-00BB 0A        1998            db 0x0A
-00BC 00        1999            db 0x00
-00BD           2000   __str_14:
-00BD 25642025  2001            db '%d %d'
-     64
-00C2 0D        2002            db 0x0D
-00C3 0A        2003            db 0x0A
-00C4 00        2004            db 0x00
-00C5           2005   __str_15:
-00C5 4A445934  2006            db 'JDY40 test %d'
+00B2 0D        1962            db 0x0D
+00B3 0A        1963            db 0x0A
+00B4 00        1964            db 0x00
+00B5           1965   __str_13:
+00B5 4A445934  1966            db 'JDY40 test %d'
      30207465
      73742025
      64
-00D2 0D        2007            db 0x0D
-00D3 0A        2008            db 0x0A
-00D4 00        2009            db 0x00
-00D5           2010   __str_16:
-00D5 2573      2011            db '%s'
-00D7 0D        2012            db 0x0D
-00D8 0A        2013            db 0x0A
-00D9 00        2014            db 0x00
-00DA           2015   
-0003           2016            CSEG
-0003           2017   
-0003           2018   end
+00C2 0D        1967            db 0x0D
+00C3 0A        1968            db 0x0A
+00C4 00        1969            db 0x00
+00C5           1970   __str_14:
+00C5 2573      1971            db '%s'
+00C7 0D        1972            db 0x0D
+00C8 0A        1973            db 0x0A
+00C9 00        1974            db 0x00
+00CA           1975   
+0003           1976            CSEG
+0003           1977   
+0003           1978   end
