@@ -260,7 +260,7 @@ void main (void)
 	SendATCommand("AT+POWE\r\n");
 	SendATCommand("AT+CLSS\r\n");
 	
-	printf("\r\Press and hold the BOOT button to transmit.\r\n");
+	printf("\r\nPress and hold the BOOT button to transmit.\r\n");
 	
 	cnt=0;
 	while(1)
