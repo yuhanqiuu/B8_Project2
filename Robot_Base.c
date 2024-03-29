@@ -49,18 +49,24 @@ void __ISR(_TIMER_1_VECTOR, IPL5SOFT) Timer1_Handler(void)
 	IFS0CLR=_IFS0_T1IF_MASK; // Clear timer 1 interrupt flag, bit 4 of IFS0
 
 	ISR_cnt++;
-	if(ISR_cnt<ISR_pwm1)
+	if(ISR_cnt<ISR_pwm1&&ISR_pwm1>0)
 	{
 		LATAbits.LATA0 = 1;
 		LATAbits.LATA1 = 0;
+	}else if(ISR_pwm1<0&&ISR_cnt<(-1*ISR_pwm1)){
+		LATAbits.LATA0 = 0;
+		LATAbits.LATA1 = 1;
 	}else{
 		LATAbits.LATA0 = 0;
 		LATAbits.LATA1 = 0;
 	}
-	if(ISR_cnt<ISR_pwm2)
+	if(ISR_cnt<ISR_pwm2&&ISR_pwm2>0)
 	{
 		LATBbits.LATB0 = 1;
 		LATAbits.LATA2 = 0;
+	}else if(ISR_pwm2<0&&ISR_cnt<(-1*ISR_pwm2)){
+		LATBbits.LATB0 = 0;
+		LATAbits.LATA2 = 1;
 	}else{
 		LATBbits.LATB0 = 0;
 		LATAbits.LATA2 = 0;
@@ -371,6 +377,14 @@ void tostring(char str[], int num)
 	str[len+2] = '\0';
 }
 
+int gety (char space, char arr[]) {
+	int i = 0;
+
+	while(arr[i] != ' ') {
+		i++;
+	}
+	return i;
+}
 
 void SendATCommand (char * s)
 {
@@ -391,11 +405,14 @@ void main(void)
 	volatile unsigned long t=0;
     int adcval;
     long int v;
-	char buff[80];
+	char buff[20];
+	char buff_xy[20];
 	int cnt = 0;
 	unsigned long int count, f;
 	unsigned char LED_toggle=0;
-	int x, y;
+	int x, y, y_index;
+	char space = ' ';
+	//int i = 0;
 	
 	DDPCON = 0;
 	CFGCON = 0;
@@ -454,7 +471,7 @@ void main(void)
 			//uart_puts("Hz, count=");
 			//PrintNumber(count, 10, 6);
 			//uart_puts("          \r");
-			//printf("f = %d",f); //just for testing
+			//printf("f = %d\r\n",f); //just for testing
 			waitms(10);
 		}
 		else
@@ -465,21 +482,49 @@ void main(void)
 		//sending frequency in buffer all the time
 		//tostring(buff, f); //f is frequency and it converts from integer to string
 		
-		sprintf(buff,"%d\r\n",f);
-		SerialTransmit1(buff);
-		//delayms(200);
+		
+		//delayms(200); 
 
 		//radio code
 		if(U1STAbits.URXDA) // Something has arrived
 		{
 			SerialReceive1(buff, sizeof(buff)-1);
+			if(strlen(buff) != 8){ //to account for noisy signals, only take strings with the proper length
+
+			}else{
+
+			printf("string = %s\r\n",buff); 
+
+			//copy x values from buff to separate buffer
+			char *token = strtok(buff,"|");
+			//strncpy(buff_xy,buff,4);
+			//convert recieved x value to int
+			x = atoi(token); 
+			//printf("x=%d\r\n",x); //for testing
+
+			//clear the xy_buff to get ready for the y value
+			// for (cnt = 0; cnt < sizeof(buff_xy)-1; cnt++) {
+			// 	buff_xy[cnt] = 0;
+			// }
 			
-			//convert recieved x and y values to int
-			x = atoi(buff);
-			//y = atoi(buff,4); //**check if 4 is the correct starting point for the y value in buff[]
+			//copy y values from buff to separate buffer
+			//y_index = gety(space,buff);
+			//printf("y index=%d\r\n", y_index); //for testing
 
-			printf("x=%d ",x); //just for testing that x and y are recieved properly
+			//reset cnt
+			//cnt = 0;
+			// while (buff[y_index+cnt] != '\0' ) {
+			// 	buff_xy[cnt] = buff[y_index+cnt+0];
+			// 	cnt++;
+			// }
+			
+			token = strtok(NULL,"|");
+			y = atoi(token); 
+			sprintf(buff,"%d\r\n",f);
+			SerialTransmit1(buff);
+			
+			printf("x = %d, y = %d\r\n",x,y);
+			}
 		}
-
 	}
 }
