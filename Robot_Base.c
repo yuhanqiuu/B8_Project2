@@ -49,18 +49,24 @@ void __ISR(_TIMER_1_VECTOR, IPL5SOFT) Timer1_Handler(void)
 	IFS0CLR=_IFS0_T1IF_MASK; // Clear timer 1 interrupt flag, bit 4 of IFS0
 
 	ISR_cnt++;
-	if(ISR_cnt<ISR_pwm1)
+	if(ISR_cnt<ISR_pwm1&&ISR_pwm1>0)
 	{
 		LATAbits.LATA0 = 1;
 		LATAbits.LATA1 = 0;
+	}else if(ISR_pwm1<0&&ISR_cnt<(-1*ISR_pwm1)){
+		LATAbits.LATA0 = 0;
+		LATAbits.LATA1 = 1;
 	}else{
 		LATAbits.LATA0 = 0;
 		LATAbits.LATA1 = 0;
 	}
-	if(ISR_cnt<ISR_pwm2)
+	if(ISR_cnt<ISR_pwm2&&ISR_pwm2>0)
 	{
 		LATBbits.LATB0 = 1;
 		LATAbits.LATA2 = 0;
+	}else if(ISR_pwm2<0&&ISR_cnt<(-1*ISR_pwm2)){
+		LATBbits.LATB0 = 0;
+		LATAbits.LATA2 = 1;
 	}else{
 		LATBbits.LATB0 = 0;
 		LATAbits.LATA2 = 0;
@@ -91,6 +97,36 @@ void SetupTimer1 (void)
 	
 	INTCONbits.MVEC = 1; //Int multi-vector
 	__builtin_enable_interrupts();
+}
+
+// Uses Timer4 to delay <us> microseconds
+void Timer4us(unsigned char t) 
+{
+	T4CON = 0x8000; // enable Timer4, source PBCLK, 1:1 prescaler
+ 
+    // delay 100us per loop until less than 100us remain
+    while( t >= 100){
+        t-=100;
+        TMR4=0;
+        while(TMR4 < SYSCLK/10000L);
+    }
+ 
+    // delay 10us per loop until less than 10us remain
+    while( t >= 10){
+        t-=10;
+        TMR4=0;
+        while(TMR4 < SYSCLK/100000L);
+    }
+ 
+    // delay 1us per loop until finished
+    while( t > 0)
+    {
+        t--;
+        TMR4=0;
+        while(TMR4 < SYSCLK/1000000L);
+    }
+    // turn off Timer4 so function is self-contained
+    T4CONCLR=0x8000;
 }
 
 void UART2Configure(int baud_rate)
@@ -371,6 +407,14 @@ void tostring(char str[], int num)
 	str[len+2] = '\0';
 }
 
+int gety (char space, char arr[]) {
+	int i = 0;
+
+	while(arr[i] != ' ') {
+		i++;
+	}
+	return i;
+}
 
 void SendATCommand (char * s)
 {
@@ -391,11 +435,15 @@ void main(void)
 	volatile unsigned long t=0;
     int adcval;
     long int v;
-	char buff[80];
+	char buff[20];
+	char buff_xy[20];
 	int cnt = 0;
 	unsigned long int count, f;
 	unsigned char LED_toggle=0;
-	int x, y;
+	int x, y, y_index;
+	int timeout_cnt=0;
+	char space = ' ';
+	//int i = 0;
 	
 	DDPCON = 0;
 	CFGCON = 0;
@@ -425,6 +473,8 @@ void main(void)
 	// We should select an unique device ID.  The device ID can be a hex
 	// number from 0x0000 to 0xFFFF.  In this case is set to 0xABBA
 	SendATCommand("AT+DVID9944\r\n");  
+	SendATCommand("AT+RFID2576\r\n");
+
 	
 	// To check configuration
 	SendATCommand("AT+VER\r\n");
@@ -444,8 +494,45 @@ void main(void)
 	while(1)
 	{
 	
-	//calculate frequency value 
-	count=GetPeriod(100);
+		//sending frequency in buffer all the time
+		//tostring(buff, f); //f is frequency and it converts from integer to string
+		//delayms(200); 
+		//radio code
+		if(U1STAbits.URXDA) // Something has arrived
+		{
+			SerialReceive1(buff, sizeof(buff)-1);
+			// reply after recieving the attention code
+			if(buff[0]!='M'){ //if M is not the attention message, then dont do anything :,)
+				uart_puts("NO M RECEIVED                     \r");
+			}
+			
+			else
+			{
+			uart_puts("M RECEIVED                     \r");
+
+			//timeout sequence so robot doesn't wait forever
+			timeout_cnt=0;
+			while(1) {
+				if(U1STAbits.URXDA) {		//if we've recieved a value, break				
+					break;
+				}
+				Timer4us(100); //wait 100 us, or 0.1 ms
+				timeout_cnt++;
+				if(timeout_cnt>=100) break;  //if we recieve nothing in 10 ms then break
+			}
+				
+			//continue as normal, and recieve the rest of the message
+			if(U1STAbits.URXDA) {
+				SerialReceive1(buff,sizeof(buff)-1);
+				printf("string = %s\r\n",buff); //for testing, remember to remove
+
+				if(strlen(buff)==8){ //assume a good message from the transmitter is 8 bytes
+					x = atoi(&buff[0]);
+					y = atoi(&buff[4]);
+					printf("x = %d, y = %d\r\n",x,y); //for testing, remember to remove
+				}
+				//calculate frequency value 
+				count=GetPeriod(100);
 		if(count>0)
 		{
 			f=((SYSCLK/2L)*100L)/count;
@@ -454,7 +541,7 @@ void main(void)
 			//uart_puts("Hz, count=");
 			//PrintNumber(count, 10, 6);
 			//uart_puts("          \r");
-			//printf("f = %d",f); //just for testing
+			//printf("f = %d\r\n",f); //just for testing
 			waitms(10);
 		}
 		else
@@ -462,24 +549,12 @@ void main(void)
 			uart_puts("NO SIGNAL                     \r");
 		}
 
-		//sending frequency in buffer all the time
-		//tostring(buff, f); //f is frequency and it converts from integer to string
-		
-		sprintf(buff,"%d\r\n",f);
-		SerialTransmit1(buff);
-		//delayms(200);
-
-		//radio code
-		if(U1STAbits.URXDA) // Something has arrived
-		{
-			SerialReceive1(buff, sizeof(buff)-1);
+				//send the frequency value to the remote
+				sprintf(buff,"%d\r\n",f); 
+				SerialTransmit1(buff);
 			
-			//convert recieved x and y values to int
-			x = atoi(buff);
-			//y = atoi(buff,4); //**check if 4 is the correct starting point for the y value in buff[]
-
-			printf("x=%d ",x); //just for testing that x and y are recieved properly
+			    }
+			}
 		}
-
 	}
 }

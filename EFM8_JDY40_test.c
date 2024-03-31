@@ -244,7 +244,7 @@ unsigned int Get_ADC (void)
 
 float Volts_at_Pin(unsigned char pin)
 {
-	 return ((ADC_at_Pin(pin)*VDD)/0b_0011_1111_1111_1111);
+	 return ((ADC_at_Pin(pin)*VDD)/16383);
 }
 
 void UART1_Init (unsigned long baudrate)
@@ -479,7 +479,9 @@ void main (void)
 	
 	// We should select an unique device ID.  The device ID can be a hex
 	// number from 0x0000 to 0xFFFF.  In this case is set to 0xABBA
-	SendATCommand("AT+DVID9944\r\n");  
+	SendATCommand("AT+DVID9944\r\n"); 
+	SendATCommand("AT+RFID2576\r\n");
+ 
 
 	// To check configuration
 	SendATCommand("AT+VER\r\n");
@@ -493,22 +495,26 @@ void main (void)
 	printf("\r\nPress and hold the BOOT button to transmit.\r\n");
 	
 	cnt=0;
+	timeout_cnt=0;
 	while(1)
 	{	
-
-
+		//send attention code
+		putchar1('M\r\n');
+		waitms(10); //wait for 10 ms for robot to get attention message
 		// read the voltage from the remote control 
-		volt_x = 10*(Volts_at_Pin(QFP32_MUX_P1_4));
-		volt_y = 10*(Volts_at_Pin(QFP32_MUX_P1_5));
+		volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
+		volt_y = 100*(Volts_at_Pin(QFP32_MUX_P1_5));
 		//printf("x: %d\r\n",volt_x);
 		//printf("y: %d\r\n",volt_y);
 		//waitms(200);
-		
-		// This should send the joystick control data to the robot.
-		sprintf(buff, "%d,%d\r\n", volt_x, volt_y);
+		//buff[0]=NULL;
+		// after 10ms, send the joystick control data to the robot.
+		sprintf(buff, "%03d|%03d\r\n", volt_x, volt_y); // make sure that each data point is 3 digits
+		//printf("%d\n",strlen(buff));
 		sendstr1(buff);
-		waitms_or_RI1(200);
-
+		//printf("%s\n",buff);
+		
+		// timeout
 		while(1)
 		{
 			if(RXU1()) break; // Got something! Get out of loop.
@@ -522,14 +528,14 @@ void main (void)
 		// speaker play sounds if metal was detected -> frequency increase
 		// frequency get from the robot.
 
-		if(P3_7==0)
-		{
-			sprintf(buff, "JDY40 test %d\r\n", cnt++);
-			sendstr1(buff);
-			putchar('.');
-			waitms_or_RI1(200);
+		// if(P3_7==0)
+		// {
+		// 	sprintf(buff, "JDY40 test %d\r\n", cnt++);
+		// 	sendstr1(buff);
+		// 	putchar('.');
+		// 	waitms_or_RI1(200);
 			
-		}
+		// }
 		
 		// if read 
 		if(RXU1())
