@@ -441,7 +441,10 @@ void main(void)
 	unsigned long int count, f;
 	unsigned char LED_toggle=0;
 	int x, y, y_index;
+<<<<<<< HEAD
 	int timeout_cnt=0;
+=======
+>>>>>>> 7af39d3ecf8debd1345b25b15e45a0dc27b6ac80
 	char space = ' ';
 	//int i = 0;
 	
@@ -549,11 +552,59 @@ void main(void)
 			uart_puts("NO SIGNAL                     \r");
 		}
 
+<<<<<<< HEAD
 				//send the frequency value to the remote
 				sprintf(buff,"%d\r\n",f); 
 				SerialTransmit1(buff);
 			
 			    }
+=======
+		//sending frequency in buffer all the time
+		//tostring(buff, f); //f is frequency and it converts from integer to string
+		
+		
+		//delayms(200); 
+
+		//radio code
+		if(U1STAbits.URXDA) // Something has arrived
+		{
+			SerialReceive1(buff, sizeof(buff)-1);
+			if(strlen(buff) != 8){ //to account for noisy signals, only take strings with the proper length
+
+			}else{
+
+			printf("string = %s\r\n",buff); 
+
+			//copy x values from buff to separate buffer
+			char *token = strtok(buff,"|");
+			//strncpy(buff_xy,buff,4);
+			//convert recieved x value to int
+			x = atoi(token); 
+			//printf("x=%d\r\n",x); //for testing
+
+			//clear the xy_buff to get ready for the y value
+			// for (cnt = 0; cnt < sizeof(buff_xy)-1; cnt++) {
+			// 	buff_xy[cnt] = 0;
+			// }
+			
+			//copy y values from buff to separate buffer
+			//y_index = gety(space,buff);
+			//printf("y index=%d\r\n", y_index); //for testing
+
+			//reset cnt
+			//cnt = 0;
+			// while (buff[y_index+cnt] != '\0' ) {
+			// 	buff_xy[cnt] = buff[y_index+cnt+0];
+			// 	cnt++;
+			// }
+			
+			token = strtok(NULL,"|");
+			y = atoi(token); 
+			sprintf(buff,"%d\r\n",f);
+			SerialTransmit1(buff);
+			
+			printf("x = %d, y = %d\r\n",x,y);
+>>>>>>> 7af39d3ecf8debd1345b25b15e45a0dc27b6ac80
 			}
 		}
 	}
