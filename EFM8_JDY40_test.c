@@ -500,7 +500,7 @@ void main (void)
 	{	
 		//send attention code
 		putchar1('M');
-		waitms(10); //wait for 10 ms for robot to get attention message
+		waitms(5); //wait for 10 ms for robot to get attention message
 		// read the voltage from the remote control 
 		volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
 		volt_y = 100*(Volts_at_Pin(QFP32_MUX_P1_5));
