@@ -1,7 +1,7 @@
 0000              1   ;--------------------------------------------------------
 0000              2   ; File Created by C51
 0000              3   ; Version 1.0.0 #1170 (Feb 16 2022) (MSVC)
-0000              4   ; This file was generated Sun Mar 31 17:29:24 2024
+0000              4   ; This file was generated Sun Mar 31 17:38:43 2024
 0000              5   ;--------------------------------------------------------
                   5   $name EFM8_JDY40_test
                   6   $optc51 --model-small
@@ -1726,8 +1726,8 @@
 055F           1726   ;        EFM8_JDY40_test.c:502: putchar1('M');
 055F 75824D    1727            mov     dpl,#0x4D
 0562 120000    1728            lcall   _putchar1
-0565           1729   ;        EFM8_JDY40_test.c:503: waitms(10); //wait for 10 ms for robot to get attention message
-0565 90000A    1730            mov     dptr,#0x000A
+0565           1729   ;        EFM8_JDY40_test.c:503: waitms(5); //wait for 10 ms for robot to get attention message
+0565 900005    1730            mov     dptr,#0x0005
 0568 120000    1731            lcall   _waitms
 056B           1732   ;        EFM8_JDY40_test.c:505: volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
 056B 75820A    1733            mov     dpl,#0x0A

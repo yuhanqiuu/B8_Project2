@@ -807,7 +807,7 @@ C0 E0
 15 81
 75 82 4D
 12 addr16(_putchar1;)  
-90 00 0A
+90 00 05
 12 addr16(_waitms;)  
 75 82 0A
 12 addr16(_Volts_at_Pin;)  
