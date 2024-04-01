@@ -11,17 +11,17 @@ R_GSINIT,code,0000,NO
 R_BSEG,bit,0001,NO
 R_XSEG,xdata,0000,NO
 BIT_BANK,data,0000,OV
-R_CONST,code,00CC,NO
+R_CONST,code,00CD,NO
 rbank0,data,0000,OV
 R_PSEG,xdata,0000,NO
 R_DINIT,code,0000,NO
-R_DSEG,data,0003,NO
+R_DSEG,data,0001,NO
 R_OSEG,data,0001,OV
 R_IXSEG,xdata,0000,NO
 R_ISEG,idata,0014,NO
 R_HOME,code,0000,NO
 R_XINIT,code,0000,NO
-R_CSEG,code,0697,NO
+R_CSEG,code,06A1,NO
 </SEGMENTS>
 
 <LOCALS>
@@ -32,7 +32,8 @@ L027006?,R_CSEG,0498,0000
 L027003?,R_CSEG,0464,0000
 L015004?,R_CSEG,0252,0000
 L015001?,R_CSEG,022E,0000
-L028006?,R_CSEG,0625,0000
+L028007?,R_CSEG,0648,0000
+L028006?,R_CSEG,061F,0000
 L016008?,R_CSEG,025B,0000
 L016001?,R_CSEG,0256,0000
 L004007?,R_CSEG,0094,0000
@@ -75,15 +76,15 @@ L008001?,R_CSEG,00D0,0000
 L027014?,R_CSEG,0449,0000
 L027013?,R_CSEG,0447,0000
 L027011?,R_CSEG,04BF,0000
-_main_volt_x_1_123,R_DSEG,0001,0002
 L009005?,R_CSEG,0139,0000
 L009003?,R_CSEG,0131,0000
 L009002?,R_CSEG,0127,0000
 L009001?,R_CSEG,011D,0000
-L028019?,R_CSEG,064E,0000
-L028011?,R_CSEG,0563,0000
-L028023?,R_CSEG,0662,0000
-L028021?,R_CSEG,0645,0000
+L028013?,R_CSEG,055F,0000
+L028028?,R_CSEG,0671,0000
+L028027?,R_CSEG,066E,0000
+L028026?,R_CSEG,0650,0000
+L028024?,R_CSEG,063F,0000
 L020019?,R_CSEG,02F3,0000
 L020011?,R_CSEG,0335,0000
 L017012?,R_CSEG,0288,0000
@@ -131,12 +132,14 @@ __divulong,any,0000,0000
 ___uint2fs,any,0000,0000
 ___fs2sint,any,0000,0000
 ___fsmul,any,0000,0000
+_atol,any,0000,0000
 _printf,any,0000,0000
 __divulong_PARM_2,any,0000,0000
 __gptrput,any,0000,0000
 _sprintf,any,0000,0000
 _crt0,any,0000,0000
 ___fsdiv,any,0000,0000
+_strlen,any,0000,0000
 </EXTERNALS>
 
 <CODE AT 0000>
@@ -802,52 +805,50 @@ C0 E0
 15 81
 15 81
 15 81
-7A 00
-7B 00
 75 82 4D
-C0 02
-C0 03
 12 addr16(_putchar1;)  
 90 00 0A
 12 addr16(_waitms;)  
 75 82 0A
 12 addr16(_Volts_at_Pin;)  
-AC 82
-AD 83
-AE F0
-FF
-C0 04
-C0 05
-C0 06
-C0 07
-90 00 00
-75 F0 C8
-74 42
-12 addr16(___fsmul;)  
-AC 82
-AD 83
-AE F0
-FF
-E5 81
-24 FC
-F5 81
-8C 82
-8D 83
-8E F0
-EF
-12 addr16(___fs2sint;)  
-85 82 data8(_main_volt_x_1_123;)
-85 83 data8(_main_volt_x_1_123;0x0001;+;)
-75 82 0B
-12 addr16(_Volts_at_Pin;)  
-AE 82
-AF 83
+AA 82
+AB 83
 AC F0
 FD
-C0 06
-C0 07
+C0 02
+C0 03
 C0 04
 C0 05
+90 00 00
+75 F0 C8
+74 42
+12 addr16(___fsmul;)  
+AA 82
+AB 83
+AC F0
+FD
+E5 81
+24 FC
+F5 81
+8A 82
+8B 83
+8C F0
+ED
+12 addr16(___fs2sint;)  
+AA 82
+AB 83
+75 82 0B
+C0 02
+C0 03
+12 addr16(_Volts_at_Pin;)  
+AC 82
+AD 83
+AE F0
+FF
+C0 04
+C0 05
+C0 06
+C0 07
 90 00 00
 75 F0 C8
 74 42
@@ -866,10 +867,12 @@ EF
 12 addr16(___fs2sint;)  
 AC 82
 AD 83
+D0 03
+D0 02
 C0 04
 C0 05
-C0 data8(_main_volt_x_1_123;)
-C0 data8(_main_volt_x_1_123;0x0001;+;)
+C0 02
+C0 03
 74 data8(__str_13;)
 C0 E0
 74 data8(__str_13;0x0008;>>;)
@@ -889,51 +892,55 @@ F5 81
 90 data16(_buff;)  
 75 F0 40
 12 addr16(_sendstr1;)  
-D0 03
-D0 02
-8A 04
-8B 05
-C0 04
-C0 05
-12 addr16(_RXU1;)  
-D0 05
-D0 04
-40 rel2(L028019?;)
-75 82 64
-C0 04
-C0 05
-12 addr16(_Timer3us;)  
-D0 05
-D0 04
-0C
-BC 00 rel3(L028021?;)
-0D
-C3
-EC
-94 E8
-ED
-94 03
-40 rel2(L028006?;)
-8C 02
-8D 03
+7A 00
+7B 00
 C0 02
 C0 03
 12 addr16(_RXU1;)  
 D0 03
 D0 02
-40 rel2(L028023?;)
-02 addr16(L028011?;)  
+40 rel2(L028007?;)
+75 82 64
+C0 02
+C0 03
+12 addr16(_Timer3us;)  
+D0 03
+D0 02
+0A
+BA 00 rel3(L028024?;)
+0B
+C3
+EA
+94 64
+EB
+94 00
+40 rel2(L028006?;)
+12 addr16(_RXU1;)  
+40 rel2(L028026?;)
+02 addr16(L028013?;)  
 90 data16(_buff;)  
 75 F0 40
+12 addr16(_getstr1;)  
+90 data16(_buff;)  
+75 F0 40
+12 addr16(_strlen;)  
+AA 82
+AB 83
+BA 06 rel3(L028027?;)
+BB 00 rel3(L028027?;)
+80 rel2(L028028?;)
+02 addr16(L028013?;)  
+90 data16(_buff;)  
+75 F0 40
+12 addr16(_atol;)  
+AA 82
+AB 83
+AC F0
+FD
 C0 02
 C0 03
-12 addr16(_getstr1;)  
-74 data8(_buff;)
-C0 E0
-74 data8(_buff;0x0008;>>;)
-C0 E0
-74 40
-C0 E0
+C0 04
+C0 05
 74 data8(__str_14;)
 C0 E0
 74 data8(__str_14;0x0008;>>;)
@@ -942,11 +949,9 @@ C0 E0
 C0 E0
 12 addr16(_printf;)  
 E5 81
-24 FA
+24 F9
 F5 81
-D0 03
-D0 02
-02 addr16(L028011?;)  
+02 addr16(L028013?;)  
 </CODE>
 
 <CODE R_CSEG>
@@ -1016,7 +1021,7 @@ D0 02
 0D
 0A
 00
-25 73 
+25 6C 64 
 0D
 0A
 00

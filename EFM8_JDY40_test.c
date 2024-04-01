@@ -441,7 +441,7 @@ void main (void)
 {
 	unsigned int cnt;
 	unsigned int timeout_cnt;
-
+	unsigned long int f;
 	int volt_x;
 	int volt_y;
 
@@ -499,7 +499,7 @@ void main (void)
 	while(1)
 	{	
 		//send attention code
-		putchar1('M\r\n');
+		putchar1('M');
 		waitms(10); //wait for 10 ms for robot to get attention message
 		// read the voltage from the remote control 
 		volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
@@ -515,38 +515,39 @@ void main (void)
 		//printf("%s\n",buff);
 		
 		// timeout
+		timeout_cnt=0;
 		while(1)
 		{
 			if(RXU1()) break; // Got something! Get out of loop.
 			Timer3us(100); // Check if something has arrived every 100us
 			timeout_cnt++;
 
-			if(timeout_cnt>=1000) break; // timeout after 100ms, get out of loop
+			if(timeout_cnt>=100) break; // timeout after 100ms, get out of loop
 		}
 		
 
 		// speaker play sounds if metal was detected -> frequency increase
 		// frequency get from the robot.
-
-		// if(P3_7==0)
-		// {
-		// 	sprintf(buff, "JDY40 test %d\r\n", cnt++);
-		// 	sendstr1(buff);
-		// 	putchar('.');
-		// 	waitms_or_RI1(200);
-			
-		// }
 		
 		// if read 
+		timeout_cnt=0;
 		if(RXU1())
 		{	
 			//get freq data from robot, get them in buffer
-			getstr1(buff);
-			
-			printf("%s\r\n",buff);
-			
+			// check if the recive the complete data, else wait longer
+			getstr1(buff);	
+			//printf("received\r\n");
+			if(strlen(buff)==6){
+				//printf("string=%s\r\n",buff);
+				//change string to long int
+				f=atol(&buff[0]);
+				printf("%ld\r\n",f);
 
-		 }
+			}
+
+		
+			
+		}
 
 	}
 }

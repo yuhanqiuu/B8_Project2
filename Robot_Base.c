@@ -441,10 +441,7 @@ void main(void)
 	unsigned long int count, f;
 	unsigned char LED_toggle=0;
 	int x, y, y_index;
-<<<<<<< HEAD
 	int timeout_cnt=0;
-=======
->>>>>>> 7af39d3ecf8debd1345b25b15e45a0dc27b6ac80
 	char space = ' ';
 	//int i = 0;
 	
@@ -552,13 +549,6 @@ void main(void)
 			uart_puts("NO SIGNAL                     \r");
 		}
 
-<<<<<<< HEAD
-				//send the frequency value to the remote
-				sprintf(buff,"%d\r\n",f); 
-				SerialTransmit1(buff);
-			
-			    }
-=======
 		//sending frequency in buffer all the time
 		//tostring(buff, f); //f is frequency and it converts from integer to string
 		
@@ -604,7 +594,6 @@ void main(void)
 			SerialTransmit1(buff);
 			
 			printf("x = %d, y = %d\r\n",x,y);
->>>>>>> 7af39d3ecf8debd1345b25b15e45a0dc27b6ac80
 			}
 		}
 	}

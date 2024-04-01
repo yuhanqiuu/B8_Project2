@@ -39,6 +39,8 @@
 #define FREQ 100000L // We need the ISR for timer 1 every 10 us
 #define Baud2BRG(desired_baud)( (SYSCLK / (16*desired_baud))-1)
 #define Baud1BRG(desired_baud)( (SYSCLK / (16*desired_baud))-1)
+
+#define MAX_JOYSTICK_VALUE 242
 volatile int ISR_pwm1=0, ISR_pwm2=0, ISR_cnt=0;
 
 // The Interrupt Service Routine for timer 1 is used to generate one or more standard
@@ -49,14 +51,14 @@ void __ISR(_TIMER_1_VECTOR, IPL5SOFT) Timer1_Handler(void)
 	IFS0CLR=_IFS0_T1IF_MASK; // Clear timer 1 interrupt flag, bit 4 of IFS0
 
 	ISR_cnt++;
-	if(ISR_cnt<ISR_pwm1&&ISR_pwm1>0)
+	if(ISR_cnt<ISR_pwm1&&ISR_pwm1>0) //move forward
 	{
 		LATAbits.LATA0 = 1;
 		LATAbits.LATA1 = 0;
-	}else if(ISR_pwm1<0&&ISR_cnt<(-1*ISR_pwm1)){
+	}else if(ISR_pwm1<0&&ISR_cnt<(-1*ISR_pwm1)){ //move backward
 		LATAbits.LATA0 = 0;
 		LATAbits.LATA1 = 1;
-	}else{
+	}else{ //stay still as default
 		LATAbits.LATA0 = 0;
 		LATAbits.LATA1 = 0;
 	}
@@ -81,7 +83,45 @@ void __ISR(_TIMER_1_VECTOR, IPL5SOFT) Timer1_Handler(void)
 	}
 }
 
+void PWM1_calculator(int x, int y) {
+	int pwm1 = 0;
+    float normX, normY;
 
+	normX = (x-239) / MAX_JOYSTICK_VALUE;
+    normY = (y-242) / MAX_JOYSTICK_VALUE;
+
+    // Calculate magnitude and direction of motion
+    float magnitude = sqrt(normX * normX + normY * normY);
+    float direction = atan2(normY, normX);
+    // remember to inlcude math.h
+
+    pwm1 = sin(direction / 2);
+    
+    if(direction > pi/2);
+    pwm1 = pwm1* (-1);
+    
+    return pwm1;
+}
+
+void PWM2_calculator(int x, int y){
+    int pwm2 = 0;
+	float normX, normY;
+
+	normX = (x-239) / MAX_JOYSTICK_VALUE;
+    normY = (y-242) / MAX_JOYSTICK_VALUE;
+	
+    // Calculate magnitude and direction of motion
+    float magnitude = sqrt(normX * normX + normY * normY);
+    float direction = atan2(normY, normX);
+    // remember to inlcude math.h
+
+    pwm2 = abs(cos(direction / 2));
+
+    if(direction > pi/2);
+    pwm2 = pwm2* (-1);
+    
+    return pwm2;
+}
 
 void SetupTimer1 (void)
 {
@@ -443,8 +483,7 @@ void main(void)
 	unsigned long int count, f;
 	unsigned char LED_toggle=0;
 	int x, y, y_index;
-	int timeout_cnt=0;
-	char holder[5];
+    int timeout_cnt=0;
 	char space = ' ';
 	//int i = 0;
 	
@@ -496,6 +535,10 @@ void main(void)
 	cnt=0;
 	while(1)
 	{
+	
+		//sending frequency in buffer all the time
+		//tostring(buff, f); //f is frequency and it converts from integer to string
+		//delayms(200); 
 		//radio code
 		if(U1STAbits.URXDA) // Something has arrived
 		{
@@ -505,7 +548,8 @@ void main(void)
 				uart_puts("NO M RECEIVED                     \r");
 			}
 			
-			else{
+			else
+			{
 			uart_puts("M RECEIVED                     \r");
 
 			//timeout sequence so robot doesn't wait forever
@@ -518,33 +562,80 @@ void main(void)
 				timeout_cnt++;
 				if(timeout_cnt>=100) break;  //if we recieve nothing in 10 ms then break
 			}
+				
 			//continue as normal, and recieve the rest of the message
 			if(U1STAbits.URXDA) {
 				SerialReceive1(buff,sizeof(buff)-1);
-				//printf("string = %s\r\n",buff); //for testing, remember to remove
+				printf("string = %s\r\n",buff); //for testing, remember to remove
 
-				if(strlen(buff)==9){ //assume a good message from the transmitter is 8 bytes
-					x = atoi(&buff[1]);
-					y = atoi(&buff[5]);
+				if(strlen(buff)==8){ //assume a good message from the transmitter is 8 bytes
+					x = atoi(&buff[0]);
+					y = atoi(&buff[4]);
 					printf("x = %d, y = %d\r\n",x,y); //for testing, remember to remove
 				}
-            
 				//calculate frequency value 
 				count=GetPeriod(100);
-                if(count>0)
-                {
-                    f=((SYSCLK/2L)*100L)/count;
-                    printf("f = %d\r\n",f); //just for testing
-                }
-                else
-                {
-                    uart_puts("NO SIGNAL                     \r");
-                }
-				sprintf(buff,"%d\r\n",f); 
-				//constantly send the frequency value until the remote receives the correct value
-				
-				SerialTransmit1(buff);
-		 	    }
+		if(count>0)
+		{
+			f=((SYSCLK/2L)*100L)/count;
+			//uart_puts("f=");
+			//PrintNumber(f, 10, 7);
+			//uart_puts("Hz, count=");
+			//PrintNumber(count, 10, 6);
+			//uart_puts("          \r");
+			//printf("f = %d\r\n",f); //just for testing
+			waitms(10);
+		}
+		else
+		{
+			uart_puts("NO SIGNAL                     \r");
+		}
+
+		//sending frequency in buffer all the time
+		//tostring(buff, f); //f is frequency and it converts from integer to string
+		
+		
+		//delayms(200); 
+
+		//radio code
+		if(U1STAbits.URXDA) // Something has arrived
+		{
+			SerialReceive1(buff, sizeof(buff)-1);
+			if(strlen(buff) != 8){ //to account for noisy signals, only take strings with the proper length
+
+			}else{
+
+			printf("string = %s\r\n",buff); 
+
+			//copy x values from buff to separate buffer
+			char *token = strtok(buff,"|");
+			//strncpy(buff_xy,buff,4);
+			//convert recieved x value to int
+			x = atoi(token); 
+			//printf("x=%d\r\n",x); //for testing
+
+			//clear the xy_buff to get ready for the y value
+			// for (cnt = 0; cnt < sizeof(buff_xy)-1; cnt++) {
+			// 	buff_xy[cnt] = 0;
+			// }
+			
+			//copy y values from buff to separate buffer
+			//y_index = gety(space,buff);
+			//printf("y index=%d\r\n", y_index); //for testing
+
+			//reset cnt
+			//cnt = 0;
+			// while (buff[y_index+cnt] != '\0' ) {
+			// 	buff_xy[cnt] = buff[y_index+cnt+0];
+			// 	cnt++;
+			// }
+			
+			token = strtok(NULL,"|");
+			y = atoi(token); 
+			sprintf(buff,"%d\r\n",f);
+			SerialTransmit1(buff);
+			
+			printf("x = %d, y = %d\r\n",x,y);
 			}
 		}
 	}
