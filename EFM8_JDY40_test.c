@@ -12,7 +12,7 @@
 
 #define DEFAULT_F 15500L
 
-#define OUT0 P3_3 //speaker connnect to pin 3.3
+#define TIMER_OUT_2 P3_3 //speaker connnect to pin 3.3
 
 #define VDD 4.85 // The measured value of VDD in volts
 
@@ -184,9 +184,9 @@ void TIMER2_Init(void){
 
 void Timer2_ISR (void) //interrupt INTERRUPT_TIMER2
 {
+	SFRPAGE=0x0;
 	TF2H = 0; // Clear Timer2 interrupt flag
-	OUT0=!OUT0;
-	//OUT1=!OUT0;
+	TIMER_OUT_2=!TIMER_OUT_2;
 }
 
 void waitms (unsigned int ms)
@@ -437,6 +437,21 @@ void LCDprint(char * string, unsigned char line, bit clear)
 	if(clear) for(; j<CHARS_PER_LINE; j++) WriteData(' '); // Clear the rest of the line
 }
 
+void thefastestsprintf (int num, char str[], int index) {
+	//int index = 5;
+	int i = 3;
+	str[index] = '\0';
+
+	for (i = 3; i > 0; i--) {
+		str[index -1] = num % 10 + '0';
+		num/=10;
+		index--;
+	}
+	
+	return;
+}
+
+
 void main (void)
 {
 	unsigned int cnt;
@@ -509,7 +524,13 @@ void main (void)
 		//waitms(200);
 		//buff[0]=NULL;
 		// after 10ms, send the joystick control data to the robot.
-		sprintf(buff, "%03d|%03d\r\n", volt_x, volt_y); // make sure that each data point is 3 digits
+		//sprintf(buff, "%03d|%03d\r\n", volt_x, volt_y); // make sure that each data point is 3 digits
+		thefastestsprintf(volt_x,buff,3); 
+		buff[3] = '|';
+		thefastestsprintf(volt_y,buff,7); 
+		printf("%s\r\n",buff);
+		buff[7] = '\r';
+		buff[8] = '\n';
 		//printf("%d\n",strlen(buff));
 		sendstr1(buff);
 		//printf("%s\n",buff);
@@ -541,7 +562,7 @@ void main (void)
 				//printf("string=%s\r\n",buff);
 				//change string to long int
 				f=atol(&buff[0]);
-				printf("%ld\r\n",f);
+				//printf("%ld\r\n",f);
 
 			}
 
