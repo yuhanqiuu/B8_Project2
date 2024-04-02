@@ -132,7 +132,9 @@ void pwmcalc (int x, int y, int arr[]) { // arr[0] = pwm1/right; arr[1] = pwm2/l
 
 void thefastestsprintf (int num, char str[]) {
 	int index = 5;
-	str[index] = '\0';
+	str[index] = '\r';
+	str[index+1] = '\n';
+	str[index+2] = '\0';
 	while (num > 0){
 		str[index-1] = num % 10 + '0';
 		num/=10;
@@ -549,6 +551,8 @@ void main(void)
 	pwm_arr[1] = 0;
 	while(1)
 	{
+		//toggle pin
+		//LATAbits.LATA3 = 1;
 		
 
 		//radio code
@@ -576,12 +580,13 @@ void main(void)
 			//continue as normal, and recieve the rest of the message
 			if(U1STAbits.URXDA) {
 				SerialReceive1(buff,sizeof(buff)-1);
-				printf("string = %s\r\n",buff); //for testing, remember to remove
+				//printf("string = %s, l = %d\r\n",buff,strlen(buff)); //for testing, remember to remove
 
 				if(strlen(buff)==9){ //assume a good message from the transmitter is 9 bytes
 					x = atoi(&buff[1]);
 					y = atoi(&buff[5]);
-					printf("x = %d, y = %d\r\n",x,y); //for testing, remember to remove
+					//printf("x = %d, y = %d\r\n",x,y); //for testing, remember to remove
+					//calculate PWM values
 					
 
 				}
@@ -598,6 +603,9 @@ void main(void)
                     uart_puts("NO SIGNAL                     \r");
                 }
 				thefastestsprintf(f,buff); 
+				//buff[5] = '\r';
+				//buff[6] = '\n';
+
 				//printf("f=%d, string f=%s\r\n",f,buff); //for testing
 				//constantly send the frequency value until the remote receives the correct value
 				
@@ -605,10 +613,10 @@ void main(void)
 		 	    }
 			}
 		}
-		//calculate PWM values
 		pwmcalc(x,y,pwm_arr);
 		ISR_pwm1 = pwm_arr[0];
 		ISR_pwm2 = pwm_arr[1];
-		printf("pwm1=%d, pwm2=%d\r\n",ISR_pwm1,ISR_pwm2);
+		//printf("pwm1=%d, pwm2=%d\r\n",ISR_pwm1,ISR_pwm2);
+		//LATAbits.LATA3 = 0;
 	}
 }

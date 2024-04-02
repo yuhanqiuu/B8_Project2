@@ -325,7 +325,7 @@ void getstr1 (char * s)
 		c=getchar1_with_timeout();
 		if(c=='\n')
 		{
-			*s=0;
+			*s= 0; //was 0
 			return;
 		}
 		*s=c;
@@ -515,7 +515,7 @@ void main (void)
 	{	
 		//send attention code
 		putchar1('M');
-		waitms(5); //wait for 10 ms for robot to get attention message
+		Timer3us(10000); //wait for 10 ms for robot to get attention message
 		// read the voltage from the remote control 
 		volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
 		volt_y = 100*(Volts_at_Pin(QFP32_MUX_P1_5));
@@ -528,22 +528,22 @@ void main (void)
 		thefastestsprintf(volt_x,buff,3); 
 		buff[3] = '|';
 		thefastestsprintf(volt_y,buff,7); 
-		printf("%s\r\n",buff);
+		//printf("%s\r\n",buff);
 		buff[7] = '\r';
 		buff[8] = '\n';
 		//printf("%d\n",strlen(buff));
 		sendstr1(buff);
-		//printf("%s\n",buff);
+		//printf("%s\r\n",buff);
 		
 		// timeout
 		timeout_cnt=0;
 		while(1)
 		{
 			if(RXU1()) break; // Got something! Get out of loop.
-			Timer3us(100); // Check if something has arrived every 100us
+			Timer3us(10); // Check if something has arrived every 10us
 			timeout_cnt++;
 
-			if(timeout_cnt>=100) break; // timeout after 100ms, get out of loop
+			if(timeout_cnt>=100) break; // timeout after 1ms, get out of loop
 		}
 		
 
