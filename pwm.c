@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 /* Pinout for DIP28 PIC32MX130:
                                           --------
@@ -82,8 +83,7 @@ void __ISR(_TIMER_1_VECTOR, IPL5SOFT) Timer1_Handler(void)
 		LATAbits.LATA2 = 0;
 	}
 }
-
-void PWM1_calculator(int x, int y) {
+int PWM1_calculator(int x, int y) {
 	int pwm1 = 0;
     float normX, normY;
 
@@ -93,17 +93,16 @@ void PWM1_calculator(int x, int y) {
     // Calculate magnitude and direction of motion
     float magnitude = sqrt(normX * normX + normY * normY);
     float direction = atan2(normY, normX);
-    // remember to inlcude math.h
+    // remember to include math.h
 
-    pwm1 = sin(direction / 2);
+    pwm1 = magnitude * sin(direction / 2);
     
-    if(direction > pi/2);
+    if(direction > pi/2)
     pwm1 = pwm1* (-1);
     
     return pwm1;
 }
-
-void PWM2_calculator(int x, int y){
+int PWM2_calculator(int x, int y){
     int pwm2 = 0;
 	float normX, normY;
 
@@ -113,11 +112,11 @@ void PWM2_calculator(int x, int y){
     // Calculate magnitude and direction of motion
     float magnitude = sqrt(normX * normX + normY * normY);
     float direction = atan2(normY, normX);
-    // remember to inlcude math.h
+    // remember to include math.h
 
-    pwm2 = abs(cos(direction / 2));
+    pwm2 = magnitude * magnitude * abs(cos(direction / 2));
 
-    if(direction > pi/2);
+    if(direction > pi/2)
     pwm2 = pwm2* (-1);
     
     return pwm2;
@@ -550,92 +549,52 @@ void main(void)
 			
 			else
 			{
-			uart_puts("M RECEIVED                     \r");
+				uart_puts("M RECEIVED                     \r");
 
-			//timeout sequence so robot doesn't wait forever
-			timeout_cnt=0;
-			while(1) {
-				if(U1STAbits.URXDA) {		//if we've recieved a value, break				
-					break;
+				//timeout sequence so robot doesn't wait forever
+				timeout_cnt=0;
+				while(1) {
+					if(U1STAbits.URXDA) {		//if we've recieved a value, break				
+						break;
+					}
+					Timer4us(100); //wait 100 us, or 0.1 ms
+					timeout_cnt++;
+					if(timeout_cnt>=100) break;  //if we recieve nothing in 10 ms then break
 				}
-				Timer4us(100); //wait 100 us, or 0.1 ms
-				timeout_cnt++;
-				if(timeout_cnt>=100) break;  //if we recieve nothing in 10 ms then break
-			}
+					
+				//continue as normal, and recieve the rest of the message
+				if(U1STAbits.URXDA) {
+					SerialReceive1(buff,sizeof(buff)-1);
+					printf("string = %s\r\n",buff); //for testing, remember to remove
+
+					if(strlen(buff)==9){ //assume a good message from the transmitter is 8 bytes
+						x = atoi(&buff[1]);
+						y = atoi(&buff[5]);
+						printf("x = %d, y = %d\r\n",x,y); //for testing, remember to remove
+					}
+					//calculate frequency value 
+					count=GetPeriod(100);
+					if(count>0)
+					{
+						f=((SYSCLK/2L)*100L)/count;
+						//uart_puts("f=");
+						//PrintNumber(f, 10, 7);
+						//uart_puts("Hz, count=");
+						//PrintNumber(count, 10, 6);
+						//uart_puts("          \r");
+						//printf("f = %d\r\n",f); //just for testing
+						waitms(10);
+					}
+					else
+					{
+						uart_puts("NO SIGNAL                     \r");
+					}
+					sprintf(buff,"%d\r\n",f); 
+					//constantly send the frequency value until the remote receives the correct value
 				
-			//continue as normal, and recieve the rest of the message
-			if(U1STAbits.URXDA) {
-				SerialReceive1(buff,sizeof(buff)-1);
-				printf("string = %s\r\n",buff); //for testing, remember to remove
-
-				if(strlen(buff)==8){ //assume a good message from the transmitter is 8 bytes
-					x = atoi(&buff[0]);
-					y = atoi(&buff[4]);
-					printf("x = %d, y = %d\r\n",x,y); //for testing, remember to remove
+					SerialTransmit1(buff);
+		
 				}
-				//calculate frequency value 
-				count=GetPeriod(100);
-		if(count>0)
-		{
-			f=((SYSCLK/2L)*100L)/count;
-			//uart_puts("f=");
-			//PrintNumber(f, 10, 7);
-			//uart_puts("Hz, count=");
-			//PrintNumber(count, 10, 6);
-			//uart_puts("          \r");
-			//printf("f = %d\r\n",f); //just for testing
-			waitms(10);
-		}
-		else
-		{
-			uart_puts("NO SIGNAL                     \r");
-		}
-
-		//sending frequency in buffer all the time
-		//tostring(buff, f); //f is frequency and it converts from integer to string
-		
-		
-		//delayms(200); 
-
-		//radio code
-		if(U1STAbits.URXDA) // Something has arrived
-		{
-			SerialReceive1(buff, sizeof(buff)-1);
-			if(strlen(buff) != 8){ //to account for noisy signals, only take strings with the proper length
-
-			}else{
-
-			printf("string = %s\r\n",buff); 
-
-			//copy x values from buff to separate buffer
-			char *token = strtok(buff,"|");
-			//strncpy(buff_xy,buff,4);
-			//convert recieved x value to int
-			x = atoi(token); 
-			//printf("x=%d\r\n",x); //for testing
-
-			//clear the xy_buff to get ready for the y value
-			// for (cnt = 0; cnt < sizeof(buff_xy)-1; cnt++) {
-			// 	buff_xy[cnt] = 0;
-			// }
-			
-			//copy y values from buff to separate buffer
-			//y_index = gety(space,buff);
-			//printf("y index=%d\r\n", y_index); //for testing
-
-			//reset cnt
-			//cnt = 0;
-			// while (buff[y_index+cnt] != '\0' ) {
-			// 	buff_xy[cnt] = buff[y_index+cnt+0];
-			// 	cnt++;
-			// }
-			
-			token = strtok(NULL,"|");
-			y = atoi(token); 
-			sprintf(buff,"%d\r\n",f);
-			SerialTransmit1(buff);
-			
-			printf("x = %d, y = %d\r\n",x,y);
 			}
 		}
 	}
