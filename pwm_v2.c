@@ -130,6 +130,18 @@ void pwmcalc (int x, int y, int arr[]) { // arr[0] = pwm1/right; arr[1] = pwm2/l
 	return;
 }
 
+void thefastestsprintf (int num, char str[]) {
+	int index = 5;
+	str[index] = '\0';
+	while (num > 0){
+		str[index-1] = num % 10 + '0';
+		num/=10;
+		index--;
+	}
+	
+	return;
+}
+
 void SetupTimer1 (void)
 {
 	// Explanation here: https://www.youtube.com/watch?v=bu6TTZHnMPY
@@ -506,9 +518,8 @@ void main(void)
     SetupTimer1();
   
     ADCConf(); // Configure ADC
-    
-    delayms(500); // Give PuTTY time to start
-	printf("JDY40 test program.\r\n");
+
+	delayms(500); // Give PuTTY time to start
 
 	// RB14 is connected to the 'SET' pin of the JDY40.  Configure as output:
     ANSELB &= ~(1<<14); // Set RB14 as a digital I/O
@@ -534,14 +545,11 @@ void main(void)
     TRISB |= (1<<6);   // configure pin RB6 as input
     CNPUB |= (1<<6);   // Enable pull-up resistor for RB6
 	cnt=0;
+	pwm_arr[0] = 0;
+	pwm_arr[1] = 0;
 	while(1)
 	{
-
-
-		//calculate PWM values
-		pwmcalc(x,y,pwm_arr);
-		ISR_pwm1 = pwm_arr[0];
-		ISR_pwm2 = pwm_arr[1];
+		
 
 		//radio code
 		if(U1STAbits.URXDA) // Something has arrived
@@ -568,12 +576,12 @@ void main(void)
 			//continue as normal, and recieve the rest of the message
 			if(U1STAbits.URXDA) {
 				SerialReceive1(buff,sizeof(buff)-1);
-				//printf("string = %s\r\n",buff); //for testing, remember to remove
+				printf("string = %s\r\n",buff); //for testing, remember to remove
 
 				if(strlen(buff)==9){ //assume a good message from the transmitter is 9 bytes
 					x = atoi(&buff[1]);
 					y = atoi(&buff[5]);
-					//printf("x = %d, y = %d\r\n",x,y); //for testing, remember to remove
+					printf("x = %d, y = %d\r\n",x,y); //for testing, remember to remove
 					
 
 				}
@@ -589,12 +597,18 @@ void main(void)
                 {
                     uart_puts("NO SIGNAL                     \r");
                 }
-				sprintf(buff,"%d\r\n",f); 
+				thefastestsprintf(f,buff); 
+				//printf("f=%d, string f=%s\r\n",f,buff); //for testing
 				//constantly send the frequency value until the remote receives the correct value
 				
 				SerialTransmit1(buff);
 		 	    }
 			}
 		}
+		//calculate PWM values
+		pwmcalc(x,y,pwm_arr);
+		ISR_pwm1 = pwm_arr[0];
+		ISR_pwm2 = pwm_arr[1];
+		printf("pwm1=%d, pwm2=%d\r\n",ISR_pwm1,ISR_pwm2);
 	}
 }
