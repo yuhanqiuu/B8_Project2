@@ -4,6 +4,7 @@
 #include <EFM8LB1.h>
 #include <stdlib.h>
 #include <stdio.h>
+
 #include <string.h>
 
 #define SYSCLK 72000000L
@@ -504,8 +505,8 @@ void main (void)
 		// read the voltage from the remote control 
 		volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
 		volt_y = 100*(Volts_at_Pin(QFP32_MUX_P1_5));
-		//printf("x: %d\r\n",volt_x);
-		//printf("y: %d\r\n",volt_y);
+		printf("x: %d\r\n",volt_x);
+		printf("y: %d\r\n",volt_y);
 		//waitms(200);
 		//buff[0]=NULL;
 		// after 10ms, send the joystick control data to the robot.
