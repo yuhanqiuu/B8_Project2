@@ -57,7 +57,7 @@ char _c51_external_startup (void)
 	#endif
 	
 	P0MDOUT |= 0x11; // Enable UART0 TX (P0.4) and UART1 TX (P0.0) as push-pull outputs
-	P2MDOUT |= 0x01; // P2.0 in push-pull mode
+	P3MDOUT |= 0x01; // P2.0 in push-pull mode
 	XBR0     = 0x01; // Enable UART0 on P0.4(TX) and P0.5(RX)                     
 	XBR1     = 0X00;
 	XBR2     = 0x41; // Enable crossbar and uart 1

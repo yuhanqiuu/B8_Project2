@@ -86,36 +86,36 @@ void __ISR(_TIMER_1_VECTOR, IPL5SOFT) Timer1_Handler(void)
 
 void pwmcalc (int x, int y, int arr[]) { // arr[0] = pwm1/right; arr[1] = pwm2/left
 	//joystick is in the middle (should not move) 
-	if(x >= 235 && x <= 240 && y <= 245 && y >= 240){
+	if(x >= 230 && x <= 250 && y <= 250 && y >= 230){
         arr[0] = 0;
         arr[1] = 0;
-    }else if(x > 240 && y <= 245 && y >= 240){ //joystick at east direction
+    }else if(x > 250 && y <= 250 && y >= 235){ //joystick at east direction
         arr[0] = 0;
 		arr[1] = 10000;
-    }else if(x > 240 && y > 245){ //joystick at north-east direction
+    }else if(x > 250 && y > 250){ //joystick at north-east direction
         arr[0] = 5000;
 		arr[1] = 10000;
-    }else if(x >= 235 && x <= 240 && y > 245){ //joystick at north direction
+    }else if(x >= 230 && x <= 250 && y > 250){ //joystick at north direction
         arr[0] = 10000;
 		arr[1] = 10000;
     }
-	else if(x < 235 && y > 245){ //joystick at north-west direction
+	else if(x < 230 && y > 250){ //joystick at north-west direction
         arr[0] = 10000;
 		arr[1] = 5000;
     }
-	else if(x < 235 && y <= 245 && y >= 240 ){ //joystick at west direction
+	else if(x < 230 && y <= 250 && y >= 230 ){ //joystick at west direction
         arr[0] = 10000;
 		arr[1] = 0;
     }
-	else if(x < 235 && y < 240 ){ //joystick at south-west direction
+	else if(x < 230 && y < 230 ){ //joystick at south-west direction
         arr[0] = -10000; //right should be max negative
 		arr[1] = -5000; //left should be half of max negative(backward direction)
     }
-	else if(x >= 235 && x <= 240 && y < 240 ){ //joystick at south direction
+	else if(x >= 230 && x <= 250 && y < 230 ){ //joystick at south direction
         arr[0] = -10000;
 		arr[1] = -10000;
     }
-	else if(x >240 && y < 240 ){ //joystick at south-east direction
+	else if(x >250 && y < 230 ){ //joystick at south-east direction
         arr[0] = -5000;
 		arr[1] = -10000;
     }
@@ -614,8 +614,8 @@ void main(void)
 			}
 		}
 		pwmcalc(x,y,pwm_arr);
-		ISR_pwm1 = pwm_arr[0];
-		ISR_pwm2 = pwm_arr[1];
+		ISR_pwm1 = pwm_arr[0]*1.2;
+		ISR_pwm2 = pwm_arr[1]*1.2;
 		//printf("pwm1=%d, pwm2=%d\r\n",ISR_pwm1,ISR_pwm2);
 		//LATAbits.LATA3 = 0;
 	}
