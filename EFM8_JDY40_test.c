@@ -460,7 +460,7 @@ void main (void)
 	int volt_x;
 	int volt_y;
 
-	// float strength = 0.0; //display the “strength” of the signal of the metal detector in the robot
+	// float strength = 0.0; //display the â€œstrengthâ€ of the signal of the metal detector in the robot
 	// the period of oscillator i assume, nvm i think it's teh same as freqency
 	//float frequency;
 	//char buff1[17]; // for lcd display
@@ -543,21 +543,21 @@ void main (void)
 			Timer3us(10); // Check if something has arrived every 10us
 			timeout_cnt++;
 
-			if(timeout_cnt>=100) break; // timeout after 1ms, get out of loop
-		}
+			if(timeout_cnt>=800) break; // timeout after 5ms, get out of loop
+		} 
 		
 
 		// speaker play sounds if metal was detected -> frequency increase
 		// frequency get from the robot.
 		
 		// if read 
-		timeout_cnt=0;
 		if(RXU1())
 		{	
 			//get freq data from robot, get them in buffer
 			// check if the recive the complete data, else wait longer
 			getstr1(buff);	
 			//printf("received\r\n");
+			//printf("string=%s\r\n",buff);
 			if(strlen(buff)==6){
 				//printf("string=%s\r\n",buff);
 				//change string to long int
@@ -565,10 +565,9 @@ void main (void)
 				//printf("%ld\r\n",f);
 
 			}
-
-		
 			
 		}
+		//waitms_or_RI1(10);
 
 	}
 }

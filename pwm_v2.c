@@ -605,8 +605,8 @@ void main(void)
 				thefastestsprintf(f,buff); 
 				//buff[5] = '\r';
 				//buff[6] = '\n';
-
-				//printf("f=%d, string f=%s\r\n",f,buff); //for testing
+				//sprintf(buff,"12345\r\n");
+				//printf("length=%d, string f=%s\r\n",strlen(buff),buff); //for testing
 				//constantly send the frequency value until the remote receives the correct value
 				
 				SerialTransmit1(buff);
