@@ -13,12 +13,21 @@
 #define SYSCLK 72000000L // SYSCLK frequency in Hz
 
 #define TIMER_2_FREQ 3000L
-
+#define default_metal_freq 57300L
 
 #define TIMER_OUT_2 P1_6
 
-#define MAIN_OUT    P0_1 // Updated in the main program
+// strength of metal. different level will have the speaker play different frequency
+#define Level_1 1000L
+#define Level_2 2000L
+#define Level_3 3000L
+#define Level_4 4000L
+#define Level_5 5000L
+#define Level_6 6000L
+// volatile unsigned int TickCount=0;
 
+
+//unsigned long int TIMER_2_FREQ = 3000;
 
 char _c51_external_startup (void)
 {
@@ -93,19 +102,137 @@ char _c51_external_startup (void)
 
 void Timer2_ISR (void) interrupt INTERRUPT_TIMER2
 {
-	SFRPAGE=0x0;
+	SFRPAGE=0x0;		
 	TF2H = 0; // Clear Timer2 interrupt flag
 	TIMER_OUT_2=!TIMER_OUT_2;
+	
 }
 
+unsigned int mapFrequencySpeak(unsigned long int difference)
+{
+    // Example mapping function
+    // This function maps the range of test_freq to a range of speaker frequencies
+
+   if((difference>=500) && (difference<700)){ // speaker plays 3000 freq
+			
+			speaker_freq = Level_1; //level 1
+			TR2=0; // Stop timer 2
+			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
+			TR2=1; // Start timer 2
+			delay(50000);
+			difference =750;
+			
+		}
+		else if((difference>=700) && (difference<800) ){
+			speaker_freq = Level_2; //level 2
+			TR2=0; // Stop timer 2
+			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
+			TR2=1; // Start timer 2
+
+		}
+		else if((difference>=800) && (difference<900) ){
+			speaker_freq = Level_3; //level 3
+			TR2=0; // Stop timer 2
+			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
+			TR2=1; // Start timer 2
+		}
+		else if((difference>=900) && (difference<1000) ){
+			speaker_freq = Level_4; //level 4
+			TR2=0; // Stop timer 2
+			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
+			TR2=1; // Start timer 2
+		}
+		else if((difference>=1000) && (difference<1100) ){
+			speaker_freq = Level_5; //level 5
+			TR2=0; // Stop timer 2
+			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
+			TR2=1; // Start timer 2
+		}
+		else if(difference>=1100){
+			speaker_freq = Level_6; //level 6
+			TR2=0; // Stop timer 2
+			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
+			TR2=1; // Start timer 2
+		}
+		else{
+			// do nothing
+			
+
+		}
+	
+
+}
+
+void delay (unsigned int x)
+{
+	unsigned char j;
+	while(--x)
+	{
+		for(j=0; j<100; j++);
+	}
+}
 
 void main (void)
 {
     unsigned int j;
+	unsigned long int test_freq,speaker_freq, difference; //assume test_freq is the freq got robot, speaker_freq default at 3000
+	test_freq = 58000; // change this value manually to check for speaker	
+	// default_metal_freq = 57300
+	//for checking
+	difference = 600;
 	while(1)
-	{
-	    // Everybody is interrupting, so it is imposible to obtain a perfect square wave
-		TIMER_OUT_2=!TIMER_OUT_2;
-		for (j=0; j<1000; j++);
+	{		
+		//difference = test_freq-default_metal_freq;
+
+		
+		//check how much the metal freq increased
+		if((difference>=500) && (difference<700)){ // speaker plays 3000 freq
+			
+			speaker_freq = Level_1; //level 1
+			TR2=0; // Stop timer 2
+			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
+			TR2=1; // Start timer 2
+			delay(50000);
+			difference =750;
+			
+		}
+		else if((difference>=700) && (difference<800) ){
+			speaker_freq = Level_2; //level 2
+			TR2=0; // Stop timer 2
+			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
+			TR2=1; // Start timer 2
+			delay(50000);
+			difference =850;
+
+		}
+		else if((difference>=800) && (difference<900) ){
+			speaker_freq = Level_3; //level 3
+			TR2=0; // Stop timer 2
+			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
+			TR2=1; // Start timer 2
+		}
+		else if((difference>=900) && (difference<1000) ){
+			speaker_freq = Level_4; //level 4
+			TR2=0; // Stop timer 2
+			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
+			TR2=1; // Start timer 2
+		}
+		else if((difference>=1000) && (difference<1100) ){
+			speaker_freq = Level_5; //level 5
+			TR2=0; // Stop timer 2
+			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
+			TR2=1; // Start timer 2
+		}
+		else if(difference>=1100){
+			speaker_freq = Level_6; //level 6
+			TR2=0; // Stop timer 2
+			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
+			TR2=1; // Start timer 2
+		}
+		else{
+			// do nothing
+			delay(50000);
+
+		}
 	}
 }

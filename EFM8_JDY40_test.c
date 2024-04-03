@@ -13,7 +13,7 @@
 
 #define DEFAULT_F 15500L
 
-#define OUT0 P3_3 //speaker connnect to pin 3.3
+#define TIMER_OUT_2 P3_3 //speaker connnect to pin 3.3
 
 #define VDD 4.85 // The measured value of VDD in volts
 
@@ -185,9 +185,9 @@ void TIMER2_Init(void){
 
 void Timer2_ISR (void) //interrupt INTERRUPT_TIMER2
 {
+	SFRPAGE=0x0;
 	TF2H = 0; // Clear Timer2 interrupt flag
-	OUT0=!OUT0;
-	//OUT1=!OUT0;
+	TIMER_OUT_2=!TIMER_OUT_2;
 }
 
 void waitms (unsigned int ms)
@@ -326,7 +326,7 @@ void getstr1 (char * s)
 		c=getchar1_with_timeout();
 		if(c=='\n')
 		{
-			*s=0;
+			*s= 0; //was 0
 			return;
 		}
 		*s=c;
@@ -438,6 +438,21 @@ void LCDprint(char * string, unsigned char line, bit clear)
 	if(clear) for(; j<CHARS_PER_LINE; j++) WriteData(' '); // Clear the rest of the line
 }
 
+void thefastestsprintf (int num, char str[], int index) {
+	//int index = 5;
+	int i = 3;
+	str[index] = '\0';
+
+	for (i = 3; i > 0; i--) {
+		str[index -1] = num % 10 + '0';
+		num/=10;
+		index--;
+	}
+	
+	return;
+}
+
+
 void main (void)
 {
 	unsigned int cnt;
@@ -446,7 +461,7 @@ void main (void)
 	int volt_x;
 	int volt_y;
 
-	// float strength = 0.0; //display the “strength” of the signal of the metal detector in the robot
+	// float strength = 0.0; //display the â€œstrengthâ€ of the signal of the metal detector in the robot
 	// the period of oscillator i assume, nvm i think it's teh same as freqency
 	//float frequency;
 	//char buff1[17]; // for lcd display
@@ -501,7 +516,7 @@ void main (void)
 	{	
 		//send attention code
 		putchar1('M');
-		waitms(5); //wait for 10 ms for robot to get attention message
+		Timer3us(10000); //wait for 10 ms for robot to get attention message
 		// read the voltage from the remote control 
 		volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
 		volt_y = 100*(Volts_at_Pin(QFP32_MUX_P1_5));
@@ -510,45 +525,50 @@ void main (void)
 		//waitms(200);
 		//buff[0]=NULL;
 		// after 10ms, send the joystick control data to the robot.
-		sprintf(buff, "%03d|%03d\r\n", volt_x, volt_y); // make sure that each data point is 3 digits
+		//sprintf(buff, "%03d|%03d\r\n", volt_x, volt_y); // make sure that each data point is 3 digits
+		thefastestsprintf(volt_x,buff,3); 
+		buff[3] = '|';
+		thefastestsprintf(volt_y,buff,7); 
+		//printf("%s\r\n",buff);
+		buff[7] = '\r';
+		buff[8] = '\n';
 		//printf("%d\n",strlen(buff));
 		sendstr1(buff);
-		//printf("%s\n",buff);
+		//printf("%s\r\n",buff);
 		
 		// timeout
 		timeout_cnt=0;
 		while(1)
 		{
 			if(RXU1()) break; // Got something! Get out of loop.
-			Timer3us(100); // Check if something has arrived every 100us
+			Timer3us(10); // Check if something has arrived every 10us
 			timeout_cnt++;
 
-			if(timeout_cnt>=100) break; // timeout after 100ms, get out of loop
-		}
+			if(timeout_cnt>=800) break; // timeout after 5ms, get out of loop
+		} 
 		
 
 		// speaker play sounds if metal was detected -> frequency increase
 		// frequency get from the robot.
 		
 		// if read 
-		timeout_cnt=0;
 		if(RXU1())
 		{	
 			//get freq data from robot, get them in buffer
 			// check if the recive the complete data, else wait longer
 			getstr1(buff);	
 			//printf("received\r\n");
+			//printf("string=%s\r\n",buff);
 			if(strlen(buff)==6){
 				//printf("string=%s\r\n",buff);
 				//change string to long int
 				f=atol(&buff[0]);
-				printf("%ld\r\n",f);
+				//printf("%ld\r\n",f);
 
 			}
-
-		
 			
 		}
+		//waitms_or_RI1(10);
 
 	}
 }
