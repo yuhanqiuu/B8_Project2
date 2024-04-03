@@ -30,6 +30,8 @@
 #define LCD_D7 P1_0
 #define CHARS_PER_LINE 16
 
+#define METAL_DECTECT P3_4
+
 idata char buff[20];
 
 char _c51_external_startup (void)
@@ -396,6 +398,13 @@ void LCD_byte (unsigned char x)
 	LCD_pulse();
 }
 
+void speaker_pulse(void) 
+{
+	METAL_DECTECT = 0;
+	waitms(10);
+	METAL_DECTECT = 1;
+}
+
 void WriteData (unsigned char x)
 {
 	LCD_RS=1;
@@ -437,6 +446,14 @@ void LCDprint(char * string, unsigned char line, bit clear)
 	if(clear) for(; j<CHARS_PER_LINE; j++) WriteData(' '); // Clear the rest of the line
 }
 
+void LCDprint2(char * string, unsigned char line, unsigned char col)
+{
+	int j;
+
+	WriteCommand(line==2?0xc0|col:0x80|col); // Move cursor to line and column
+	for(j=0; string[j]!=0; j++) WriteData(string[j]); // Write the message
+}
+
 void thefastestsprintf (int num, char str[], int index) {
 	//int index = 5;
 	int i = 3;
@@ -451,19 +468,22 @@ void thefastestsprintf (int num, char str[], int index) {
 	return;
 }
 
-
 void main (void)
 {
 	unsigned int cnt;
 	unsigned int timeout_cnt;
-	unsigned long int f;
+	unsigned int level,speaker_f;
 	int volt_x;
 	int volt_y;
 
+	LCD_4BIT();
 	// float strength = 0.0; //display the â€œstrengthâ€ of the signal of the metal detector in the robot
 	// the period of oscillator i assume, nvm i think it's teh same as freqency
 	//float frequency;
 	//char buff1[17]; // for lcd display
+	        //123456789ABCDEFGH
+	LCDprint("Strength = x",1,0);
+	LCDprint("Battery: xx %", 2,0);
 
 	// use p2.4 for joystick vry, p2.5 for vrx
 	InitADC();
@@ -474,11 +494,6 @@ void main (void)
 	InitPinADC(1,5); //for y remote
 
 	//TIMER2_Init();
-
-	// initalize lcd
-	//LCD_4BIT();
-
-
 
 	// To configure the device (shown here using default values).
 	// For some changes to take effect, the JDY-40 needs to be power cycled.
@@ -511,6 +526,7 @@ void main (void)
 	
 	cnt=0;
 	timeout_cnt=0;
+
 	while(1)
 	{	
 		//send attention code
@@ -553,17 +569,30 @@ void main (void)
 		// if read 
 		if(RXU1())
 		{	
-			//get freq data from robot, get them in buffer
+			//get freq level from robot (from lvl 1-6), get them in buffer
 			// check if the recive the complete data, else wait longer
 			getstr1(buff);	
 			//printf("received\r\n");
-			//printf("string=%s\r\n",buff);
-			if(strlen(buff)==6){
+			//printf("string=%s\r\n",buff); 
+
+			level = atoi(&buff[0]);
+
+			if(level == 1) {
+				speaker_pulse();
+			}
+			
+			if(level >= 0 && level <= 6){ //check if the signal is in the range
 				//printf("string=%s\r\n",buff);
 				//change string to long int
-				f=atol(&buff[0]);
+				speaker_f = level*1000;
 				//printf("%ld\r\n",f);
 
+				// speaker beeps
+				TR2=0; // Stop timer 2
+				TMR2RL=0x10000L-(SYSCLK/(2*speaker_f)); // Change reload value for new frequency
+				TR2=1; // Start timer 2
+				buff[1] = '\0';
+				LCDprint2(buff,1,11);
 			}
 			
 		}
