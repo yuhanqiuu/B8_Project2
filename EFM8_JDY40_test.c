@@ -13,14 +13,14 @@
 #define DEFAULT_F 15500L
 
 #define TIMER_OUT_2 P3_3 //speaker connnect to pin 3.3
-#define TIMER_OUT_4 P3_2 //timer 4 pin out
 
 #define VDD 4.85 // The measured value of VDD in volts
-#define MAX_VOLT 4.5
+#define MAX_VOLT 2.5
 
 // for remote control 
 #define control_x QFP32_MUX_P1_4
 #define control_y QFP32_MUX_P1_5
+//#define battery_display QFP32_MUX_P1_6
 //#define speaker QFP32_MUX_P0_4
 
 #define LCD_RS P1_7
@@ -673,8 +673,8 @@ void main (void)
 		EA=0;
 		volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
 		volt_y = 100*(Volts_at_Pin(QFP32_MUX_P1_5));
-		//volt_battery = Volts_at_Pin(QFP32_MUX_P2_2);
-		//percentage = 100 * volt_battery / MAX_VOLT;
+		// volt_battery = Volts_at_Pin(battery_display);
+		// percentage = 100 * volt_battery / MAX_VOLT;
 		//thefastestsprintf(percentage,percentage_buff,2);
 		//LCDprint2(percentage_buff,2,9);
 		EA=1;

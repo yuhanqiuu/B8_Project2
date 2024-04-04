@@ -90,7 +90,7 @@ void pwmcalc (int x, int y, int arr[]) { // arr[0] = pwm1/right; arr[1] = pwm2/l
         arr[0] = 0;
         arr[1] = 0;
     }else if(x > 250 && y <= 250 && y >= 235){ //joystick at east direction
-        arr[0] = 0;
+        arr[0] = -10000;
 		arr[1] = 10000;
     }else if(x > 250 && y > 250){ //joystick at north-east direction
         arr[0] = 5000;
@@ -105,7 +105,7 @@ void pwmcalc (int x, int y, int arr[]) { // arr[0] = pwm1/right; arr[1] = pwm2/l
     }
 	else if(x < 230 && y <= 250 && y >= 230 ){ //joystick at west direction
         arr[0] = 10000;
-		arr[1] = 0;
+		arr[1] = -10000;
     }
 	else if(x < 230 && y < 230 ){ //joystick at south-west direction
         arr[0] = -10000; //right should be max negative
@@ -508,16 +508,16 @@ int LevelSender(int freq, int init_freq)
 		difference = abs(freq - default_metal_freq);
 
 		//check how much the metal freq increased
-		if((difference>=100) && (difference<200)){ // speaker plays 3000 freq
+		if((difference>=200) && (difference<300)){ // speaker plays 3000 freq
 			
 			speaker_freq = 1; //level 1
 
 		}
-		else if((difference>=200) && (difference<300) ){
+		else if((difference>=300) && (difference<400) ){
 			speaker_freq = 2; //level 2
 
 		}
-		else if(difference > 300) {
+		else if(difference > 400) {
 			speaker_freq = 3; //level 3
 
 		}

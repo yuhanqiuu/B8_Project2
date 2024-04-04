@@ -533,8 +533,8 @@ void main (void)
 		putchar1('M');
 		Timer3us(10000); //wait for 10 ms for robot to get attention message
 		// read the voltage from the remote control 
-		volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
-		volt_y = 100*(Volts_at_Pin(QFP32_MUX_P1_5));
+		//volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
+		//volt_y = 100*(Volts_at_Pin(QFP32_MUX_P1_5));
 		//printf("x: %d\r\n",volt_x);
 		//printf("y: %d\r\n",volt_y);
 		//waitms(200);
@@ -549,7 +549,7 @@ void main (void)
 		buff[8] = '\n';
 		//printf("%d\n",strlen(buff));
 		sendstr1(buff);
-		//printf("%s\r\n",buff);
+		printf("%s\r\n",buff);
 		
 		// timeout
 		timeout_cnt=0;

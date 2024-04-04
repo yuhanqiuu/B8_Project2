@@ -25,7 +25,7 @@
 
 #define LCD_RS P1_7
 // #define LCD_RW Px_x // Not used in this code.  Connect to GND
-#define LCD_E  P2_0
+#define LCD_E  P2_5
 #define LCD_D4 P1_3
 #define LCD_D5 P1_2
 #define LCD_D6 P1_1
@@ -37,6 +37,7 @@
 #define PCA_OUT_4   P0_6
 #define PCA_4_FREQ 11000L
 #define TIMER_4_FREQ 5000L
+
 
 idata char buff[20];
 
@@ -89,7 +90,7 @@ char _c51_external_startup (void)
 	#endif
 	
 	P0MDOUT |= 0x11; // Enable UART0 TX (P0.4) and UART1 TX (P0.0) as push-pull outputs
-	P2MDOUT |= 0x00; // P2.0 in push-pull mode
+	P2MDOUT |= 0x01; // P2.0 in push-pull mode
 	XBR0     = 0x01; // Enable UART0 on P0.4(TX) and P0.5(RX)                     
 	XBR1     = 0X00;
 	XBR2     = 0x41; // Enable crossbar and uart 1
@@ -406,12 +407,11 @@ void waitms_or_RI1 (unsigned int ms)
 void SendATCommand (char * s)
 {
 	printf("Command: %s", s);
-	P3_0=0; // 'set' pin to 0 is 'AT' mode.
-	waitms(5);
+	P2_0=0; // 'set' pin to 0 is 'AT' mode.
 	sendstr1(s);
 	getstr1(buff);
 	waitms(10);
-	P3_0=1; // 'set' pin to 1 is normal operation mode.
+	P2_0=1; // 'set' pin to 1 is normal operation mode.
 	printf("Response: %s\r\n", buff);
 }
 
@@ -453,14 +453,14 @@ void WriteData (unsigned char x)
 {
 	LCD_RS=1;
 	LCD_byte(x);
-	waitms(2);
+	Timer3us(40);
 }
 
 void WriteCommand (unsigned char x)
 {
 	LCD_RS=0;
 	LCD_byte(x);
-	waitms(5);
+	Timer3us(40);
 }
 
 void LCD_4BIT (void)
@@ -485,7 +485,7 @@ void LCDprint(char * string, unsigned char line, bit clear)
 	int j;
 
 	WriteCommand(line==2?0xc0:0x80);
-	waitms(5);
+	Timer3us(40);
 	for(j=0; string[j]!=0; j++)	WriteData(string[j]);// Write the message
 	if(clear) for(; j<CHARS_PER_LINE; j++) WriteData(' '); // Clear the rest of the line
 }
@@ -606,7 +606,7 @@ void main (void)
 
 
 	LCD_4BIT();
-	// float strength = 0.0; //display the â€œstrengthâ€ of the signal of the metal detector in the robot
+	// float strength = 0.0; //display the strengthof the signal of the metal detector in the robot
 	// the period of oscillator i assume, nvm i think it's teh same as freqency
 	//float frequency;
 	//char buff1[17]; // for lcd display
@@ -622,7 +622,7 @@ void main (void)
 
 
 
-	// use p2.4 for joystick vry, p2.5 for vrx
+	// use p1.4 for joystick vry, p1.5 for vrx
 	InitADC();
 	waitms(500);
 	printf("\r\nJDY-40 test\r\n");
@@ -647,7 +647,7 @@ void main (void)
 	// number from 0x0000 to 0xFFFF.  In this case is set to 0xABBA
 	SendATCommand("AT+DVID9944\r\n"); 
 	SendATCommand("AT+RFID2576\r\n");
- 
+	SendATCommand("AT+RFC012\r\n");
 
 	// To check configuration
 	SendATCommand("AT+VER\r\n");
@@ -662,17 +662,19 @@ void main (void)
 	
 	cnt=0;
 	timeout_cnt=0;
-	TR2 = 1;
+	// TR2 = 1;
 	while(1)
 	{	
 		//send attention code
 		putchar1('M');
 		Timer3us(10000); //wait for 10 ms for robot to get attention message
 		// read the voltage from the remote control 
+		EA=0;
 		volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
 		volt_y = 100*(Volts_at_Pin(QFP32_MUX_P1_5));
 		volt_battery = Volts_at_Pin(QFP32_MUX_P2_2);
 		percentage = 100 * volt_battery / MAX_VOLT;
+		EA=1;
 		//thefastestsprintf(percentage,percentage_buff,2);
 		//printf("%s\r\n",percentage_buff);
 		//LCDprint2(percentage_buff, 2, 9);
@@ -691,7 +693,7 @@ void main (void)
 		buff[8] = '\n';
 		//printf("%d\n",strlen(buff));
 		sendstr1(buff);
-		//printf("%s\r\n",buff);
+		printf("%s\r\n",buff);
 		
 		// timeout
 		timeout_cnt=0;
@@ -701,7 +703,7 @@ void main (void)
 			Timer3us(10); // Check if something has arrived every 10us
 			timeout_cnt++;
 
-			if(timeout_cnt>=700) break; // timeout after 1ms, get out of loop
+			if(timeout_cnt>=800) break; // timeout after ms, get out of loop
 		} 
 		
 
@@ -731,30 +733,25 @@ void main (void)
 
 			//	if (count == 2) {
 					
-					// if(level==3){
-					// 	METAL_DECTECT = 0;
-					// 	speaker_pulse();	
-					// }
+					if(level==3){
+						METAL_DECTECT = 0;
+					 	speaker_pulse();	
+					}
 						speaker_f = 200*(level);
 						buff[0] = level + '0';
 						buff[1] = '\0';
+						//printf("%s\r\n",buff);
 						LCDprint2(buff,1,11);
 						// speaker beeps
-						TR2=0; // Stop timer 2
+						// TR2=0; // Stop timer 2
 						TMR2RL=0x10000L-(SYSCLK/(2*speaker_f)); // Change reload value for new frequency
-						if(level==0){
-							TIMER_OUT_2=0;
-							TR2=0;
-						}else{
-							TR2=1; // Start timer 2
-						}
-						//METAL_DECTECT = 1;
+						
 						//count = -1;
 					
-				
-			//}
+				//}
+			}
 			//count++;
-		//}
+		}
 		//waitms_or_RI1(10);
 	}
 }
