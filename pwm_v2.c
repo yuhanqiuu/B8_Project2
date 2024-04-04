@@ -584,6 +584,8 @@ void main(void)
 	// number from 0x0000 to 0xFFFF.  In this case is set to 0xABBA
 	SendATCommand("AT+DVID9944\r\n");  
 	SendATCommand("AT+RFID2576\r\n");
+	SendATCommand("AT+RFC012\r\n");
+
 
 	
 	// To check configuration
@@ -625,21 +627,21 @@ void main(void)
 				if(U1STAbits.URXDA) {		//if we've recieved a value, break				
 					break;
 				}
-				Timer4us(100); //wait 100 us
+				Timer4us(10); //wait 100 us
 				timeout_cnt++;
 				if(timeout_cnt>=100) break;  //if we recieve nothing in 10 ms then break
 			}
+			
 			//continue as normal, and recieve the rest of the message
 			if(U1STAbits.URXDA) {
 				SerialReceive1(buff,sizeof(buff)-1);
-				//printf("string = %s, l = %d\r\n",buff,strlen(buff)); //for testing, remember to remove
+				printf("string = %s\r\n",buff); //for testing, remember to remove
 
 				if(strlen(buff)==9){ //assume a good message from the transmitter is 9 bytes
 					x = atoi(&buff[1]);
 					y = atoi(&buff[5]);
 					//printf("x = %d, y = %d\r\n",x,y); //for testing, remember to remove
 					//calculate PWM values
-					
 
 				}
 				
@@ -664,6 +666,9 @@ void main(void)
 				holder[1] = '\r';
 				holder[2] = '\n';
 				holder[3] = '\0';
+
+				//itoa(speaker_freq, holder, 5);
+
 				//printf("freq=%d, level=%s\r\n",f,holder); //for testing
 				//constantly send the frequency value until the remote receives the correct value
 				
@@ -674,7 +679,7 @@ void main(void)
 		pwmcalc(x,y,pwm_arr);
 		ISR_pwm1 = pwm_arr[0]*1.2;
 		ISR_pwm2 = pwm_arr[1]*1.2;
-		printf("pwm1=%d, pwm2=%d, freq=%d, lvl = %s\r\n",ISR_pwm1,ISR_pwm2,f,holder);
+		//printf("pwm1=%d, pwm2=%d\r\n",ISR_pwm1,ISR_pwm2);
 		//LATAbits.LATA3 = 0;
 	}
 }

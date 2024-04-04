@@ -408,7 +408,6 @@ void SendATCommand (char * s)
 {
 	printf("Command: %s", s);
 	P2_0=0; // 'set' pin to 0 is 'AT' mode.
-	waitms(5);
 	sendstr1(s);
 	getstr1(buff);
 	waitms(10);
@@ -454,14 +453,14 @@ void WriteData (unsigned char x)
 {
 	LCD_RS=1;
 	LCD_byte(x);
-	waitms(2);
+	Timer3us(40);
 }
 
 void WriteCommand (unsigned char x)
 {
 	LCD_RS=0;
 	LCD_byte(x);
-	waitms(5);
+	Timer3us(40);
 }
 
 void LCD_4BIT (void)
@@ -486,7 +485,7 @@ void LCDprint(char * string, unsigned char line, bit clear)
 	int j;
 
 	WriteCommand(line==2?0xc0:0x80);
-	waitms(5);
+	Timer3us(40);
 	for(j=0; string[j]!=0; j++)	WriteData(string[j]);// Write the message
 	if(clear) for(; j<CHARS_PER_LINE; j++) WriteData(' '); // Clear the rest of the line
 }
@@ -607,7 +606,7 @@ void main (void)
 
 
 	LCD_4BIT();
-	// float strength = 0.0; //display the â€œstrengthâ€ of the signal of the metal detector in the robot
+	// float strength = 0.0; //display the strengthof the signal of the metal detector in the robot
 	// the period of oscillator i assume, nvm i think it's teh same as freqency
 	//float frequency;
 	//char buff1[17]; // for lcd display
@@ -648,7 +647,7 @@ void main (void)
 	// number from 0x0000 to 0xFFFF.  In this case is set to 0xABBA
 	SendATCommand("AT+DVID9944\r\n"); 
 	SendATCommand("AT+RFID2576\r\n");
- 
+	SendATCommand("AT+RFC012\r\n");
 
 	// To check configuration
 	SendATCommand("AT+VER\r\n");
@@ -694,17 +693,17 @@ void main (void)
 		buff[8] = '\n';
 		//printf("%d\n",strlen(buff));
 		sendstr1(buff);
-		//printf("%s\r\n",buff);
+		printf("%s\r\n",buff);
 		
 		// timeout
 		timeout_cnt=0;
 		while(1)
 		{
 			if(RXU1()) break; // Got something! Get out of loop.
-			Timer3us(100); // Check if something has arrived every 10us
+			Timer3us(10); // Check if something has arrived every 10us
 			timeout_cnt++;
 
-			if(timeout_cnt>=100) break; // timeout after ms, get out of loop
+			if(timeout_cnt>=800) break; // timeout after ms, get out of loop
 		} 
 		
 

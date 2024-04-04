@@ -57,7 +57,7 @@ char _c51_external_startup (void)
 	#endif
 	
 	P0MDOUT |= 0x11; // Enable UART0 TX (P0.4) and UART1 TX (P0.0) as push-pull outputs
-	P3MDOUT |= 0x01; // P2.0 in push-pull mode
+	P2MDOUT |= 0x01; // P2.0 in push-pull mode
 	XBR0     = 0x01; // Enable UART0 on P0.4(TX) and P0.5(RX)                     
 	XBR1     = 0X00;
 	XBR2     = 0x41; // Enable crossbar and uart 1
@@ -218,12 +218,12 @@ void waitms_or_RI1 (unsigned int ms)
 void SendATCommand (char * s)
 {
 	printf("Command: %s", s);
-	P3_0=0; // 'set' pin to 0 is 'AT' mode.
+	P2_0=0; // 'set' pin to 0 is 'AT' mode.
 	waitms(5);
 	sendstr1(s);
 	getstr1(buff);
 	waitms(10);
-	P3_0=1; // 'set' pin to 1 is normal operation mode.
+	P2_0=1; // 'set' pin to 1 is normal operation mode.
 	printf("Response: %s\r\n", buff);
 }
 
@@ -249,7 +249,9 @@ void main (void)
 	
 	// We should select an unique device ID.  The device ID can be a hex
 	// number from 0x0000 to 0xFFFF.  In this case is set to 0xABBA
-	SendATCommand("AT+DVID9944\r\n");  
+	SendATCommand("AT+DVID1212\r\n"); 
+	SendATCommand("AT+RFID3434\r\n");
+	SendATCommand("AT+RFC012\r\n"); 
 
 	// To check configuration
 	SendATCommand("AT+VER\r\n");
