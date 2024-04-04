@@ -38,9 +38,6 @@
 #define PCA_4_FREQ 11000L
 #define TIMER_4_FREQ 5000L
 
-#define PCA_OUT_4   P0_6
-#define PCA_4_FREQ 11000L
-#define TIMER_4_FREQ 5000L
 
 idata char buff[20];
 
@@ -121,14 +118,14 @@ char _c51_external_startup (void)
 	TR1 = 1; // START Timer1
 	TI = 1;  // Indicate TX0 ready
 
-	// //Initialize timer 2 for periodic interrupts
-	// TMR2CN0=0x00;   // Stop Timer2; Clear TF2;
-	// CKCON0|=0b_0001_0000;
-	// TMR2RL=(-(SYSCLK/(2*DEFAULT_F))); // Initialize reload value
-	// TMR2=0xffff;   // Set to reload immediately
-	// ET2=1;         // Enable Timer2 interrupts
-	// TR2=1;         // Start Timer2
-	// EA=1; // Global interrupt enable
+	//Initialize timer 2 for periodic interrupts
+	TMR2CN0=0x00;   // Stop Timer2; Clear TF2;
+	CKCON0|=0b_0001_0000;
+	TMR2RL=(-(SYSCLK/(2*DEFAULT_F))); // Initialize reload value
+	TMR2=0xffff;   // Set to reload immediately
+	ET2=1;         // Enable Timer2 interrupts
+	TR2=1;         // Start Timer2
+	EA=1; // Global interrupt enable
 
 
 	// // Initialize timer 4 for periodic interrupts
@@ -626,7 +623,7 @@ void main (void)
 
 
 
-	// use p2.4 for joystick vry, p2.5 for vrx
+	// use p1.4 for joystick vry, p1.5 for vrx
 	InitADC();
 	waitms(500);
 	printf("\r\nJDY-40 test\r\n");
@@ -721,7 +718,7 @@ void main (void)
 			// check if the recive the complete data, else wait longer
 			getstr1(buff);	
 			//printf("received\r\n");
-			printf("string=%s\r\n",buff);
+			//printf("string=%s\r\n",buff);
 
 			level = atoi(&buff[0]);
 
@@ -737,10 +734,10 @@ void main (void)
 
 			//	if (count == 2) {
 					
-					// if(level==3){
-					// 	METAL_DECTECT = 0;
-					// 	speaker_pulse();	
-					// }
+					if(level==3){
+						METAL_DECTECT = 0;
+					 	speaker_pulse();	
+					}
 						speaker_f = 200*(level);
 						buff[0] = level + '0';
 						buff[1] = '\0';
@@ -749,13 +746,13 @@ void main (void)
 						// speaker beeps
 						// TR2=0; // Stop timer 2
 						TMR2RL=0x10000L-(SYSCLK/(2*speaker_f)); // Change reload value for new frequency
-						// if(level==0){
-						// 	TIMER_OUT_2=0;
-						// 	TR2=0;
-						// }else{
-						// 	TR2=1; // Start timer 2
-						// }
-						//METAL_DECTECT = 1;
+						if(level==0){
+							TIMER_OUT_2=0;
+						 	TR2=0;
+						}else{
+							TR2=1; // Start timer 2
+						}
+						METAL_DECTECT = 1;
 						//count = -1;
 					
 				//}
