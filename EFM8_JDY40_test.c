@@ -25,7 +25,7 @@
 
 #define LCD_RS P1_7
 // #define LCD_RW Px_x // Not used in this code.  Connect to GND
-#define LCD_E  P2_0
+#define LCD_E  P2_5
 #define LCD_D4 P1_3
 #define LCD_D5 P1_2
 #define LCD_D6 P1_1
@@ -93,7 +93,7 @@ char _c51_external_startup (void)
 	#endif
 	
 	P0MDOUT |= 0x11; // Enable UART0 TX (P0.4) and UART1 TX (P0.0) as push-pull outputs
-	P2MDOUT |= 0x00; // P2.0 in push-pull mode
+	P2MDOUT |= 0x01; // P2.0 in push-pull mode
 	XBR0     = 0x01; // Enable UART0 on P0.4(TX) and P0.5(RX)                     
 	XBR1     = 0X00;
 	XBR2     = 0x41; // Enable crossbar and uart 1
@@ -410,12 +410,12 @@ void waitms_or_RI1 (unsigned int ms)
 void SendATCommand (char * s)
 {
 	printf("Command: %s", s);
-	P3_0=0; // 'set' pin to 0 is 'AT' mode.
+	P2_0=0; // 'set' pin to 0 is 'AT' mode.
 	waitms(5);
 	sendstr1(s);
 	getstr1(buff);
 	waitms(10);
-	P3_0=1; // 'set' pin to 1 is normal operation mode.
+	P2_0=1; // 'set' pin to 1 is normal operation mode.
 	printf("Response: %s\r\n", buff);
 }
 
@@ -673,10 +673,12 @@ void main (void)
 		putchar1('M');
 		Timer3us(10000); //wait for 10 ms for robot to get attention message
 		// read the voltage from the remote control 
+		EA=0;
 		volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
 		volt_y = 100*(Volts_at_Pin(QFP32_MUX_P1_5));
 		volt_battery = Volts_at_Pin(QFP32_MUX_P2_2);
 		percentage = 100 * volt_battery / MAX_VOLT;
+		EA=1;
 		//thefastestsprintf(percentage,percentage_buff,2);
 		//printf("%s\r\n",percentage_buff);
 		//LCDprint2(percentage_buff, 2, 9);
