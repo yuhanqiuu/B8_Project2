@@ -497,27 +497,27 @@ void SendATCommand (char * s)
 	printf("Response: %s\n", buff);
 }
 
-int LevelSender(int freq)
+int LevelSender(int freq, int init_freq)
 {
 	int speaker_freq, difference; //assume test_freq is the freq got robot, speaker_freq default at 3000
 	
-	int default_metal_freq = 57700;
+	int default_metal_freq = init_freq;
 	//for checking
 	//difference = 600;
 
 		difference = abs(freq - default_metal_freq);
 
 		//check how much the metal freq increased
-		if((difference>=250) && (difference<500)){ // speaker plays 3000 freq
+		if((difference>=100) && (difference<200)){ // speaker plays 3000 freq
 			
 			speaker_freq = 1; //level 1
 
 		}
-		else if((difference>=500) && (difference<750) ){
+		else if((difference>=200) && (difference<300) ){
 			speaker_freq = 2; //level 2
 
 		}
-		else if(difference > 750) {
+		else if(difference > 300) {
 			speaker_freq = 3; //level 3
 
 		}
@@ -552,7 +552,7 @@ void main(void)
 	char buff[20];
 	//char buff_xy[20];
 	int cnt = 0;
-	unsigned long int count, f;
+	unsigned long int count, f, init_freq;
 	unsigned char LED_toggle=0;
 	//int y_index;
 	int timeout_cnt=0;
@@ -601,6 +601,21 @@ void main(void)
 	cnt=0;
 	pwm_arr[0] = 0;
 	pwm_arr[1] = 0;
+
+	count=GetPeriod(100);
+				
+
+    if(count>0)
+        {
+        	init_freq=((SYSCLK/2L)*100L)/count;
+            //printf("f = %d\r\n",f); //just for testing
+        }
+    else
+    {	
+        uart_puts("NO SIGNAL                     \r");
+    }
+
+
 	while(1)
 	{
 		//toggle pin
@@ -633,7 +648,7 @@ void main(void)
 			//continue as normal, and recieve the rest of the message
 			if(U1STAbits.URXDA) {
 				SerialReceive1(buff,sizeof(buff)-1);
-				printf("string = %s\r\n",buff); //for testing, remember to remove
+				//printf("string = %s\r\n",buff); //for testing, remember to remove
 
 				if(strlen(buff)==9){ //assume a good message from the transmitter is 9 bytes
 					x = atoi(&buff[1]);
@@ -652,7 +667,7 @@ void main(void)
                 {
                     f=((SYSCLK/2L)*100L)/count;
                     //printf("f = %d\r\n",f); //just for testing
-					speaker_freq = LevelSender(f);
+					speaker_freq = LevelSender(f,init_freq);
 					
                 }
                 else
@@ -664,7 +679,7 @@ void main(void)
 				holder[1] = '\r';
 				holder[2] = '\n';
 				holder[3] = '\0';
-				//printf("freq=%d, level=%s\r\n",f,holder); //for testing
+				printf("i_freq = %d, freq=%d, level=%s\r\n",init_freq,f,holder); //for testing
 				//constantly send the frequency value until the remote receives the correct value
 				
 				SerialTransmit1(holder);

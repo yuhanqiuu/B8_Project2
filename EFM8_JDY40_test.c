@@ -599,7 +599,8 @@ void main (void)
 	int volt_y;
 	int count = 0;
 	int volt_battery, percentage;
-	int percentage_buff[2];
+	char percentage_buff[2];
+	unsigned int prv_level;
 	// LCD_build_left();
 	// LCD_build_right();
 	// LCD_build_mid();
@@ -672,8 +673,10 @@ void main (void)
 		EA=0;
 		volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
 		volt_y = 100*(Volts_at_Pin(QFP32_MUX_P1_5));
-		volt_battery = Volts_at_Pin(QFP32_MUX_P2_2);
-		percentage = 100 * volt_battery / MAX_VOLT;
+		//volt_battery = Volts_at_Pin(QFP32_MUX_P2_2);
+		//percentage = 100 * volt_battery / MAX_VOLT;
+		//thefastestsprintf(percentage,percentage_buff,2);
+		//LCDprint2(percentage_buff,2,9);
 		EA=1;
 		//thefastestsprintf(percentage,percentage_buff,2);
 		//printf("%s\r\n",percentage_buff);
@@ -731,12 +734,13 @@ void main (void)
 				
 				//printf("%ld\r\n",f);
 
-			//	if (count == 2) {
-					
-					if(level==3){
+			//if (count == 2) {
+					// if(prv_level == 2){
+						if(level==3){
 						METAL_DECTECT = 0;
 					 	speaker_pulse();	
-					}
+						}
+					// }
 						speaker_f = 200*(level);
 						buff[0] = level + '0';
 						buff[1] = '\0';
