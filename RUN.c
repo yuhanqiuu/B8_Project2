@@ -1,45 +1,44 @@
-// EFM8LB1_Receiver.c:  This program implements a simple serial port
-// communication protocol to program, verify, and read SPI flash memories.  Since
-// the program was developed to store wav audio files, it also allows 
-// for the playback of said audio.  It is assumed that the wav sampling rate is
-// 22050Hz, 8-bit, mono.
-// ~C51~ 
+// main remote code
 
-#include <stdio.h>
-#include <stdlib.h>
+
 #include <EFM8LB1.h>
-#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #define SYSCLK 72000000L
 #define BAUDRATE 115200L
-#define TIMER_2_FREQ 22050L  // Must match the frequency of the wav file store in external SPI flash
-#define F_SCK_MAX 20000000L  // Max SPI SCK freq (Hz) 
-#define CS P0_3
+#define SARCLK 18000000L
 
-// Flash memory commands
-#define WRITE_ENABLE     0x06  // Address:0 Dummy:0 Num:0 fMax: 25MHz
-#define WRITE_DISABLE    0x04  // Address:0 Dummy:0 Num:0 fMax: 25MHz
-#define READ_STATUS      0x05  // Address:0 Dummy:0 Num:1 to infinite fMax: 32MHz
-#define READ_BYTES       0x03  // Address:3 Dummy:0 Num:1 to infinite fMax: 20MHz
-#define READ_SILICON_ID  0xab  // Address:0 Dummy:3 Num:1 to infinite fMax: 32MHz
-#define FAST_READ        0x0b  // Address:3 Dummy:1 Num:1 to infinite fMax: 40MHz
-#define WRITE_STATUS     0x01  // Address:0 Dummy:0 Num:1 fMax: 25MHz
-#define WRITE_BYTES      0x02  // Address:3 Dummy:0 Num:1 to 256 fMax: 25MHz
-#define ERASE_ALL        0xc7  // Address:0 Dummy:0 Num:0 fMax: 25MHz
-#define ERASE_BLOCK      0xd8  // Address:3 Dummy:0 Num:0 fMax: 25MHz
-#define READ_DEVICE_ID   0x9f  // Address:0 Dummy:2 Num:1 to infinite fMax: 25MHz
+#define DEFAULT_F 15500L
 
-// SPI Flash Memory connections:
-// 	P0.0: SCK  connected to pin 6
-// 	P0.1: MISO connected to pin 2
-// 	P0.2: MOSI connected to pin 5
-//  P0.3: CS*  connected to pin 1
-//  3.3V: connected to pins 3, 7, and 8
-//  GND:  connected to pin 4
+#define TIMER_OUT_2 P3_3 //speaker connnect to pin 3.3
+#define TIMER_OUT_4 P3_2 //timer 4 pin out
 
-volatile unsigned long int playcnt=0;
-volatile unsigned char play_flag=0; // If '1' the timer interrupt plays the sound (in the 8051 it could be a 'bit', but trying to make this as portable as possible)
+#define VDD 4.85 // The measured value of VDD in volts
+#define MAX_VOLT 4.5
+
+// for remote control 
+#define control_x QFP32_MUX_P1_4
+#define control_y QFP32_MUX_P1_5
+//#define speaker QFP32_MUX_P0_4
+
+#define LCD_RS P1_7
+// #define LCD_RW Px_x // Not used in this code.  Connect to GND
+#define LCD_E  P2_0
+#define LCD_D4 P1_3
+#define LCD_D5 P1_2
+#define LCD_D6 P1_1
+#define LCD_D7 P1_0
+#define CHARS_PER_LINE 16
+
+#define METAL_DECTECT P2_6
+
+#define PCA_OUT_4   P0_6
+#define PCA_4_FREQ 11000L
+#define TIMER_4_FREQ 5000L
+
+idata char buff[20];
 
 char _c51_external_startup (void)
 {
@@ -88,376 +87,674 @@ char _c51_external_startup (void)
 	#else
 		#error SYSCLK must be either 12250000L, 24500000L, 48000000L, or 72000000L
 	#endif
-
-	// Initialize the pin used by DAC0 (P3.0 in the LQFP32 package)
-	// 1. Clear the bit associated with the pin in the PnMDIN register to 0. This selects analog mode for the pin.
-    // 2. Set the bit associated with the pin in the Pn register to 1.
-    // 3. Skip the bit associated with the pin in the PnSKIP register to ensure the crossbar does not attempt to assign a function to the pin.
-	P3MDIN&=0b_1111_1110;
-	P3|=0b_0000_0001;
-	//P3SKIP|=0b_0000_0001; // P3 Pins Not Available on Crossbar
 	
-	P0MDOUT  = 0b_0001_1101;//SCK, MOSI, P0.3, TX0 are puspull, all others open-drain
-	XBR0     = 0b_0000_0011;//SPI0E=1, URT0E=1
+	P0MDOUT |= 0x11; // Enable UART0 TX (P0.4) and UART1 TX (P0.0) as push-pull outputs
+	P2MDOUT |= 0x00; // P2.0 in push-pull mode
+	XBR0     = 0x01; // Enable UART0 on P0.4(TX) and P0.5(RX)                     
 	XBR1     = 0X00;
-	XBR2     = 0x40; // Enable crossbar and weak pull-ups
+	XBR2     = 0x41; // Enable crossbar and uart 1
+	// Configure the pins used for square output
+	// P2MDOUT|=0x11;
+	// P0MDOUT |= 0x01; // Enable UART0 TX as push-pull output
+	// XBR0     = 0x01; // Enable UART0 on P0.4(TX) and P0.5(RX)                     
+	// XBR1     = 0X00; 
+	// XBR2     = 0x41; // Enable crossbar and weak pull-ups
+	// P2MDOUT|=0b_0000_0011;
+	// P0MDOUT |= 0x10; // Enable UART0 TX as push-pull output
+	// XBR0     = 0x01; // Enable UART0 on P0.4(TX) and P0.5(RX)                     
+	// XBR1     = 0x10; // Enable T0 on P0.0
+	// XBR2     = 0x40; // Enable crossbar and weak pull-ups
 
-	#if ( ((SYSCLK/BAUDRATE)/(12L*2L)) > 0x100)
-		#error Can not configure baudrate using timer 1 
-	#endif
 	// Configure Uart 0
+	#if (((SYSCLK/BAUDRATE)/(2L*12L))>0xFFL)
+		#error Timer 0 reload value is incorrect because (SYSCLK/BAUDRATE)/(2L*12L) > 0xFF
+	#endif
 	SCON0 = 0x10;
-	TH1 = 0x100-((SYSCLK/BAUDRATE)/(12L*2L));
+	TH1 = 0x100-((SYSCLK/BAUDRATE)/(2L*12L));
 	TL1 = TH1;      // Init Timer1
 	TMOD &= ~0xf0;  // TMOD: timer 1 in 8-bit auto-reload
 	TMOD |=  0x20;                       
 	TR1 = 1; // START Timer1
 	TI = 1;  // Indicate TX0 ready
-	
-  	// Initialize DAC
-	SFRPAGE = 0x30; 
-  	DACGCF0=0b_1000_1000; // 1:D23REFSL(VCC) 1:D3AMEN(NORMAL) 2:D3SRC(DAC3H:DAC3L) 1:D01REFSL(VCC) 1:D1AMEN(NORMAL) 1:D1SRC(DAC1H:DAC1L)
-  	DACGCF1=0b_0000_0000;
-  	DACGCF2=0b_0010_0010; // Reference buffer gain 1/3 for all channels
-  	DAC0CF0=0b_1000_0000; // Enable DAC 0
-  	DAC0CF1=0b_0000_0010; // DAC gain is 3.  Therefore the overall gain is 1.
-  	DAC0=0x80<<4;
 
-	SFRPAGE = 0x00; 
-
-	// SPI inititialization
-	SPI0CKR = (SYSCLK/(2*F_SCK_MAX))-1;
-	SPI0CFG = 0b_0100_0000; //SPI in master mode
-	SPI0CN0 = 0b_0000_0001; //SPI enabled and in three wire mode
-	CS=1;
-
-	// Initialize timer 2 for periodic interrupts
+	//Initialize timer 2 for periodic interrupts
 	TMR2CN0=0x00;   // Stop Timer2; Clear TF2;
-	CKCON0|=0b_0001_0000; // Timer 2 uses the system clock
-	TMR2RL=(0x10000L-(SYSCLK/TIMER_2_FREQ)); // Initialize reload value
+	CKCON0|=0b_0001_0000;
+	TMR2RL=(-(SYSCLK/(2*DEFAULT_F))); // Initialize reload value
 	TMR2=0xffff;   // Set to reload immediately
 	ET2=1;         // Enable Timer2 interrupts
-	TR2=1;         // Start Timer2 (TMR2CN is bit addressable)
+	TR2=1;         // Start Timer2
+	EA=1; // Global interrupt enable
 
-	EA=1; // Enable interrupts
-  		
+
+	// // Initialize timer 4 for periodic interrupts
+	// SFRPAGE=0x10;
+	// TMR4CN0=0x00;   // Stop Timer4; Clear TF4; WARNING: lives in SFR page 0x10
+	// CKCON1|=0b_0000_0001; // Timer 4 uses the system clock
+	// TMR4RL=(0x10000L-(SYSCLK/(2*TIMER_4_FREQ))); // Initialize reload value
+	// TMR4=0xffff;   // Set to reload immediately
+	// EIE2|=0b_0000_0100;     // Enable Timer4 interrupts
+	// TR4=1;
+  	
 	return 0;
 }
 
-unsigned char uart_getc (void)
-{
-	char c;
-	while (!RI);
-	RI=0;
-	c=SBUF;
-	return c;
-}
-
-void uart_putc (unsigned char c)
-{
-	while (!TI);
-	TI=0;
-	SBUF=c;
-}
-
-unsigned char SPIWrite (unsigned char x)
-{
-   SPI0DAT=x;
-   while(!SPIF);
-   SPIF=0;
-   return SPI0DAT;
-}
+// void Timer4_ISR (void) interrupt INTERRUPT_TIMER4
+// {
+// 	SFRPAGE=0x10;
+// 	TF4H = 0; // Clear Timer4 interrupt flag
+// 	TIMER_OUT_4=!TIMER_OUT_4;
+// }
 
 void Timer2_ISR (void) interrupt INTERRUPT_TIMER2
 {
-	unsigned char x;
-	
 	SFRPAGE=0x0;
 	TF2H = 0; // Clear Timer2 interrupt flag
+	TIMER_OUT_2=!TIMER_OUT_2;
+}
 
-	if (play_flag==1)
+void InitADC (void)
+{
+	SFRPAGE = 0x00;
+	ADEN=0; // Disable ADC
+	
+	ADC0CN1=
+		(0x2 << 6) | // 0x0: 10-bit, 0x1: 12-bit, 0x2: 14-bit
+        (0x0 << 3) | // 0x0: No shift. 0x1: Shift right 1 bit. 0x2: Shift right 2 bits. 0x3: Shift right 3 bits.		
+		(0x0 << 0) ; // Accumulate n conversions: 0x0: 1, 0x1:4, 0x2:8, 0x3:16, 0x4:32
+	
+	ADC0CF0=
+	    ((SYSCLK/SARCLK) << 3) | // SAR Clock Divider. Max is 18MHz. Fsarclk = (Fadcclk) / (ADSC + 1)
+		(0x0 << 2); // 0:SYSCLK ADCCLK = SYSCLK. 1:HFOSC0 ADCCLK = HFOSC0.
+	
+	ADC0CF1=
+		(0 << 7)   | // 0: Disable low power mode. 1: Enable low power mode.
+		(0x1E << 0); // Conversion Tracking Time. Tadtk = ADTK / (Fsarclk)
+	
+	ADC0CN0 =
+		(0x0 << 7) | // ADEN. 0: Disable ADC0. 1: Enable ADC0.
+		(0x0 << 6) | // IPOEN. 0: Keep ADC powered on when ADEN is 1. 1: Power down when ADC is idle.
+		(0x0 << 5) | // ADINT. Set by hardware upon completion of a data conversion. Must be cleared by firmware.
+		(0x0 << 4) | // ADBUSY. Writing 1 to this bit initiates an ADC conversion when ADCM = 000. This bit should not be polled to indicate when a conversion is complete. Instead, the ADINT bit should be used when polling for conversion completion.
+		(0x0 << 3) | // ADWINT. Set by hardware when the contents of ADC0H:ADC0L fall within the window specified by ADC0GTH:ADC0GTL and ADC0LTH:ADC0LTL. Can trigger an interrupt. Must be cleared by firmware.
+		(0x0 << 2) | // ADGN (Gain Control). 0x0: PGA gain=1. 0x1: PGA gain=0.75. 0x2: PGA gain=0.5. 0x3: PGA gain=0.25.
+		(0x0 << 0) ; // TEMPE. 0: Disable the Temperature Sensor. 1: Enable the Temperature Sensor.
+
+	ADC0CF2= 
+		(0x0 << 7) | // GNDSL. 0: reference is the GND pin. 1: reference is the AGND pin.
+		(0x1 << 5) | // REFSL. 0x0: VREF pin (external or on-chip). 0x1: VDD pin. 0x2: 1.8V. 0x3: internal voltage reference.
+		(0x1F << 0); // ADPWR. Power Up Delay Time. Tpwrtime = ((4 * (ADPWR + 1)) + 2) / (Fadcclk)
+	
+	ADC0CN2 =
+		(0x0 << 7) | // PACEN. 0x0: The ADC accumulator is over-written.  0x1: The ADC accumulator adds to results.
+		(0x0 << 0) ; // ADCM. 0x0: ADBUSY, 0x1: TIMER0, 0x2: TIMER2, 0x3: TIMER3, 0x4: CNVSTR, 0x5: CEX5, 0x6: TIMER4, 0x7: TIMER5, 0x8: CLU0, 0x9: CLU1, 0xA: CLU2, 0xB: CLU3
+
+	ADEN=1; // Enable ADC
+}
+
+
+// Uses Timer3 to delay <us> micro-seconds. 
+void Timer3us(unsigned char us)
+{
+	unsigned char i;               // usec counter
+	
+	// The input for Timer 3 is selected as SYSCLK by setting T3ML (bit 6) of CKCON0:
+	CKCON0|=0b_0100_0000;
+	
+	TMR3RL = (-(SYSCLK)/1000000L); // Set Timer3 to overflow in 1us.
+	TMR3 = TMR3RL;                 // Initialize Timer3 for first overflow
+	
+	TMR3CN0 = 0x04;                 // Sart Timer3 and clear overflow flag
+	for (i = 0; i < us; i++)       // Count <us> overflows
 	{
-		if(playcnt==0) // Done playing?
+		while (!(TMR3CN0 & 0x80));  // Wait for overflow
+		TMR3CN0 &= ~(0x80);         // Clear overflow indicator
+	}
+	TMR3CN0 = 0 ;                   // Stop Timer3 and clear overflow flag
+}
+
+void TIMER0_Init(void)
+{
+	TMOD&=0b_1111_0000; // Set the bits of Timer/Counter 0 to zero
+	TMOD|=0b_0000_0001; // Timer/Counter 0 used as a 16-bit timer
+	TR0=0; // Stop Timer/Counter 0
+}
+
+
+// initalize timer2 for speaker
+
+// void TIMER2_Init(void){
+// 	// Initialize timer 2 for periodic interrupts
+// 	TMR2CN0=0x00;   // Stop Timer2; Clear TF2;
+// 	CKCON0|=0b_0001_0000;
+// 	TMR2RL=(-(SYSCLK/(2*DEFAULT_F))); // Initialize reload value
+// 	TMR2=0xffff;   // Set to reload immediately
+// 	ET2=1;         // Enable Timer2 interrupts
+// 	TR2=1;         // Start Timer2
+// 	EA=1; // Global interrupt enable
+// }
+
+
+void waitms (unsigned int ms)
+{
+	unsigned int j;
+	unsigned char k;
+	for(j=0; j<ms; j++)
+		for (k=0; k<4; k++) Timer3us(250);
+}
+
+void InitPinADC (unsigned char portno, unsigned char pinno)
+{
+	unsigned char mask;
+	
+	mask=1<<pinno;
+
+	SFRPAGE = 0x20;
+	switch (portno)
+	{
+		case 0:
+			P0MDIN &= (~mask); // Set pin as analog input
+			P0SKIP |= mask; // Skip Crossbar decoding for this pin
+		break;
+		case 1:
+			P1MDIN &= (~mask); // Set pin as analog input
+			P1SKIP |= mask; // Skip Crossbar decoding for this pin
+		break;
+		case 2:
+			P2MDIN &= (~mask); // Set pin as analog input
+			P2SKIP |= mask; // Skip Crossbar decoding for this pin
+		break;
+		default:
+		break;
+	}
+	SFRPAGE = 0x00;
+}
+
+unsigned int ADC_at_Pin(unsigned char pin)
+{
+	ADC0MX = pin;   // Select input from pin
+	ADINT = 0;
+	ADBUSY = 1;     // Convert voltage at the pin
+	while (!ADINT); // Wait for conversion to complete
+	return (ADC0);
+}
+
+unsigned int Get_ADC (void)
+{
+    ADINT = 0;
+    ADBUSY = 1;
+    while (!ADINT); // Wait for conversion to complete
+    return (ADC0);
+}
+
+
+float Volts_at_Pin(unsigned char pin)
+{
+	 return ((ADC_at_Pin(pin)*VDD)/16383);
+}
+
+void UART1_Init (unsigned long baudrate)
+{
+    SFRPAGE = 0x20;
+	SMOD1 = 0x0C; // no parity, 8 data bits, 1 stop bit
+	SCON1 = 0x10;
+	SBCON1 =0x00;   // disable baud rate generator
+	SBRL1 = 0x10000L-((SYSCLK/baudrate)/(12L*2L));
+	TI1 = 1; // indicate ready for TX
+	SBCON1 |= 0x40;   // enable baud rate generator
+	SFRPAGE = 0x00;
+}
+
+void putchar1 (char c) 
+{
+    SFRPAGE = 0x20;
+	while (!TI1);
+	TI1=0;
+	SBUF1 = c;
+	SFRPAGE = 0x00;
+}
+
+void sendstr1 (char * s)
+{
+	while(*s)
+	{
+		putchar1(*s);
+		s++;	
+	}
+}
+
+char getchar1 (void)
+{
+	char c;
+    SFRPAGE = 0x20;
+	while (!RI1);
+	RI1=0;
+	// Clear Overrun and Parity error flags 
+	SCON1&=0b_0011_1111;
+	c = SBUF1;
+	SFRPAGE = 0x00;
+	return (c);
+}
+
+char getchar1_with_timeout (void)
+{
+	char c;
+	unsigned int timeout;
+    SFRPAGE = 0x20;
+    timeout=0;
+	while (!RI1)
+	{
+		SFRPAGE = 0x00;
+		Timer3us(20);
+		SFRPAGE = 0x20;
+		timeout++;
+		if(timeout==25000)
 		{
-			CS=1; 
-			play_flag=0;
+			SFRPAGE = 0x00;
+			return ('\n'); // Timeout after half second
 		}
-		else
+	}
+	RI1=0;
+	// Clear Overrun and Parity error flags 
+	SCON1&=0b_0011_1111;
+	c = SBUF1;
+	SFRPAGE = 0x00;
+	return (c);
+}
+
+void getstr1 (char * s)
+{
+	char c;
+	
+	while(1)
+	{
+		c=getchar1_with_timeout();
+		if(c=='\n')
 		{
-			x=SPIWrite(0x55);
-			SFRPAGE = 0x30;
-			DAC0=x<<4;
-			playcnt--;
+			*s= 0; //was 0
+			return;
+		}
+		*s=c;
+		s++;
+	}
+}
+
+// RXU1 returns '1' if there is a byte available in the receive buffer of UART1
+bit RXU1 (void)
+{
+	bit mybit;
+    SFRPAGE = 0x20;
+	mybit=RI1;
+	SFRPAGE = 0x00;
+	return mybit;
+}
+
+void waitms_or_RI1 (unsigned int ms)
+{
+	unsigned int j;
+	unsigned char k;
+	for(j=0; j<ms; j++)
+	{
+		for (k=0; k<4; k++)
+		{
+			if(RXU1()) return;
+			Timer3us(250);
 		}
 	}
 }
 
-void Start_Playback (unsigned long int address, unsigned long int numb)
+void SendATCommand (char * s)
 {
-	play_flag=0;
-	CS=1;
-
-    CS=0;
-    SPIWrite(READ_BYTES);
-    SPIWrite((unsigned char)((address>>16)&0xff));
-    SPIWrite((unsigned char)((address>>8)&0xff));
-    SPIWrite((unsigned char)(address&0xff));
-    playcnt=numb;
-    play_flag=1;
+	printf("Command: %s", s);
+	P3_0=0; // 'set' pin to 0 is 'AT' mode.
+	waitms(5);
+	sendstr1(s);
+	getstr1(buff);
+	waitms(10);
+	P3_0=1; // 'set' pin to 1 is normal operation mode.
+	printf("Response: %s\r\n", buff);
 }
 
-void Enable_Write (void)
+//LCD stuff
+
+void LCD_pulse (void)
 {
-    CS=0;
-    SPIWrite(WRITE_ENABLE);
-    CS=1;
+	LCD_E=1;
+	Timer3us(40);
+	LCD_E=0;
 }
 
-void Check_WIP (void)
+void LCD_byte (unsigned char x)
 {
-	unsigned char c;
-	do
-	{
-	    CS=0;
-	    SPIWrite(READ_STATUS);
-	    c=SPIWrite(0x55);
-	    CS=1;
-	} while (c&0x01);
+	// The accumulator in the C8051Fxxx is bit addressable!
+	ACC=x; //Send high nible
+	LCD_D7=ACC_7;
+	LCD_D6=ACC_6;
+	LCD_D5=ACC_5;
+	LCD_D4=ACC_4;
+	LCD_pulse();
+	Timer3us(40);
+	ACC=x; //Send low nible
+	LCD_D7=ACC_3;
+	LCD_D6=ACC_2;
+	LCD_D5=ACC_1;
+	LCD_D4=ACC_0;
+	LCD_pulse();
 }
 
-static const unsigned short crc16_ccitt_table[256] = {
-    0x0000U, 0x1021U, 0x2042U, 0x3063U, 0x4084U, 0x50A5U, 0x60C6U, 0x70E7U,
-    0x8108U, 0x9129U, 0xA14AU, 0xB16BU, 0xC18CU, 0xD1ADU, 0xE1CEU, 0xF1EFU,
-    0x1231U, 0x0210U, 0x3273U, 0x2252U, 0x52B5U, 0x4294U, 0x72F7U, 0x62D6U,
-    0x9339U, 0x8318U, 0xB37BU, 0xA35AU, 0xD3BDU, 0xC39CU, 0xF3FFU, 0xE3DEU,
-    0x2462U, 0x3443U, 0x0420U, 0x1401U, 0x64E6U, 0x74C7U, 0x44A4U, 0x5485U,
-    0xA56AU, 0xB54BU, 0x8528U, 0x9509U, 0xE5EEU, 0xF5CFU, 0xC5ACU, 0xD58DU,
-    0x3653U, 0x2672U, 0x1611U, 0x0630U, 0x76D7U, 0x66F6U, 0x5695U, 0x46B4U,
-    0xB75BU, 0xA77AU, 0x9719U, 0x8738U, 0xF7DFU, 0xE7FEU, 0xD79DU, 0xC7BCU,
-    0x48C4U, 0x58E5U, 0x6886U, 0x78A7U, 0x0840U, 0x1861U, 0x2802U, 0x3823U,
-    0xC9CCU, 0xD9EDU, 0xE98EU, 0xF9AFU, 0x8948U, 0x9969U, 0xA90AU, 0xB92BU,
-    0x5AF5U, 0x4AD4U, 0x7AB7U, 0x6A96U, 0x1A71U, 0x0A50U, 0x3A33U, 0x2A12U,
-    0xDBFDU, 0xCBDCU, 0xFBBFU, 0xEB9EU, 0x9B79U, 0x8B58U, 0xBB3BU, 0xAB1AU,
-    0x6CA6U, 0x7C87U, 0x4CE4U, 0x5CC5U, 0x2C22U, 0x3C03U, 0x0C60U, 0x1C41U,
-    0xEDAEU, 0xFD8FU, 0xCDECU, 0xDDCDU, 0xAD2AU, 0xBD0BU, 0x8D68U, 0x9D49U,
-    0x7E97U, 0x6EB6U, 0x5ED5U, 0x4EF4U, 0x3E13U, 0x2E32U, 0x1E51U, 0x0E70U,
-    0xFF9FU, 0xEFBEU, 0xDFDDU, 0xCFFCU, 0xBF1BU, 0xAF3AU, 0x9F59U, 0x8F78U,
-    0x9188U, 0x81A9U, 0xB1CAU, 0xA1EBU, 0xD10CU, 0xC12DU, 0xF14EU, 0xE16FU,
-    0x1080U, 0x00A1U, 0x30C2U, 0x20E3U, 0x5004U, 0x4025U, 0x7046U, 0x6067U,
-    0x83B9U, 0x9398U, 0xA3FBU, 0xB3DAU, 0xC33DU, 0xD31CU, 0xE37FU, 0xF35EU,
-    0x02B1U, 0x1290U, 0x22F3U, 0x32D2U, 0x4235U, 0x5214U, 0x6277U, 0x7256U,
-    0xB5EAU, 0xA5CBU, 0x95A8U, 0x8589U, 0xF56EU, 0xE54FU, 0xD52CU, 0xC50DU,
-    0x34E2U, 0x24C3U, 0x14A0U, 0x0481U, 0x7466U, 0x6447U, 0x5424U, 0x4405U,
-    0xA7DBU, 0xB7FAU, 0x8799U, 0x97B8U, 0xE75FU, 0xF77EU, 0xC71DU, 0xD73CU,
-    0x26D3U, 0x36F2U, 0x0691U, 0x16B0U, 0x6657U, 0x7676U, 0x4615U, 0x5634U,
-    0xD94CU, 0xC96DU, 0xF90EU, 0xE92FU, 0x99C8U, 0x89E9U, 0xB98AU, 0xA9ABU,
-    0x5844U, 0x4865U, 0x7806U, 0x6827U, 0x18C0U, 0x08E1U, 0x3882U, 0x28A3U,
-    0xCB7DU, 0xDB5CU, 0xEB3FU, 0xFB1EU, 0x8BF9U, 0x9BD8U, 0xABBBU, 0xBB9AU,
-    0x4A75U, 0x5A54U, 0x6A37U, 0x7A16U, 0x0AF1U, 0x1AD0U, 0x2AB3U, 0x3A92U,
-    0xFD2EU, 0xED0FU, 0xDD6CU, 0xCD4DU, 0xBDAAU, 0xAD8BU, 0x9DE8U, 0x8DC9U,
-    0x7C26U, 0x6C07U, 0x5C64U, 0x4C45U, 0x3CA2U, 0x2C83U, 0x1CE0U, 0x0CC1U,
-    0xEF1FU, 0xFF3EU, 0xCF5DU, 0xDF7CU, 0xAF9BU, 0xBFBAU, 0x8FD9U, 0x9FF8U,
-    0x6E17U, 0x7E36U, 0x4E55U, 0x5E74U, 0x2E93U, 0x3EB2U, 0x0ED1U, 0x1EF0U
-};
-
-unsigned short crc16_ccitt(unsigned char val, unsigned short crc)
+void speaker_pulse(void) 
 {
-    unsigned short tmp;
-
-    tmp = (crc >> 8) ^ val;
-    crc = ((unsigned short)(crc << 8U)) ^ crc16_ccitt_table[tmp];
-    return crc;
+	METAL_DECTECT = 0;
+	waitms(50);
+	METAL_DECTECT = 1;
 }
+
+void WriteData (unsigned char x)
+{
+	LCD_RS=1;
+	LCD_byte(x);
+	waitms(2);
+}
+
+void WriteCommand (unsigned char x)
+{
+	LCD_RS=0;
+	LCD_byte(x);
+	waitms(5);
+}
+
+void LCD_4BIT (void)
+{
+	LCD_E=0; // Resting state of LCD's enable is zero
+	// LCD_RW=0; // We are only writing to the LCD in this program
+	waitms(20);
+	// First make sure the LCD is in 8-bit mode and then change to 4-bit mode
+	WriteCommand(0x33);
+	WriteCommand(0x33);
+	WriteCommand(0x32); // Change to 4-bit mode
+
+	// Configure the LCD
+	WriteCommand(0x28);
+	WriteCommand(0x0c);
+	WriteCommand(0x01); // Clear screen command (takes some time)
+	waitms(20); // Wait for clear screen command to finsih.
+}
+
+void LCDprint(char * string, unsigned char line, bit clear)
+{
+	int j;
+
+	WriteCommand(line==2?0xc0:0x80);
+	waitms(5);
+	for(j=0; string[j]!=0; j++)	WriteData(string[j]);// Write the message
+	if(clear) for(; j<CHARS_PER_LINE; j++) WriteData(' '); // Clear the rest of the line
+}
+
+void LCDprint2(char * string, unsigned char line, unsigned char col)
+{
+	int j;
+
+	WriteCommand(line==2?0xc0|col:0x80|col); // Move cursor to line and column
+	for(j=0; string[j]!=0; j++) WriteData(string[j]); // Write the message
+}
+
+void thefastestsprintf (int num, char str[], int index) {
+	//int index = 5;
+	int i = 3;
+	str[index] = '\0';
+
+	for (i = 3; i > 0; i--) {
+
+		if (index < 0) {
+			break;
+		}
+		str[index -1] = num % 10 + '0';
+		num/=10;
+		index--;
+	}
+	
+	return;
+}
+
+void LCD_build_left(void){
+	WriteCommand(0x48);       //Load the location where we want to store
+	WriteData(0x1f);      //Load row 1 data
+	WriteData(0x10);      //Load row 2 data
+	WriteData(0x13);      //Load row 3 data
+	WriteData(0x17);      //Load row 4 data
+	WriteData(0x17);      //Load row 5 data
+	WriteData(0x13);      //Load row 6 data
+	WriteData(0x10);      //Load row 7 data
+	WriteData(0x1f);      //Load row 8 data
+}
+
+void LCD_build_right(void){
+	WriteCommand(0x50);       //Load the location where we want to store
+	WriteData(0x1f);      //Load row 1 data
+	WriteData(0x1);      //Load row 2 data
+	WriteData(0x1d);      //Load row 3 data
+	WriteData(0x1d);      //Load row 4 data
+	WriteData(0x1d);      //Load row 5 data
+	WriteData(0x1d);      //Load row 6 data
+	WriteData(0x1);      //Load row 7 data
+	WriteData(0x1f);      //Load row 8 data
+}
+
+
+void LCD_build_mid(void){
+	WriteCommand(0x58);       //Load the location where we want to store
+	WriteData(0x1f);      //Load row 1 data
+	WriteData(0x0);      //Load row 2 data
+	WriteData(0x1f);      //Load row 3 data
+	WriteData(0x1f);      //Load row 4 data
+	WriteData(0x1f);      //Load row 5 data
+	WriteData(0x1f);      //Load row 6 data
+	WriteData(0x0);      //Load row 7 data
+	WriteData(0x1f);      //Load row 8 data
+}
+
+void LCD_build_left_empty(void){
+	WriteCommand(0x60);       //Load the location where we want to store
+	WriteData(0x1f);      //Load row 1 data
+	WriteData(0x10);      //Load row 2 data
+	WriteData(0x10);      //Load row 3 data
+	WriteData(0x10);      //Load row 4 data
+	WriteData(0x10);      //Load row 5 data
+	WriteData(0x10);      //Load row 6 data
+	WriteData(0x10);      //Load row 7 data
+	WriteData(0x1f);      //Load row 8 data
+}
+
+void LCD_build_mid_empty(void){
+	WriteCommand(0x68);       //Load the location where we want to store
+	WriteData(0x1f);      //Load row 1 data
+	WriteData(0x10);      //Load row 2 data
+	WriteData(0x00);      //Load row 3 data
+	WriteData(0x00);      //Load row 4 data
+	WriteData(0x00);      //Load row 5 data
+	WriteData(0x00);      //Load row 6 data
+	WriteData(0x00);      //Load row 7 data
+	WriteData(0x1f);      //Load row 8 data
+}
+
+void LCD_build_right_empty(void){
+	WriteCommand(0x70);       //Load the location where we want to store
+	WriteData(0x1f);      //Load row 1 data
+	WriteData(0x1);      //Load row 2 data
+	WriteData(0x1);      //Load row 3 data
+	WriteData(0x1);      //Load row 4 data
+	WriteData(0x1);      //Load row 5 data
+	WriteData(0x1);      //Load row 6 data
+	WriteData(0x1);      //Load row 7 data
+	WriteData(0x1f);      //Load row 8 data
+}
+
 
 void main (void)
 {
-    unsigned char c;
-    unsigned int j, n;
-    unsigned long start, nbytes;
-    unsigned int crc; // For software CRC16 calculation (if used)
+	unsigned int cnt;
+	unsigned int timeout_cnt;
+	unsigned int level,speaker_f;
+	int volt_x;
+	int volt_y;
+	int count = 0;
+	int volt_battery, percentage;
+	int percentage_buff[2];
+	// LCD_build_left();
+	// LCD_build_right();
+	// LCD_build_mid();
 
-	playcnt=0;
-	play_flag=0;
-	CS=1;
-      
+
+	LCD_4BIT();
+	// float strength = 0.0; //display the â€œstrengthâ€ of the signal of the metal detector in the robot
+	// the period of oscillator i assume, nvm i think it's teh same as freqency
+	//float frequency;
+	//char buff1[17]; // for lcd display
+	        //123456789ABCDEFGH
+	LCDprint("Strength = x",1,0);
+	LCDprint("Battery: xx% ", 2,0);
+	// WriteCommand(0xCD);
+	// WriteData(1); // For pattern @0x48
+	// WriteCommand(0xCE);
+	// WriteData(3); // For pattern @0x50
+	// WriteCommand(0xCF);
+	// WriteData(2); // For pattern @0x48
+
+
+
+	// use p2.4 for joystick vry, p2.5 for vrx
+	InitADC();
+	waitms(500);
+	printf("\r\nJDY-40 test\r\n");
+	UART1_Init(9600);
+	InitPinADC(1,4); //for x remote
+	InitPinADC(1,5); //for y remote
+	//TIMER2_Init();
+
+	// To configure the device (shown here using default values).
+	// For some changes to take effect, the JDY-40 needs to be power cycled.
+	// Communication can only happen between devices with the
+	// same RFID and DVID in the same channel.
+	
+	//SendATCommand("AT+BAUD4\r\n");
+	//SendATCommand("AT+RFID8899\r\n");
+	//SendATCommand("AT+DVID1122\r\n"); // Default device ID.
+	//SendATCommand("AT+RFC001\r\n");
+	//SendATCommand("AT+POWE9\r\n");
+	//SendATCommand("AT+CLSSA0\r\n");
+	
+	// We should select an unique device ID.  The device ID can be a hex
+	// number from 0x0000 to 0xFFFF.  In this case is set to 0xABBA
+	SendATCommand("AT+DVID9944\r\n"); 
+	SendATCommand("AT+RFID2576\r\n");
+ 
+
+	// To check configuration
+	SendATCommand("AT+VER\r\n");
+	SendATCommand("AT+BAUD\r\n");
+	SendATCommand("AT+RFID\r\n");
+	SendATCommand("AT+DVID\r\n");
+	SendATCommand("AT+RFC\r\n");
+	SendATCommand("AT+POWE\r\n");
+	SendATCommand("AT+CLSS\r\n");
+	
+	printf("\r\nPress and hold the BOOT button to transmit.\r\n");
+	
+	cnt=0;
+	timeout_cnt=0;
+	TR2 = 1;
 	while(1)
-	{
-		c=uart_getc();
+	{	
+		//send attention code
+		putchar1('M');
+		Timer3us(10000); //wait for 10 ms for robot to get attention message
+		// read the voltage from the remote control 
+		volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
+		volt_y = 100*(Volts_at_Pin(QFP32_MUX_P1_5));
+		volt_battery = Volts_at_Pin(QFP32_MUX_P2_2);
+		percentage = 100 * volt_battery / MAX_VOLT;
+		//thefastestsprintf(percentage,percentage_buff,2);
+		//printf("%s\r\n",percentage_buff);
+		//LCDprint2(percentage_buff, 2, 9);
 
-		if(c=='#')
+		//printf("x: %d\r\n",volt_x);
+		//printf("y: %d\r\n",volt_y);
+		//waitms(200);
+		//buff[0]=NULL;
+		// after 10ms, send the joystick control data to the robot.
+		//sprintf(buff, "%03d|%03d\r\n", volt_x, volt_y); // make sure that each data point is 3 digits
+		thefastestsprintf(volt_x,buff,3); 
+		buff[3] = '|';
+		thefastestsprintf(volt_y,buff,7); 
+		//printf("%s\r\n",buff);
+		buff[7] = '\r';
+		buff[8] = '\n';
+		//printf("%d\n",strlen(buff));
+		sendstr1(buff);
+		//printf("%s\r\n",buff);
+		
+		// timeout
+		timeout_cnt=0;
+		while(1)
 		{
-			playcnt=0;
-			play_flag=0; // Stop previous playback if any
-			CS=1;
-					
-			c=uart_getc();
+			if(RXU1()) break; // Got something! Get out of loop.
+			Timer3us(10); // Check if something has arrived every 10us
+			timeout_cnt++;
+
+			if(timeout_cnt>=700) break; // timeout after 1ms, get out of loop
+		} 
+		
+
+		// speaker play sounds if metal was detected -> frequency increase
+		// frequency get from the robot.
+		
+		// if read 
+		if(RXU1())
+		{	
+			//get freq level from robot (from lvl 1-6), get them in buffer
+			// check if the recive the complete data, else wait longer
+			getstr1(buff);	
+			//printf("received\r\n");
+			//printf("string=%s\r\n",buff);
+
+			level = atoi(&buff[0]);
+
+			// if(level[count] == 1) {
+			// 	speaker_pulse();
+			// }
 			
-			switch(c)
-			{
-				case '0': // Identify command
-				    CS=0;
-				    SPIWrite(READ_DEVICE_ID);
-				    c=SPIWrite((unsigned char)(0xff));
-				    uart_putc(c);
-				    c=SPIWrite((unsigned char)(0xff));
-				    uart_putc(c);
-				    c=SPIWrite((unsigned char)(0xff));
-				    uart_putc(c);
-				    CS=1;
-				break;
+			if(level >= 0 && level <= 3){ //check if the signal is in the range
+				//printf("string=%s\r\n",buff);
+				//change string to long int
+				
+				//printf("%ld\r\n",f);
 
-				case '1': // Erase whole flash (takes a long time)
-					Enable_Write();
-				    CS=0;
-				    SPIWrite(ERASE_ALL);
-				    CS=1;
-				    Check_WIP();
-				    uart_putc(0x01);
-				break;
-				
-				case '2': // Load flash page (256 bytes or less)
-					Enable_Write();
-				    CS=0;
-				    SPIWrite(WRITE_BYTES);
-				    c=uart_getc(); // Address bits 16 to 23
-				    SPIWrite(c);
-				    c=uart_getc(); // Address bits 8 to 15
-				    SPIWrite(c);
-				    c=uart_getc(); // Address bits 0 to 7
-				    SPIWrite(c);
-				    n=uart_getc(); // Number of bytes to write.
-				    if(n==0) n=256;
-				    for(j=0; j<n; j++)
-				    {
-				    	c=uart_getc();
-				    	SPIWrite(c);
-				    }
-				    CS=1;
-				    Check_WIP();
-				    uart_putc(0x01);
-				break;
-				
-				case '3': // Read flash bytes (256 bytes or less)
-				    CS=0;
-				    SPIWrite(READ_BYTES);
-				    c=uart_getc(); // Address bits 16 to 23
-				    SPIWrite(c);
-				    c=uart_getc(); // Address bits 8 to 15
-				    SPIWrite(c);
-				    c=uart_getc(); // Address bits 0 to 7
-				    SPIWrite(c);
-				    n=uart_getc(); // Number of bytes to write
-				    if(n==0) n=256;
-				    for(j=0; j<n; j++)
-				    {
-				    	c=SPIWrite(0x55);
-				    	uart_putc(c);
-				    }
-				    CS=1;
-				break;
-				
-				case '4': // Playback a portion of the stored wav file
-					// Get the start position
-					c=uart_getc();
-					start=c;
-					c=uart_getc();
-					start=start*256L+c;
-					c=uart_getc();
-					start=start*256L+c;
+			//	if (count == 2) {
 					
-					// Get the number of bytes to playback
-					c=uart_getc();
-					nbytes=c;
-					c=uart_getc();
-					nbytes=nbytes*256L+c;
-					c=uart_getc();
-					nbytes=nbytes*256L+c;
+					// if(level==3){
+					// 	METAL_DECTECT = 0;
+					// 	speaker_pulse();	
+					// }
+						speaker_f = 200*(level);
+						buff[0] = level + '0';
+						buff[1] = '\0';
+						LCDprint2(buff,1,11);
+						// speaker beeps
+						TR2=0; // Stop timer 2
+						TMR2RL=0x10000L-(SYSCLK/(2*speaker_f)); // Change reload value for new frequency
+						if(level==0){
+							TIMER_OUT_2=0;
+							TR2=0;
+						}else{
+							TR2=1; // Start timer 2
+						}
+						//METAL_DECTECT = 1;
+						//count = -1;
 					
-					Start_Playback(start, nbytes);
 				
-				break;
-
-				// This version uses the fast hardware CRC calculator.
-				case '5': ; // Calculate and send CRC-16 of ISP flash memory from zero to the 24-bit passed value.
-					c=uart_getc();
-					nbytes=c;
-					c=uart_getc();
-					nbytes=nbytes*256L+c;
-					c=uart_getc();
-					nbytes=nbytes*256L+c;
-				
-				    CS=0;
-				    SPIWrite(READ_BYTES);
-				    SPIWrite(0x00); // Address bits 16 to 23
-				    SPIWrite(0x00); // Address bits 8 to 1
-				    SPIWrite(0x00); // Address bits 0 to 7
-
-					SFRPAGE=0x20;   // UART0, CRC, and SPI can work on this page
-					CRC0CN0=0b_0000_1000; // Initialize hardware CRC result to zero;
-					for(start=0; start<nbytes; start++)
-					{
-						CRC0IN=SPIWrite(0x00);// Feed new byte to hardware CRC calculator
-					}
-					CS=1;
-
-					CRC0CN0=0x01; // Set bit to read hardware CRC high byte
-					uart_putc(CRC0DAT);
-					CRC0CN0=0x00; // Clear bit to read hardware CRC low byte
-					uart_putc(CRC0DAT);
-					
-					SFRPAGE = 0x00;
-				break;
-
-				// Software CRC calculation.  Since the EFM8LB1 has a hardware CRC calculator
-				// we use that instead of this one (see above) which is a lot faster.  If the
-				// part you are using doesn't have a CRC calculator, you can use this instead.
-				// Rename this one to '5' and erase the one above.
-				case 'X': ; // Calculate and send CRC-16 of ISP flash memory from zero to the 24-bit passed value.
-					c=uart_getc();
-					nbytes=c;
-					c=uart_getc();
-					nbytes=nbytes*256L+c;
-					c=uart_getc();
-					nbytes=nbytes*256L+c;
-				
-					crc=0;
-				    CS=0; // Enable 25Q32 SPI flash memory.
-				    SPIWrite(READ_BYTES);
-				    SPIWrite(0x00); // Address bits 16 to 23
-				    SPIWrite(0x00); // Address bits 8 to 1
-				    SPIWrite(0x00); // Address bits 0 to 7
-				    
-					for(start=0; start<nbytes; start++)
-					{
-						c=SPIWrite(0x00);
-						crc=crc16_ccitt(c, crc); // Calculate CRC here
-					}
-				    CS=1; // Disable 25Q32 SPI flash memory
-
-					uart_putc(crc/0x100); // Send high byte of CRC
-					uart_putc(crc%0x100); // Send low byte of CRC
-				break;
-
-				case '6': // Fill flash page (256 bytes or less).
-					Enable_Write();
-				    CS=0;
-				    SPIWrite(WRITE_BYTES);
-				    c=uart_getc(); // Address bits 16 to 23
-				    SPIWrite(c);
-				    c=uart_getc(); // Address bits 8 to 15
-				    SPIWrite(c);
-				    c=uart_getc(); // Address bits 0 to 7
-				    SPIWrite(c);
-				    c=uart_getc(); // byte to copy to page
-				    for(j=0; j<256; j++)
-				    {
-				    	SPIWrite(c);
-				    }
-				    CS=1;
-				    Check_WIP();
-				    uart_putc(0x01);
-				break;
-			}
-		}
-    }  
-}	
+			//}
+			//count++;
+		//}
+		//waitms_or_RI1(10);
+	}
+}

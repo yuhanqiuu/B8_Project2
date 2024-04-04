@@ -343,7 +343,9 @@ long int GetPeriod (int n)
 {
 	int i;
 	unsigned int saved_TCNT1a, saved_TCNT1b;
-	
+	//disable interrupts just before measuring period
+	__builtin_disable_interrupts();
+
     _CP0_SET_COUNT(0); // resets the core timer count
 	while (PIN_PERIOD!=0) // Wait for square wave to be 0
 	{
@@ -368,6 +370,9 @@ long int GetPeriod (int n)
 			if(_CP0_GET_COUNT() > (SYSCLK/8)) return 0;
 		}
 	}
+
+	//reenable interrupts just before returning
+	__builtin_enable_interrupts();
 
 	return  _CP0_GET_COUNT();
 }
@@ -449,35 +454,35 @@ void delayms(int len)
 	while(len--) wait_1ms();
 }
 
-void tostring(char str[], int num)
-{
-    int i, rem, len = 0, n;
+// void tostring(char str[], int num)
+// {
+//     int i, rem, len = 0, n;
  
-    n = num;
-    while (n != 0)
-    {
-        len++;
-        n /= 10;
-    }
-    for (i = 0; i < len; i++)
-    {
-        rem = num % 10;
-        num = num / 10;
-        str[len - (i + 1)] = rem + '0';
-    }
-    str[len] = '\r';
-	str[len+1] = '\n';
-	str[len+2] = '\0';
-}
+//     n = num;
+//     while (n != 0)
+//     {
+//         len++;
+//         n /= 10;
+//     }
+//     for (i = 0; i < len; i++)
+//     {
+//         rem = num % 10;
+//         num = num / 10;
+//         str[len - (i + 1)] = rem + '0';
+//     }
+//     str[len] = '\r';
+// 	str[len+1] = '\n';
+// 	str[len+2] = '\0';
+// }
 
-int gety (char space, char arr[]) {
-	int i = 0;
+// int gety (char space, char arr[]) {
+// 	int i = 0;
 
-	while(arr[i] != ' ') {
-		i++;
-	}
-	return i;
-}
+// 	while(arr[i] != ' ') {
+// 		i++;
+// 	}
+// 	return i;
+// }
 
 void SendATCommand (char * s)
 {
@@ -496,36 +501,36 @@ int LevelSender(int freq)
 {
 	int speaker_freq, difference; //assume test_freq is the freq got robot, speaker_freq default at 3000
 	
-	int default_metal_freq = 57800;
+	int default_metal_freq = 57600;
 	//for checking
 	//difference = 600;
 
 		difference = abs(freq - default_metal_freq);
 
 		//check how much the metal freq increased
-		if((difference>=50) && (difference<100)){ // speaker plays 3000 freq
+		if((difference>=250) && (difference<500)){ // speaker plays 3000 freq
 			
 			speaker_freq = 1; //level 1
 
 		}
-		else if((difference>=100) && (difference<150) ){
+		else if((difference>=500) && (difference<750) ){
 			speaker_freq = 2; //level 2
 
 		}
-		else if((difference>=150) && (difference<200) ){
+		else if(difference > 750) {
 			speaker_freq = 3; //level 3
 
 		}
-		else if((difference>=200) && (difference<250) ){
-			speaker_freq = 4; //level 4
-		}
-		else if((difference>=250) && (difference<300) ){
-			speaker_freq = 5; //level 5
-		}
-		else if(difference>=300){
-			speaker_freq = 6; //level 6
+		// else if((difference>=550) && (difference<700) ){
+		// 	speaker_freq = 4; //level 4
+		// }
+		// else if((difference>=700) && (difference<850) ){
+		// 	speaker_freq = 5; //level 5
+		// }
+		// else if(difference>=850){
+		// 	speaker_freq = 6; //level 6
 
-		}
+		// }
 		else{
 			// do nothing
 			speaker_freq = 0; //level 0
@@ -545,14 +550,15 @@ void main(void)
     long int v;
 	int pwm_arr[2];
 	char buff[20];
-	char buff_xy[20];
+	//char buff_xy[20];
 	int cnt = 0;
 	unsigned long int count, f;
 	unsigned char LED_toggle=0;
-	int y_index;
+	//int y_index;
 	int timeout_cnt=0;
 	char holder[5];
-	int x, y=250;
+	int x = 238;
+	int y = 242;
 	unsigned long int speaker_freq;
     
 	//int i = 0;
@@ -619,7 +625,7 @@ void main(void)
 				if(U1STAbits.URXDA) {		//if we've recieved a value, break				
 					break;
 				}
-				Timer4us(100); //wait 100 us, or 0.1 ms
+				Timer4us(100); //wait 100 us
 				timeout_cnt++;
 				if(timeout_cnt>=100) break;  //if we recieve nothing in 10 ms then break
 			}
@@ -636,9 +642,12 @@ void main(void)
 					
 
 				}
-            
+				
 				//calculate frequency value 
+				
 				count=GetPeriod(100);
+				
+
                 if(count>0)
                 {
                     f=((SYSCLK/2L)*100L)/count;
@@ -655,18 +664,17 @@ void main(void)
 				holder[1] = '\r';
 				holder[2] = '\n';
 				holder[3] = '\0';
-				//sprintf(buff,"12345\r\n");
-				printf("freq=%d, level=%s\r\n",f,holder); //for testing
+				//printf("freq=%d, level=%s\r\n",f,holder); //for testing
 				//constantly send the frequency value until the remote receives the correct value
 				
 				SerialTransmit1(holder);
-		 	    }
+				}
 			}
 		}
 		pwmcalc(x,y,pwm_arr);
 		ISR_pwm1 = pwm_arr[0]*1.2;
 		ISR_pwm2 = pwm_arr[1]*1.2;
-		//printf("pwm1=%d, pwm2=%d\r\n",ISR_pwm1,ISR_pwm2);
+		printf("pwm1=%d, pwm2=%d, freq=%d, lvl = %s\r\n",ISR_pwm1,ISR_pwm2,f,holder);
 		//LATAbits.LATA3 = 0;
 	}
 }
