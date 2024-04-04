@@ -254,7 +254,7 @@ int UART1Configure(int desired_baud)
 
 	// Do what the caption of FIGURE 11-2 in '60001168J.pdf' says: "For input only, PPS functionality does not have
     // priority over TRISx settings. Therefore, when configuring RPn pin for input, the corresponding bit in the
-    // TRISx register must also be configured for input (set to �1�)."
+    // TRISx register must also be configured for input (set to ï¿½1ï¿½)."
     
     ANSELB &= ~(1<<13); // Set RB13 as a digital I/O
     TRISB |= (1<<13);   // configure pin RB13 as input
@@ -501,7 +501,7 @@ int LevelSender(int freq)
 {
 	int speaker_freq, difference; //assume test_freq is the freq got robot, speaker_freq default at 3000
 	
-	int default_metal_freq = 57600;
+	int default_metal_freq = 57700;
 	//for checking
 	//difference = 600;
 
@@ -585,8 +585,6 @@ void main(void)
 	SendATCommand("AT+DVID9944\r\n");  
 	SendATCommand("AT+RFID2576\r\n");
 	SendATCommand("AT+RFC012\r\n");
-
-
 	
 	// To check configuration
 	SendATCommand("AT+VER\r\n");
@@ -627,7 +625,7 @@ void main(void)
 				if(U1STAbits.URXDA) {		//if we've recieved a value, break				
 					break;
 				}
-				Timer4us(10); //wait 100 us
+				Timer4us(100); //wait 100 us
 				timeout_cnt++;
 				if(timeout_cnt>=100) break;  //if we recieve nothing in 10 ms then break
 			}
@@ -666,9 +664,6 @@ void main(void)
 				holder[1] = '\r';
 				holder[2] = '\n';
 				holder[3] = '\0';
-
-				//itoa(speaker_freq, holder, 5);
-
 				//printf("freq=%d, level=%s\r\n",f,holder); //for testing
 				//constantly send the frequency value until the remote receives the correct value
 				
