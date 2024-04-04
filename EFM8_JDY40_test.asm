@@ -1,7 +1,7 @@
 ;--------------------------------------------------------
 ; File Created by C51
 ; Version 1.0.0 #1170 (Feb 16 2022) (MSVC)
-; This file was generated Sun Mar 31 17:38:43 2024
+; This file was generated Wed Apr 03 22:19:02 2024
 ;--------------------------------------------------------
 $name EFM8_JDY40_test
 $optc51 --model-small
@@ -25,10 +25,19 @@ $optc51 --model-small
 ;--------------------------------------------------------
 	public _InitPinADC_PARM_2
 	public _main
+	public _LCD_build_right_empty
+	public _LCD_build_mid_empty
+	public _LCD_build_left_empty
+	public _LCD_build_mid
+	public _LCD_build_right
+	public _LCD_build_left
+	public _thefastestsprintf
+	public _LCDprint2
 	public _LCDprint
 	public _LCD_4BIT
 	public _WriteCommand
 	public _WriteData
+	public _speaker_pulse
 	public _LCD_byte
 	public _LCD_pulse
 	public _SendATCommand
@@ -46,13 +55,18 @@ $optc51 --model-small
 	public _InitPinADC
 	public _waitms
 	public _Timer2_ISR
-	public _TIMER2_Init
 	public _TIMER0_Init
 	public _Timer3us
 	public _InitADC
+	public _PCA_ISR
+	public _Timer4_ISR
 	public __c51_external_startup
 	public _LCDprint_PARM_3
 	public _buff
+	public _thefastestsprintf_PARM_3
+	public _thefastestsprintf_PARM_2
+	public _LCDprint2_PARM_3
+	public _LCDprint2_PARM_2
 	public _LCDprint_PARM_2
 ;--------------------------------------------------------
 ; Special Function Registers
@@ -504,6 +518,18 @@ _TFRQ           BIT 0xdf
 	rseg R_DSEG
 _LCDprint_PARM_2:
 	ds 1
+_LCDprint2_PARM_2:
+	ds 1
+_LCDprint2_PARM_3:
+	ds 1
+_thefastestsprintf_PARM_2:
+	ds 3
+_thefastestsprintf_PARM_3:
+	ds 2
+_thefastestsprintf_num_1_129:
+	ds 2
+_thefastestsprintf_i_1_130:
+	ds 2
 ;--------------------------------------------------------
 ; overlayable items in internal ram 
 ;--------------------------------------------------------
@@ -554,6 +580,10 @@ _LCDprint_PARM_3:
 ;--------------------------------------------------------
 	CSEG at 0x0000
 	ljmp	_crt0
+	CSEG at 0x005b
+	ljmp	_PCA_ISR
+	CSEG at 0x008b
+	ljmp	_Timer4_ISR
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
@@ -573,97 +603,205 @@ _LCDprint_PARM_3:
 ;Allocation info for local variables in function '_c51_external_startup'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:35: char _c51_external_startup (void)
+;	EFM8_JDY40_test.c:42: char _c51_external_startup (void)
 ;	-----------------------------------------
 ;	 function _c51_external_startup
 ;	-----------------------------------------
 __c51_external_startup:
 	using	0
-;	EFM8_JDY40_test.c:38: SFRPAGE = 0x00;
+;	EFM8_JDY40_test.c:45: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
-;	EFM8_JDY40_test.c:39: WDTCN = 0xDE; //First key
+;	EFM8_JDY40_test.c:46: WDTCN = 0xDE; //First key
 	mov	_WDTCN,#0xDE
-;	EFM8_JDY40_test.c:40: WDTCN = 0xAD; //Second key
+;	EFM8_JDY40_test.c:47: WDTCN = 0xAD; //Second key
 	mov	_WDTCN,#0xAD
-;	EFM8_JDY40_test.c:42: VDM0CN=0x80;       // enable VDD monitor
+;	EFM8_JDY40_test.c:49: VDM0CN=0x80;       // enable VDD monitor
 	mov	_VDM0CN,#0x80
-;	EFM8_JDY40_test.c:43: RSTSRC=0x02|0x04;  // Enable reset on missing clock detector and VDD
+;	EFM8_JDY40_test.c:50: RSTSRC=0x02|0x04;  // Enable reset on missing clock detector and VDD
 	mov	_RSTSRC,#0x06
-;	EFM8_JDY40_test.c:50: SFRPAGE = 0x10;
+;	EFM8_JDY40_test.c:57: SFRPAGE = 0x10;
 	mov	_SFRPAGE,#0x10
-;	EFM8_JDY40_test.c:51: PFE0CN  = 0x20; // SYSCLK < 75 MHz.
+;	EFM8_JDY40_test.c:58: PFE0CN  = 0x20; // SYSCLK < 75 MHz.
 	mov	_PFE0CN,#0x20
-;	EFM8_JDY40_test.c:52: SFRPAGE = 0x00;
+;	EFM8_JDY40_test.c:59: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
-;	EFM8_JDY40_test.c:73: CLKSEL = 0x00;
+;	EFM8_JDY40_test.c:80: CLKSEL = 0x00;
 	mov	_CLKSEL,#0x00
-;	EFM8_JDY40_test.c:74: CLKSEL = 0x00;
+;	EFM8_JDY40_test.c:81: CLKSEL = 0x00;
 	mov	_CLKSEL,#0x00
-;	EFM8_JDY40_test.c:75: while ((CLKSEL & 0x80) == 0);
+;	EFM8_JDY40_test.c:82: while ((CLKSEL & 0x80) == 0);
 L002001?:
 	mov	a,_CLKSEL
 	jnb	acc.7,L002001?
-;	EFM8_JDY40_test.c:76: CLKSEL = 0x03;
+;	EFM8_JDY40_test.c:83: CLKSEL = 0x03;
 	mov	_CLKSEL,#0x03
-;	EFM8_JDY40_test.c:77: CLKSEL = 0x03;
+;	EFM8_JDY40_test.c:84: CLKSEL = 0x03;
 	mov	_CLKSEL,#0x03
-;	EFM8_JDY40_test.c:78: while ((CLKSEL & 0x80) == 0);
+;	EFM8_JDY40_test.c:85: while ((CLKSEL & 0x80) == 0);
 L002004?:
 	mov	a,_CLKSEL
 	jnb	acc.7,L002004?
-;	EFM8_JDY40_test.c:83: P0MDOUT |= 0x11; // Enable UART0 TX (P0.4) and UART1 TX (P0.0) as push-pull outputs
+;	EFM8_JDY40_test.c:90: P0MDOUT |= 0x11; // Enable UART0 TX (P0.4) and UART1 TX (P0.0) as push-pull outputs
 	orl	_P0MDOUT,#0x11
-;	EFM8_JDY40_test.c:84: P2MDOUT |= 0x01; // P2.0 in push-pull mode
-	orl	_P2MDOUT,#0x01
-;	EFM8_JDY40_test.c:85: XBR0     = 0x01; // Enable UART0 on P0.4(TX) and P0.5(RX)                     
+;	EFM8_JDY40_test.c:91: P2MDOUT |= 0x00; // P2.0 in push-pull mode
+	mov	_P2MDOUT,_P2MDOUT
+;	EFM8_JDY40_test.c:92: XBR0     = 0x01; // Enable UART0 on P0.4(TX) and P0.5(RX)                     
 	mov	_XBR0,#0x01
-;	EFM8_JDY40_test.c:86: XBR1     = 0X00;
+;	EFM8_JDY40_test.c:93: XBR1     = 0X00;
 	mov	_XBR1,#0x00
-;	EFM8_JDY40_test.c:87: XBR2     = 0x41; // Enable crossbar and uart 1
+;	EFM8_JDY40_test.c:94: XBR2     = 0x41; // Enable crossbar and uart 1
 	mov	_XBR2,#0x41
-;	EFM8_JDY40_test.c:93: SCON0 = 0x10;
+;	EFM8_JDY40_test.c:111: SCON0 = 0x10;
 	mov	_SCON0,#0x10
-;	EFM8_JDY40_test.c:94: TH1 = 0x100-((SYSCLK/BAUDRATE)/(2L*12L));
+;	EFM8_JDY40_test.c:112: TH1 = 0x100-((SYSCLK/BAUDRATE)/(2L*12L));
 	mov	_TH1,#0xE6
-;	EFM8_JDY40_test.c:95: TL1 = TH1;      // Init Timer1
+;	EFM8_JDY40_test.c:113: TL1 = TH1;      // Init Timer1
 	mov	_TL1,_TH1
-;	EFM8_JDY40_test.c:96: TMOD &= ~0xf0;  // TMOD: timer 1 in 8-bit auto-reload
+;	EFM8_JDY40_test.c:114: TMOD &= ~0xf0;  // TMOD: timer 1 in 8-bit auto-reload
 	anl	_TMOD,#0x0F
-;	EFM8_JDY40_test.c:97: TMOD |=  0x20;                       
+;	EFM8_JDY40_test.c:115: TMOD |=  0x20;                       
 	orl	_TMOD,#0x20
-;	EFM8_JDY40_test.c:98: TR1 = 1; // START Timer1
+;	EFM8_JDY40_test.c:116: TR1 = 1; // START Timer1
 	setb	_TR1
-;	EFM8_JDY40_test.c:99: TI = 1;  // Indicate TX0 ready
+;	EFM8_JDY40_test.c:117: TI = 1;  // Indicate TX0 ready
 	setb	_TI
-;	EFM8_JDY40_test.c:101: return 0;
+;	EFM8_JDY40_test.c:130: SFRPAGE=0x10;
+	mov	_SFRPAGE,#0x10
+;	EFM8_JDY40_test.c:131: TMR4CN0=0x00;   // Stop Timer4; Clear TF4; WARNING: lives in SFR page 0x10
+	mov	_TMR4CN0,#0x00
+;	EFM8_JDY40_test.c:132: CKCON1|=0b_0000_0001; // Timer 4 uses the system clock
+	orl	_CKCON1,#0x01
+;	EFM8_JDY40_test.c:133: TMR4RL=(0x10000L-(SYSCLK/(2*TIMER_4_FREQ))); // Initialize reload value
+	mov	_TMR4RL,#0xE0
+	mov	(_TMR4RL >> 8),#0xE3
+;	EFM8_JDY40_test.c:134: TMR4=0xffff;   // Set to reload immediately
+	mov	_TMR4,#0xFF
+	mov	(_TMR4 >> 8),#0xFF
+;	EFM8_JDY40_test.c:135: EIE2|=0b_0000_0100;     // Enable Timer4 interrupts
+	orl	_EIE2,#0x04
+;	EFM8_JDY40_test.c:136: TR4=1;
+	setb	_TR4
+;	EFM8_JDY40_test.c:138: return 0;
 	mov	dpl,#0x00
 	ret
+;------------------------------------------------------------
+;Allocation info for local variables in function 'Timer4_ISR'
+;------------------------------------------------------------
+;------------------------------------------------------------
+;	EFM8_JDY40_test.c:141: void Timer4_ISR (void) interrupt INTERRUPT_TIMER4
+;	-----------------------------------------
+;	 function Timer4_ISR
+;	-----------------------------------------
+_Timer4_ISR:
+;	EFM8_JDY40_test.c:143: SFRPAGE=0x10;
+	mov	_SFRPAGE,#0x10
+;	EFM8_JDY40_test.c:144: TF4H = 0; // Clear Timer4 interrupt flag
+	clr	_TF4H
+;	EFM8_JDY40_test.c:145: TIMER_OUT_4=!TIMER_OUT_4;
+	cpl	_P3_2
+	reti
+;	eliminated unneeded push/pop psw
+;	eliminated unneeded push/pop dpl
+;	eliminated unneeded push/pop dph
+;	eliminated unneeded push/pop b
+;	eliminated unneeded push/pop acc
+;------------------------------------------------------------
+;Allocation info for local variables in function 'PCA_ISR'
+;------------------------------------------------------------
+;j                         Allocated to registers r2 r3 
+;------------------------------------------------------------
+;	EFM8_JDY40_test.c:148: void PCA_ISR (void) interrupt INTERRUPT_PCA0
+;	-----------------------------------------
+;	 function PCA_ISR
+;	-----------------------------------------
+_PCA_ISR:
+	push	acc
+	push	ar2
+	push	ar3
+	push	ar4
+	push	ar5
+	push	psw
+	mov	psw,#0x00
+;	EFM8_JDY40_test.c:152: SFRPAGE=0x0;
+	mov	_SFRPAGE,#0x00
+;	EFM8_JDY40_test.c:153: if (CCF4)
+	jnb	_CCF4,L004002?
+;	EFM8_JDY40_test.c:155: j=(PCA0CPH4*0x100+PCA0CPL4)+(SYSCLK/(2L*PCA_4_FREQ));
+	mov	r3,_PCA0CPH4
+	mov	r2,#0x00
+	mov	r4,_PCA0CPL4
+	mov	r5,#0x00
+	mov	a,r4
+	add	a,r2
+	mov	r2,a
+	mov	a,r5
+	addc	a,r3
+	mov	r3,a
+	rlc	a
+	subb	a,acc
+	mov	r4,a
+	mov	r5,a
+	mov	a,#0xC8
+	add	a,r2
+	mov	r2,a
+	mov	a,#0x0C
+	addc	a,r3
+	mov	r3,a
+	clr	a
+	addc	a,r4
+	clr	a
+	addc	a,r5
+;	EFM8_JDY40_test.c:156: PCA0CPL4=j%0x100; //Always write low byte first!
+	mov	ar4,r2
+	mov	r5,#0x00
+	mov	_PCA0CPL4,r4
+;	EFM8_JDY40_test.c:157: PCA0CPH4=j/0x100;
+	mov	ar2,r3
+	mov	r3,#0x00
+	mov	_PCA0CPH4,r2
+;	EFM8_JDY40_test.c:158: CCF4=0;
+	clr	_CCF4
+;	EFM8_JDY40_test.c:159: PCA_OUT_4=!PCA_OUT_4;
+	cpl	_P0_6
+L004002?:
+;	EFM8_JDY40_test.c:162: CF=0;
+	clr	_CF
+	pop	psw
+	pop	ar5
+	pop	ar4
+	pop	ar3
+	pop	ar2
+	pop	acc
+	reti
+;	eliminated unneeded push/pop dpl
+;	eliminated unneeded push/pop dph
+;	eliminated unneeded push/pop b
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'InitADC'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:104: void InitADC (void)
+;	EFM8_JDY40_test.c:165: void InitADC (void)
 ;	-----------------------------------------
 ;	 function InitADC
 ;	-----------------------------------------
 _InitADC:
-;	EFM8_JDY40_test.c:106: SFRPAGE = 0x00;
+;	EFM8_JDY40_test.c:167: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
-;	EFM8_JDY40_test.c:107: ADEN=0; // Disable ADC
+;	EFM8_JDY40_test.c:168: ADEN=0; // Disable ADC
 	clr	_ADEN
-;	EFM8_JDY40_test.c:112: (0x0 << 0) ; // Accumulate n conversions: 0x0: 1, 0x1:4, 0x2:8, 0x3:16, 0x4:32
+;	EFM8_JDY40_test.c:173: (0x0 << 0) ; // Accumulate n conversions: 0x0: 1, 0x1:4, 0x2:8, 0x3:16, 0x4:32
 	mov	_ADC0CN1,#0x80
-;	EFM8_JDY40_test.c:116: (0x0 << 2); // 0:SYSCLK ADCCLK = SYSCLK. 1:HFOSC0 ADCCLK = HFOSC0.
+;	EFM8_JDY40_test.c:177: (0x0 << 2); // 0:SYSCLK ADCCLK = SYSCLK. 1:HFOSC0 ADCCLK = HFOSC0.
 	mov	_ADC0CF0,#0x20
-;	EFM8_JDY40_test.c:120: (0x1E << 0); // Conversion Tracking Time. Tadtk = ADTK / (Fsarclk)
+;	EFM8_JDY40_test.c:181: (0x1E << 0); // Conversion Tracking Time. Tadtk = ADTK / (Fsarclk)
 	mov	_ADC0CF1,#0x1E
-;	EFM8_JDY40_test.c:129: (0x0 << 0) ; // TEMPE. 0: Disable the Temperature Sensor. 1: Enable the Temperature Sensor.
+;	EFM8_JDY40_test.c:190: (0x0 << 0) ; // TEMPE. 0: Disable the Temperature Sensor. 1: Enable the Temperature Sensor.
 	mov	_ADC0CN0,#0x00
-;	EFM8_JDY40_test.c:134: (0x1F << 0); // ADPWR. Power Up Delay Time. Tpwrtime = ((4 * (ADPWR + 1)) + 2) / (Fadcclk)
+;	EFM8_JDY40_test.c:195: (0x1F << 0); // ADPWR. Power Up Delay Time. Tpwrtime = ((4 * (ADPWR + 1)) + 2) / (Fadcclk)
 	mov	_ADC0CF2,#0x3F
-;	EFM8_JDY40_test.c:138: (0x0 << 0) ; // ADCM. 0x0: ADBUSY, 0x1: TIMER0, 0x2: TIMER2, 0x3: TIMER3, 0x4: CNVSTR, 0x5: CEX5, 0x6: TIMER4, 0x7: TIMER5, 0x8: CLU0, 0x9: CLU1, 0xA: CLU2, 0xB: CLU3
+;	EFM8_JDY40_test.c:199: (0x0 << 0) ; // ADCM. 0x0: ADBUSY, 0x1: TIMER0, 0x2: TIMER2, 0x3: TIMER3, 0x4: CNVSTR, 0x5: CEX5, 0x6: TIMER4, 0x7: TIMER5, 0x8: CLU0, 0x9: CLU1, 0xA: CLU2, 0xB: CLU3
 	mov	_ADC0CN2,#0x00
-;	EFM8_JDY40_test.c:140: ADEN=1; // Enable ADC
+;	EFM8_JDY40_test.c:201: ADEN=1; // Enable ADC
 	setb	_ADEN
 	ret
 ;------------------------------------------------------------
@@ -672,96 +810,72 @@ _InitADC:
 ;us                        Allocated to registers r2 
 ;i                         Allocated to registers r3 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:145: void Timer3us(unsigned char us)
+;	EFM8_JDY40_test.c:206: void Timer3us(unsigned char us)
 ;	-----------------------------------------
 ;	 function Timer3us
 ;	-----------------------------------------
 _Timer3us:
 	mov	r2,dpl
-;	EFM8_JDY40_test.c:150: CKCON0|=0b_0100_0000;
+;	EFM8_JDY40_test.c:211: CKCON0|=0b_0100_0000;
 	orl	_CKCON0,#0x40
-;	EFM8_JDY40_test.c:152: TMR3RL = (-(SYSCLK)/1000000L); // Set Timer3 to overflow in 1us.
+;	EFM8_JDY40_test.c:213: TMR3RL = (-(SYSCLK)/1000000L); // Set Timer3 to overflow in 1us.
 	mov	_TMR3RL,#0xB8
 	mov	(_TMR3RL >> 8),#0xFF
-;	EFM8_JDY40_test.c:153: TMR3 = TMR3RL;                 // Initialize Timer3 for first overflow
+;	EFM8_JDY40_test.c:214: TMR3 = TMR3RL;                 // Initialize Timer3 for first overflow
 	mov	_TMR3,_TMR3RL
 	mov	(_TMR3 >> 8),(_TMR3RL >> 8)
-;	EFM8_JDY40_test.c:155: TMR3CN0 = 0x04;                 // Sart Timer3 and clear overflow flag
+;	EFM8_JDY40_test.c:216: TMR3CN0 = 0x04;                 // Sart Timer3 and clear overflow flag
 	mov	_TMR3CN0,#0x04
-;	EFM8_JDY40_test.c:156: for (i = 0; i < us; i++)       // Count <us> overflows
+;	EFM8_JDY40_test.c:217: for (i = 0; i < us; i++)       // Count <us> overflows
 	mov	r3,#0x00
-L004004?:
+L006004?:
 	clr	c
 	mov	a,r3
 	subb	a,r2
-	jnc	L004007?
-;	EFM8_JDY40_test.c:158: while (!(TMR3CN0 & 0x80));  // Wait for overflow
-L004001?:
+	jnc	L006007?
+;	EFM8_JDY40_test.c:219: while (!(TMR3CN0 & 0x80));  // Wait for overflow
+L006001?:
 	mov	a,_TMR3CN0
-	jnb	acc.7,L004001?
-;	EFM8_JDY40_test.c:159: TMR3CN0 &= ~(0x80);         // Clear overflow indicator
+	jnb	acc.7,L006001?
+;	EFM8_JDY40_test.c:220: TMR3CN0 &= ~(0x80);         // Clear overflow indicator
 	anl	_TMR3CN0,#0x7F
-;	EFM8_JDY40_test.c:156: for (i = 0; i < us; i++)       // Count <us> overflows
+;	EFM8_JDY40_test.c:217: for (i = 0; i < us; i++)       // Count <us> overflows
 	inc	r3
-	sjmp	L004004?
-L004007?:
-;	EFM8_JDY40_test.c:161: TMR3CN0 = 0 ;                   // Stop Timer3 and clear overflow flag
+	sjmp	L006004?
+L006007?:
+;	EFM8_JDY40_test.c:222: TMR3CN0 = 0 ;                   // Stop Timer3 and clear overflow flag
 	mov	_TMR3CN0,#0x00
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'TIMER0_Init'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:164: void TIMER0_Init(void)
+;	EFM8_JDY40_test.c:225: void TIMER0_Init(void)
 ;	-----------------------------------------
 ;	 function TIMER0_Init
 ;	-----------------------------------------
 _TIMER0_Init:
-;	EFM8_JDY40_test.c:166: TMOD&=0b_1111_0000; // Set the bits of Timer/Counter 0 to zero
+;	EFM8_JDY40_test.c:227: TMOD&=0b_1111_0000; // Set the bits of Timer/Counter 0 to zero
 	anl	_TMOD,#0xF0
-;	EFM8_JDY40_test.c:167: TMOD|=0b_0000_0001; // Timer/Counter 0 used as a 16-bit timer
+;	EFM8_JDY40_test.c:228: TMOD|=0b_0000_0001; // Timer/Counter 0 used as a 16-bit timer
 	orl	_TMOD,#0x01
-;	EFM8_JDY40_test.c:168: TR0=0; // Stop Timer/Counter 0
+;	EFM8_JDY40_test.c:229: TR0=0; // Stop Timer/Counter 0
 	clr	_TR0
-	ret
-;------------------------------------------------------------
-;Allocation info for local variables in function 'TIMER2_Init'
-;------------------------------------------------------------
-;------------------------------------------------------------
-;	EFM8_JDY40_test.c:174: void TIMER2_Init(void){
-;	-----------------------------------------
-;	 function TIMER2_Init
-;	-----------------------------------------
-_TIMER2_Init:
-;	EFM8_JDY40_test.c:176: TMR2CN0=0x00;   // Stop Timer2; Clear TF2;
-	mov	_TMR2CN0,#0x00
-;	EFM8_JDY40_test.c:177: CKCON0|=0b_0001_0000;
-	orl	_CKCON0,#0x10
-;	EFM8_JDY40_test.c:178: TMR2RL=(-(SYSCLK/(2*DEFAULT_F))); // Initialize reload value
-	mov	_TMR2RL,#0xEE
-	mov	(_TMR2RL >> 8),#0xF6
-;	EFM8_JDY40_test.c:179: TMR2=0xffff;   // Set to reload immediately
-	mov	_TMR2,#0xFF
-	mov	(_TMR2 >> 8),#0xFF
-;	EFM8_JDY40_test.c:180: ET2=1;         // Enable Timer2 interrupts
-	setb	_ET2
-;	EFM8_JDY40_test.c:181: TR2=1;         // Start Timer2
-	setb	_TR2
-;	EFM8_JDY40_test.c:182: EA=1; // Global interrupt enable
-	setb	_EA
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'Timer2_ISR'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:185: void Timer2_ISR (void) //interrupt INTERRUPT_TIMER2
+;	EFM8_JDY40_test.c:246: void Timer2_ISR (void) //interrupt INTERRUPT_TIMER2
 ;	-----------------------------------------
 ;	 function Timer2_ISR
 ;	-----------------------------------------
 _Timer2_ISR:
-;	EFM8_JDY40_test.c:187: TF2H = 0; // Clear Timer2 interrupt flag
+;	EFM8_JDY40_test.c:248: SFRPAGE=0x0;
+	mov	_SFRPAGE,#0x00
+;	EFM8_JDY40_test.c:249: TF2H = 0; // Clear Timer2 interrupt flag
 	clr	_TF2H
-;	EFM8_JDY40_test.c:188: OUT0=!OUT0;
+;	EFM8_JDY40_test.c:250: TIMER_OUT_2=!TIMER_OUT_2;
 	cpl	_P3_3
 	ret
 ;------------------------------------------------------------
@@ -771,29 +885,29 @@ _Timer2_ISR:
 ;j                         Allocated to registers r4 r5 
 ;k                         Allocated to registers r6 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:192: void waitms (unsigned int ms)
+;	EFM8_JDY40_test.c:253: void waitms (unsigned int ms)
 ;	-----------------------------------------
 ;	 function waitms
 ;	-----------------------------------------
 _waitms:
 	mov	r2,dpl
 	mov	r3,dph
-;	EFM8_JDY40_test.c:196: for(j=0; j<ms; j++)
+;	EFM8_JDY40_test.c:257: for(j=0; j<ms; j++)
 	mov	r4,#0x00
 	mov	r5,#0x00
-L008005?:
+L009005?:
 	clr	c
 	mov	a,r4
 	subb	a,r2
 	mov	a,r5
 	subb	a,r3
-	jnc	L008009?
-;	EFM8_JDY40_test.c:197: for (k=0; k<4; k++) Timer3us(250);
+	jnc	L009009?
+;	EFM8_JDY40_test.c:258: for (k=0; k<4; k++) Timer3us(250);
 	mov	r6,#0x00
-L008001?:
-	cjne	r6,#0x04,L008018?
-L008018?:
-	jnc	L008007?
+L009001?:
+	cjne	r6,#0x04,L009018?
+L009018?:
+	jnc	L009007?
 	mov	dpl,#0xFA
 	push	ar2
 	push	ar3
@@ -807,14 +921,14 @@ L008018?:
 	pop	ar3
 	pop	ar2
 	inc	r6
-	sjmp	L008001?
-L008007?:
-;	EFM8_JDY40_test.c:196: for(j=0; j<ms; j++)
+	sjmp	L009001?
+L009007?:
+;	EFM8_JDY40_test.c:257: for(j=0; j<ms; j++)
 	inc	r4
-	cjne	r4,#0x00,L008005?
+	cjne	r4,#0x00,L009005?
 	inc	r5
-	sjmp	L008005?
-L008009?:
+	sjmp	L009005?
+L009009?:
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'InitPinADC'
@@ -823,70 +937,70 @@ L008009?:
 ;portno                    Allocated to registers r2 
 ;mask                      Allocated to registers r3 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:200: void InitPinADC (unsigned char portno, unsigned char pinno)
+;	EFM8_JDY40_test.c:261: void InitPinADC (unsigned char portno, unsigned char pinno)
 ;	-----------------------------------------
 ;	 function InitPinADC
 ;	-----------------------------------------
 _InitPinADC:
 	mov	r2,dpl
-;	EFM8_JDY40_test.c:204: mask=1<<pinno;
+;	EFM8_JDY40_test.c:265: mask=1<<pinno;
 	mov	b,_InitPinADC_PARM_2
 	inc	b
 	mov	a,#0x01
-	sjmp	L009013?
-L009011?:
+	sjmp	L010013?
+L010011?:
 	add	a,acc
-L009013?:
-	djnz	b,L009011?
+L010013?:
+	djnz	b,L010011?
 	mov	r3,a
-;	EFM8_JDY40_test.c:206: SFRPAGE = 0x20;
+;	EFM8_JDY40_test.c:267: SFRPAGE = 0x20;
 	mov	_SFRPAGE,#0x20
-;	EFM8_JDY40_test.c:207: switch (portno)
-	cjne	r2,#0x00,L009014?
-	sjmp	L009001?
-L009014?:
-	cjne	r2,#0x01,L009015?
-	sjmp	L009002?
-L009015?:
-;	EFM8_JDY40_test.c:209: case 0:
-	cjne	r2,#0x02,L009005?
-	sjmp	L009003?
-L009001?:
-;	EFM8_JDY40_test.c:210: P0MDIN &= (~mask); // Set pin as analog input
+;	EFM8_JDY40_test.c:268: switch (portno)
+	cjne	r2,#0x00,L010014?
+	sjmp	L010001?
+L010014?:
+	cjne	r2,#0x01,L010015?
+	sjmp	L010002?
+L010015?:
+;	EFM8_JDY40_test.c:270: case 0:
+	cjne	r2,#0x02,L010005?
+	sjmp	L010003?
+L010001?:
+;	EFM8_JDY40_test.c:271: P0MDIN &= (~mask); // Set pin as analog input
 	mov	a,r3
 	cpl	a
 	mov	r2,a
 	anl	_P0MDIN,a
-;	EFM8_JDY40_test.c:211: P0SKIP |= mask; // Skip Crossbar decoding for this pin
+;	EFM8_JDY40_test.c:272: P0SKIP |= mask; // Skip Crossbar decoding for this pin
 	mov	a,r3
 	orl	_P0SKIP,a
-;	EFM8_JDY40_test.c:212: break;
-;	EFM8_JDY40_test.c:213: case 1:
-	sjmp	L009005?
-L009002?:
-;	EFM8_JDY40_test.c:214: P1MDIN &= (~mask); // Set pin as analog input
+;	EFM8_JDY40_test.c:273: break;
+;	EFM8_JDY40_test.c:274: case 1:
+	sjmp	L010005?
+L010002?:
+;	EFM8_JDY40_test.c:275: P1MDIN &= (~mask); // Set pin as analog input
 	mov	a,r3
 	cpl	a
 	mov	r2,a
 	anl	_P1MDIN,a
-;	EFM8_JDY40_test.c:215: P1SKIP |= mask; // Skip Crossbar decoding for this pin
+;	EFM8_JDY40_test.c:276: P1SKIP |= mask; // Skip Crossbar decoding for this pin
 	mov	a,r3
 	orl	_P1SKIP,a
-;	EFM8_JDY40_test.c:216: break;
-;	EFM8_JDY40_test.c:217: case 2:
-	sjmp	L009005?
-L009003?:
-;	EFM8_JDY40_test.c:218: P2MDIN &= (~mask); // Set pin as analog input
+;	EFM8_JDY40_test.c:277: break;
+;	EFM8_JDY40_test.c:278: case 2:
+	sjmp	L010005?
+L010003?:
+;	EFM8_JDY40_test.c:279: P2MDIN &= (~mask); // Set pin as analog input
 	mov	a,r3
 	cpl	a
 	mov	r2,a
 	anl	_P2MDIN,a
-;	EFM8_JDY40_test.c:219: P2SKIP |= mask; // Skip Crossbar decoding for this pin
+;	EFM8_JDY40_test.c:280: P2SKIP |= mask; // Skip Crossbar decoding for this pin
 	mov	a,r3
 	orl	_P2SKIP,a
-;	EFM8_JDY40_test.c:223: }
-L009005?:
-;	EFM8_JDY40_test.c:224: SFRPAGE = 0x00;
+;	EFM8_JDY40_test.c:284: }
+L010005?:
+;	EFM8_JDY40_test.c:285: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
 	ret
 ;------------------------------------------------------------
@@ -894,20 +1008,20 @@ L009005?:
 ;------------------------------------------------------------
 ;pin                       Allocated to registers 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:227: unsigned int ADC_at_Pin(unsigned char pin)
+;	EFM8_JDY40_test.c:288: unsigned int ADC_at_Pin(unsigned char pin)
 ;	-----------------------------------------
 ;	 function ADC_at_Pin
 ;	-----------------------------------------
 _ADC_at_Pin:
 	mov	_ADC0MX,dpl
-;	EFM8_JDY40_test.c:230: ADINT = 0;
+;	EFM8_JDY40_test.c:291: ADINT = 0;
 	clr	_ADINT
-;	EFM8_JDY40_test.c:231: ADBUSY = 1;     // Convert voltage at the pin
+;	EFM8_JDY40_test.c:292: ADBUSY = 1;     // Convert voltage at the pin
 	setb	_ADBUSY
-;	EFM8_JDY40_test.c:232: while (!ADINT); // Wait for conversion to complete
-L010001?:
-	jnb	_ADINT,L010001?
-;	EFM8_JDY40_test.c:233: return (ADC0);
+;	EFM8_JDY40_test.c:293: while (!ADINT); // Wait for conversion to complete
+L011001?:
+	jnb	_ADINT,L011001?
+;	EFM8_JDY40_test.c:294: return (ADC0);
 	mov	dpl,_ADC0
 	mov	dph,(_ADC0 >> 8)
 	ret
@@ -915,19 +1029,19 @@ L010001?:
 ;Allocation info for local variables in function 'Get_ADC'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:236: unsigned int Get_ADC (void)
+;	EFM8_JDY40_test.c:297: unsigned int Get_ADC (void)
 ;	-----------------------------------------
 ;	 function Get_ADC
 ;	-----------------------------------------
 _Get_ADC:
-;	EFM8_JDY40_test.c:238: ADINT = 0;
+;	EFM8_JDY40_test.c:299: ADINT = 0;
 	clr	_ADINT
-;	EFM8_JDY40_test.c:239: ADBUSY = 1;
+;	EFM8_JDY40_test.c:300: ADBUSY = 1;
 	setb	_ADBUSY
-;	EFM8_JDY40_test.c:240: while (!ADINT); // Wait for conversion to complete
-L011001?:
-	jnb	_ADINT,L011001?
-;	EFM8_JDY40_test.c:241: return (ADC0);
+;	EFM8_JDY40_test.c:301: while (!ADINT); // Wait for conversion to complete
+L012001?:
+	jnb	_ADINT,L012001?
+;	EFM8_JDY40_test.c:302: return (ADC0);
 	mov	dpl,_ADC0
 	mov	dph,(_ADC0 >> 8)
 	ret
@@ -936,12 +1050,12 @@ L011001?:
 ;------------------------------------------------------------
 ;pin                       Allocated to registers r2 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:245: float Volts_at_Pin(unsigned char pin)
+;	EFM8_JDY40_test.c:306: float Volts_at_Pin(unsigned char pin)
 ;	-----------------------------------------
 ;	 function Volts_at_Pin
 ;	-----------------------------------------
 _Volts_at_Pin:
-;	EFM8_JDY40_test.c:247: return ((ADC_at_Pin(pin)*VDD)/16383);
+;	EFM8_JDY40_test.c:308: return ((ADC_at_Pin(pin)*VDD)/16383);
 	lcall	_ADC_at_Pin
 	lcall	___uint2fs
 	mov	r2,dpl
@@ -993,7 +1107,7 @@ _Volts_at_Pin:
 ;------------------------------------------------------------
 ;baudrate                  Allocated to registers r2 r3 r4 r5 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:250: void UART1_Init (unsigned long baudrate)
+;	EFM8_JDY40_test.c:311: void UART1_Init (unsigned long baudrate)
 ;	-----------------------------------------
 ;	 function UART1_Init
 ;	-----------------------------------------
@@ -1002,15 +1116,15 @@ _UART1_Init:
 	mov	r3,dph
 	mov	r4,b
 	mov	r5,a
-;	EFM8_JDY40_test.c:252: SFRPAGE = 0x20;
+;	EFM8_JDY40_test.c:313: SFRPAGE = 0x20;
 	mov	_SFRPAGE,#0x20
-;	EFM8_JDY40_test.c:253: SMOD1 = 0x0C; // no parity, 8 data bits, 1 stop bit
+;	EFM8_JDY40_test.c:314: SMOD1 = 0x0C; // no parity, 8 data bits, 1 stop bit
 	mov	_SMOD1,#0x0C
-;	EFM8_JDY40_test.c:254: SCON1 = 0x10;
+;	EFM8_JDY40_test.c:315: SCON1 = 0x10;
 	mov	_SCON1,#0x10
-;	EFM8_JDY40_test.c:255: SBCON1 =0x00;   // disable baud rate generator
+;	EFM8_JDY40_test.c:316: SBCON1 =0x00;   // disable baud rate generator
 	mov	_SBCON1,#0x00
-;	EFM8_JDY40_test.c:256: SBRL1 = 0x10000L-((SYSCLK/baudrate)/(12L*2L));
+;	EFM8_JDY40_test.c:317: SBRL1 = 0x10000L-((SYSCLK/baudrate)/(12L*2L));
 	mov	__divulong_PARM_2,r2
 	mov	(__divulong_PARM_2 + 1),r3
 	mov	(__divulong_PARM_2 + 2),r4
@@ -1050,11 +1164,11 @@ _UART1_Init:
 	subb	a,r5
 	mov	_SBRL1,r2
 	mov	(_SBRL1 >> 8),r3
-;	EFM8_JDY40_test.c:257: TI1 = 1; // indicate ready for TX
+;	EFM8_JDY40_test.c:318: TI1 = 1; // indicate ready for TX
 	setb	_TI1
-;	EFM8_JDY40_test.c:258: SBCON1 |= 0x40;   // enable baud rate generator
+;	EFM8_JDY40_test.c:319: SBCON1 |= 0x40;   // enable baud rate generator
 	orl	_SBCON1,#0x40
-;	EFM8_JDY40_test.c:259: SFRPAGE = 0x00;
+;	EFM8_JDY40_test.c:320: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
 	ret
 ;------------------------------------------------------------
@@ -1062,23 +1176,23 @@ _UART1_Init:
 ;------------------------------------------------------------
 ;c                         Allocated to registers r2 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:262: void putchar1 (char c) 
+;	EFM8_JDY40_test.c:323: void putchar1 (char c) 
 ;	-----------------------------------------
 ;	 function putchar1
 ;	-----------------------------------------
 _putchar1:
 	mov	r2,dpl
-;	EFM8_JDY40_test.c:264: SFRPAGE = 0x20;
+;	EFM8_JDY40_test.c:325: SFRPAGE = 0x20;
 	mov	_SFRPAGE,#0x20
-;	EFM8_JDY40_test.c:265: while (!TI1);
-L014001?:
-;	EFM8_JDY40_test.c:266: TI1=0;
-	jbc	_TI1,L014008?
-	sjmp	L014001?
-L014008?:
-;	EFM8_JDY40_test.c:267: SBUF1 = c;
+;	EFM8_JDY40_test.c:326: while (!TI1);
+L015001?:
+;	EFM8_JDY40_test.c:327: TI1=0;
+	jbc	_TI1,L015008?
+	sjmp	L015001?
+L015008?:
+;	EFM8_JDY40_test.c:328: SBUF1 = c;
 	mov	_SBUF1,r2
-;	EFM8_JDY40_test.c:268: SFRPAGE = 0x00;
+;	EFM8_JDY40_test.c:329: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
 	ret
 ;------------------------------------------------------------
@@ -1086,7 +1200,7 @@ L014008?:
 ;------------------------------------------------------------
 ;s                         Allocated to registers r2 r3 r4 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:271: void sendstr1 (char * s)
+;	EFM8_JDY40_test.c:332: void sendstr1 (char * s)
 ;	-----------------------------------------
 ;	 function sendstr1
 ;	-----------------------------------------
@@ -1094,15 +1208,15 @@ _sendstr1:
 	mov	r2,dpl
 	mov	r3,dph
 	mov	r4,b
-;	EFM8_JDY40_test.c:273: while(*s)
-L015001?:
+;	EFM8_JDY40_test.c:334: while(*s)
+L016001?:
 	mov	dpl,r2
 	mov	dph,r3
 	mov	b,r4
 	lcall	__gptrget
 	mov	r5,a
-	jz	L015004?
-;	EFM8_JDY40_test.c:275: putchar1(*s);
+	jz	L016004?
+;	EFM8_JDY40_test.c:336: putchar1(*s);
 	mov	dpl,r5
 	push	ar2
 	push	ar3
@@ -1111,38 +1225,38 @@ L015001?:
 	pop	ar4
 	pop	ar3
 	pop	ar2
-;	EFM8_JDY40_test.c:276: s++;	
+;	EFM8_JDY40_test.c:337: s++;	
 	inc	r2
-	cjne	r2,#0x00,L015001?
+	cjne	r2,#0x00,L016001?
 	inc	r3
-	sjmp	L015001?
-L015004?:
+	sjmp	L016001?
+L016004?:
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'getchar1'
 ;------------------------------------------------------------
 ;c                         Allocated to registers 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:280: char getchar1 (void)
+;	EFM8_JDY40_test.c:341: char getchar1 (void)
 ;	-----------------------------------------
 ;	 function getchar1
 ;	-----------------------------------------
 _getchar1:
-;	EFM8_JDY40_test.c:283: SFRPAGE = 0x20;
+;	EFM8_JDY40_test.c:344: SFRPAGE = 0x20;
 	mov	_SFRPAGE,#0x20
-;	EFM8_JDY40_test.c:284: while (!RI1);
-L016001?:
-;	EFM8_JDY40_test.c:285: RI1=0;
-	jbc	_RI1,L016008?
-	sjmp	L016001?
-L016008?:
-;	EFM8_JDY40_test.c:287: SCON1&=0b_0011_1111;
+;	EFM8_JDY40_test.c:345: while (!RI1);
+L017001?:
+;	EFM8_JDY40_test.c:346: RI1=0;
+	jbc	_RI1,L017008?
+	sjmp	L017001?
+L017008?:
+;	EFM8_JDY40_test.c:348: SCON1&=0b_0011_1111;
 	anl	_SCON1,#0x3F
-;	EFM8_JDY40_test.c:288: c = SBUF1;
+;	EFM8_JDY40_test.c:349: c = SBUF1;
 	mov	dpl,_SBUF1
-;	EFM8_JDY40_test.c:289: SFRPAGE = 0x00;
+;	EFM8_JDY40_test.c:350: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
-;	EFM8_JDY40_test.c:290: return (c);
+;	EFM8_JDY40_test.c:351: return (c);
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'getchar1_with_timeout'
@@ -1150,52 +1264,52 @@ L016008?:
 ;c                         Allocated to registers 
 ;timeout                   Allocated to registers r2 r3 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:293: char getchar1_with_timeout (void)
+;	EFM8_JDY40_test.c:354: char getchar1_with_timeout (void)
 ;	-----------------------------------------
 ;	 function getchar1_with_timeout
 ;	-----------------------------------------
 _getchar1_with_timeout:
-;	EFM8_JDY40_test.c:297: SFRPAGE = 0x20;
+;	EFM8_JDY40_test.c:358: SFRPAGE = 0x20;
 	mov	_SFRPAGE,#0x20
-;	EFM8_JDY40_test.c:299: while (!RI1)
+;	EFM8_JDY40_test.c:360: while (!RI1)
 	mov	r2,#0x00
 	mov	r3,#0x00
-L017003?:
-	jb	_RI1,L017005?
-;	EFM8_JDY40_test.c:301: SFRPAGE = 0x00;
+L018003?:
+	jb	_RI1,L018005?
+;	EFM8_JDY40_test.c:362: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
-;	EFM8_JDY40_test.c:302: Timer3us(20);
+;	EFM8_JDY40_test.c:363: Timer3us(20);
 	mov	dpl,#0x14
 	push	ar2
 	push	ar3
 	lcall	_Timer3us
 	pop	ar3
 	pop	ar2
-;	EFM8_JDY40_test.c:303: SFRPAGE = 0x20;
+;	EFM8_JDY40_test.c:364: SFRPAGE = 0x20;
 	mov	_SFRPAGE,#0x20
-;	EFM8_JDY40_test.c:304: timeout++;
+;	EFM8_JDY40_test.c:365: timeout++;
 	inc	r2
-	cjne	r2,#0x00,L017012?
+	cjne	r2,#0x00,L018012?
 	inc	r3
-L017012?:
-;	EFM8_JDY40_test.c:305: if(timeout==25000)
-	cjne	r2,#0xA8,L017003?
-	cjne	r3,#0x61,L017003?
-;	EFM8_JDY40_test.c:307: SFRPAGE = 0x00;
+L018012?:
+;	EFM8_JDY40_test.c:366: if(timeout==25000)
+	cjne	r2,#0xA8,L018003?
+	cjne	r3,#0x61,L018003?
+;	EFM8_JDY40_test.c:368: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
-;	EFM8_JDY40_test.c:308: return ('\n'); // Timeout after half second
+;	EFM8_JDY40_test.c:369: return ('\n'); // Timeout after half second
 	mov	dpl,#0x0A
 	ret
-L017005?:
-;	EFM8_JDY40_test.c:311: RI1=0;
+L018005?:
+;	EFM8_JDY40_test.c:372: RI1=0;
 	clr	_RI1
-;	EFM8_JDY40_test.c:313: SCON1&=0b_0011_1111;
+;	EFM8_JDY40_test.c:374: SCON1&=0b_0011_1111;
 	anl	_SCON1,#0x3F
-;	EFM8_JDY40_test.c:314: c = SBUF1;
+;	EFM8_JDY40_test.c:375: c = SBUF1;
 	mov	dpl,_SBUF1
-;	EFM8_JDY40_test.c:315: SFRPAGE = 0x00;
+;	EFM8_JDY40_test.c:376: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
-;	EFM8_JDY40_test.c:316: return (c);
+;	EFM8_JDY40_test.c:377: return (c);
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'getstr1'
@@ -1203,7 +1317,7 @@ L017005?:
 ;s                         Allocated to registers r2 r3 r4 
 ;c                         Allocated to registers r5 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:319: void getstr1 (char * s)
+;	EFM8_JDY40_test.c:380: void getstr1 (char * s)
 ;	-----------------------------------------
 ;	 function getstr1
 ;	-----------------------------------------
@@ -1211,9 +1325,9 @@ _getstr1:
 	mov	r2,dpl
 	mov	r3,dph
 	mov	r4,b
-;	EFM8_JDY40_test.c:323: while(1)
-L018004?:
-;	EFM8_JDY40_test.c:325: c=getchar1_with_timeout();
+;	EFM8_JDY40_test.c:384: while(1)
+L019004?:
+;	EFM8_JDY40_test.c:386: c=getchar1_with_timeout();
 	push	ar2
 	push	ar3
 	push	ar4
@@ -1222,17 +1336,17 @@ L018004?:
 	pop	ar4
 	pop	ar3
 	pop	ar2
-;	EFM8_JDY40_test.c:326: if(c=='\n')
-	cjne	r5,#0x0A,L018002?
-;	EFM8_JDY40_test.c:328: *s=0;
+;	EFM8_JDY40_test.c:387: if(c=='\n')
+	cjne	r5,#0x0A,L019002?
+;	EFM8_JDY40_test.c:389: *s= 0; //was 0
 	mov	dpl,r2
 	mov	dph,r3
 	mov	b,r4
 	clr	a
-;	EFM8_JDY40_test.c:329: return;
+;	EFM8_JDY40_test.c:390: return;
 	ljmp	__gptrput
-L018002?:
-;	EFM8_JDY40_test.c:331: *s=c;
+L019002?:
+;	EFM8_JDY40_test.c:392: *s=c;
 	mov	dpl,r2
 	mov	dph,r3
 	mov	b,r4
@@ -1241,24 +1355,24 @@ L018002?:
 	inc	dptr
 	mov	r2,dpl
 	mov	r3,dph
-;	EFM8_JDY40_test.c:332: s++;
-	sjmp	L018004?
+;	EFM8_JDY40_test.c:393: s++;
+	sjmp	L019004?
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'RXU1'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:337: bit RXU1 (void)
+;	EFM8_JDY40_test.c:398: bit RXU1 (void)
 ;	-----------------------------------------
 ;	 function RXU1
 ;	-----------------------------------------
 _RXU1:
-;	EFM8_JDY40_test.c:340: SFRPAGE = 0x20;
+;	EFM8_JDY40_test.c:401: SFRPAGE = 0x20;
 	mov	_SFRPAGE,#0x20
-;	EFM8_JDY40_test.c:341: mybit=RI1;
+;	EFM8_JDY40_test.c:402: mybit=RI1;
 	mov	c,_RI1
-;	EFM8_JDY40_test.c:342: SFRPAGE = 0x00;
+;	EFM8_JDY40_test.c:403: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
-;	EFM8_JDY40_test.c:343: return mybit;
+;	EFM8_JDY40_test.c:404: return mybit;
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'waitms_or_RI1'
@@ -1267,30 +1381,30 @@ _RXU1:
 ;j                         Allocated to registers r4 r5 
 ;k                         Allocated to registers r6 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:346: void waitms_or_RI1 (unsigned int ms)
+;	EFM8_JDY40_test.c:407: void waitms_or_RI1 (unsigned int ms)
 ;	-----------------------------------------
 ;	 function waitms_or_RI1
 ;	-----------------------------------------
 _waitms_or_RI1:
 	mov	r2,dpl
 	mov	r3,dph
-;	EFM8_JDY40_test.c:350: for(j=0; j<ms; j++)
+;	EFM8_JDY40_test.c:411: for(j=0; j<ms; j++)
 	mov	r4,#0x00
 	mov	r5,#0x00
-L020007?:
+L021007?:
 	clr	c
 	mov	a,r4
 	subb	a,r2
 	mov	a,r5
 	subb	a,r3
-	jnc	L020011?
-;	EFM8_JDY40_test.c:352: for (k=0; k<4; k++)
+	jnc	L021011?
+;	EFM8_JDY40_test.c:413: for (k=0; k<4; k++)
 	mov	r6,#0x00
-L020003?:
-	cjne	r6,#0x04,L020019?
-L020019?:
-	jnc	L020009?
-;	EFM8_JDY40_test.c:354: if(RXU1()) return;
+L021003?:
+	cjne	r6,#0x04,L021019?
+L021019?:
+	jnc	L021009?
+;	EFM8_JDY40_test.c:415: if(RXU1()) return;
 	push	ar2
 	push	ar3
 	push	ar4
@@ -1304,10 +1418,10 @@ L020019?:
 	pop	ar4
 	pop	ar3
 	pop	ar2
-	jz	L020002?
+	jz	L021002?
 	ret
-L020002?:
-;	EFM8_JDY40_test.c:355: Timer3us(250);
+L021002?:
+;	EFM8_JDY40_test.c:416: Timer3us(250);
 	mov	dpl,#0xFA
 	push	ar2
 	push	ar3
@@ -1320,23 +1434,23 @@ L020002?:
 	pop	ar4
 	pop	ar3
 	pop	ar2
-;	EFM8_JDY40_test.c:352: for (k=0; k<4; k++)
+;	EFM8_JDY40_test.c:413: for (k=0; k<4; k++)
 	inc	r6
-	sjmp	L020003?
-L020009?:
-;	EFM8_JDY40_test.c:350: for(j=0; j<ms; j++)
+	sjmp	L021003?
+L021009?:
+;	EFM8_JDY40_test.c:411: for(j=0; j<ms; j++)
 	inc	r4
-	cjne	r4,#0x00,L020007?
+	cjne	r4,#0x00,L021007?
 	inc	r5
-	sjmp	L020007?
-L020011?:
+	sjmp	L021007?
+L021011?:
 	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'SendATCommand'
 ;------------------------------------------------------------
 ;s                         Allocated to registers r2 r3 r4 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:360: void SendATCommand (char * s)
+;	EFM8_JDY40_test.c:421: void SendATCommand (char * s)
 ;	-----------------------------------------
 ;	 function SendATCommand
 ;	-----------------------------------------
@@ -1344,7 +1458,7 @@ _SendATCommand:
 	mov	r2,dpl
 	mov	r3,dph
 	mov	r4,b
-;	EFM8_JDY40_test.c:362: printf("Command: %s", s);
+;	EFM8_JDY40_test.c:423: printf("Command: %s", s);
 	push	ar2
 	push	ar3
 	push	ar4
@@ -1361,29 +1475,29 @@ _SendATCommand:
 	mov	a,sp
 	add	a,#0xfa
 	mov	sp,a
-;	EFM8_JDY40_test.c:363: P3_0=0; // 'set' pin to 0 is 'AT' mode.
+;	EFM8_JDY40_test.c:424: P3_0=0; // 'set' pin to 0 is 'AT' mode.
 	clr	_P3_0
-;	EFM8_JDY40_test.c:364: waitms(5);
+;	EFM8_JDY40_test.c:425: waitms(5);
 	mov	dptr,#0x0005
 	lcall	_waitms
 	pop	ar4
 	pop	ar3
 	pop	ar2
-;	EFM8_JDY40_test.c:365: sendstr1(s);
+;	EFM8_JDY40_test.c:426: sendstr1(s);
 	mov	dpl,r2
 	mov	dph,r3
 	mov	b,r4
 	lcall	_sendstr1
-;	EFM8_JDY40_test.c:366: getstr1(buff);
+;	EFM8_JDY40_test.c:427: getstr1(buff);
 	mov	dptr,#_buff
 	mov	b,#0x40
 	lcall	_getstr1
-;	EFM8_JDY40_test.c:367: waitms(10);
+;	EFM8_JDY40_test.c:428: waitms(10);
 	mov	dptr,#0x000A
 	lcall	_waitms
-;	EFM8_JDY40_test.c:368: P3_0=1; // 'set' pin to 1 is normal operation mode.
+;	EFM8_JDY40_test.c:429: P3_0=1; // 'set' pin to 1 is normal operation mode.
 	setb	_P3_0
-;	EFM8_JDY40_test.c:369: printf("Response: %s\r\n", buff);
+;	EFM8_JDY40_test.c:430: printf("Response: %s\r\n", buff);
 	mov	a,#_buff
 	push	acc
 	mov	a,#(_buff >> 8)
@@ -1405,17 +1519,17 @@ _SendATCommand:
 ;Allocation info for local variables in function 'LCD_pulse'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:374: void LCD_pulse (void)
+;	EFM8_JDY40_test.c:435: void LCD_pulse (void)
 ;	-----------------------------------------
 ;	 function LCD_pulse
 ;	-----------------------------------------
 _LCD_pulse:
-;	EFM8_JDY40_test.c:376: LCD_E=1;
+;	EFM8_JDY40_test.c:437: LCD_E=1;
 	setb	_P2_0
-;	EFM8_JDY40_test.c:377: Timer3us(40);
+;	EFM8_JDY40_test.c:438: Timer3us(40);
 	mov	dpl,#0x28
 	lcall	_Timer3us
-;	EFM8_JDY40_test.c:378: LCD_E=0;
+;	EFM8_JDY40_test.c:439: LCD_E=0;
 	clr	_P2_0
 	ret
 ;------------------------------------------------------------
@@ -1423,66 +1537,83 @@ _LCD_pulse:
 ;------------------------------------------------------------
 ;x                         Allocated to registers r2 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:381: void LCD_byte (unsigned char x)
+;	EFM8_JDY40_test.c:442: void LCD_byte (unsigned char x)
 ;	-----------------------------------------
 ;	 function LCD_byte
 ;	-----------------------------------------
 _LCD_byte:
 	mov	r2,dpl
-;	EFM8_JDY40_test.c:384: ACC=x; //Send high nible
+;	EFM8_JDY40_test.c:445: ACC=x; //Send high nible
 	mov	_ACC,r2
-;	EFM8_JDY40_test.c:385: LCD_D7=ACC_7;
+;	EFM8_JDY40_test.c:446: LCD_D7=ACC_7;
 	mov	c,_ACC_7
 	mov	_P1_0,c
-;	EFM8_JDY40_test.c:386: LCD_D6=ACC_6;
+;	EFM8_JDY40_test.c:447: LCD_D6=ACC_6;
 	mov	c,_ACC_6
 	mov	_P1_1,c
-;	EFM8_JDY40_test.c:387: LCD_D5=ACC_5;
+;	EFM8_JDY40_test.c:448: LCD_D5=ACC_5;
 	mov	c,_ACC_5
 	mov	_P1_2,c
-;	EFM8_JDY40_test.c:388: LCD_D4=ACC_4;
+;	EFM8_JDY40_test.c:449: LCD_D4=ACC_4;
 	mov	c,_ACC_4
 	mov	_P1_3,c
-;	EFM8_JDY40_test.c:389: LCD_pulse();
+;	EFM8_JDY40_test.c:450: LCD_pulse();
 	push	ar2
 	lcall	_LCD_pulse
-;	EFM8_JDY40_test.c:390: Timer3us(40);
+;	EFM8_JDY40_test.c:451: Timer3us(40);
 	mov	dpl,#0x28
 	lcall	_Timer3us
 	pop	ar2
-;	EFM8_JDY40_test.c:391: ACC=x; //Send low nible
+;	EFM8_JDY40_test.c:452: ACC=x; //Send low nible
 	mov	_ACC,r2
-;	EFM8_JDY40_test.c:392: LCD_D7=ACC_3;
+;	EFM8_JDY40_test.c:453: LCD_D7=ACC_3;
 	mov	c,_ACC_3
 	mov	_P1_0,c
-;	EFM8_JDY40_test.c:393: LCD_D6=ACC_2;
+;	EFM8_JDY40_test.c:454: LCD_D6=ACC_2;
 	mov	c,_ACC_2
 	mov	_P1_1,c
-;	EFM8_JDY40_test.c:394: LCD_D5=ACC_1;
+;	EFM8_JDY40_test.c:455: LCD_D5=ACC_1;
 	mov	c,_ACC_1
 	mov	_P1_2,c
-;	EFM8_JDY40_test.c:395: LCD_D4=ACC_0;
+;	EFM8_JDY40_test.c:456: LCD_D4=ACC_0;
 	mov	c,_ACC_0
 	mov	_P1_3,c
-;	EFM8_JDY40_test.c:396: LCD_pulse();
+;	EFM8_JDY40_test.c:457: LCD_pulse();
 	ljmp	_LCD_pulse
+;------------------------------------------------------------
+;Allocation info for local variables in function 'speaker_pulse'
+;------------------------------------------------------------
+;------------------------------------------------------------
+;	EFM8_JDY40_test.c:460: void speaker_pulse(void) 
+;	-----------------------------------------
+;	 function speaker_pulse
+;	-----------------------------------------
+_speaker_pulse:
+;	EFM8_JDY40_test.c:462: METAL_DECTECT = 0;
+	clr	_P3_4
+;	EFM8_JDY40_test.c:463: waitms(10);
+	mov	dptr,#0x000A
+	lcall	_waitms
+;	EFM8_JDY40_test.c:464: METAL_DECTECT = 1;
+	setb	_P3_4
+	ret
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'WriteData'
 ;------------------------------------------------------------
 ;x                         Allocated to registers r2 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:399: void WriteData (unsigned char x)
+;	EFM8_JDY40_test.c:467: void WriteData (unsigned char x)
 ;	-----------------------------------------
 ;	 function WriteData
 ;	-----------------------------------------
 _WriteData:
 	mov	r2,dpl
-;	EFM8_JDY40_test.c:401: LCD_RS=1;
+;	EFM8_JDY40_test.c:469: LCD_RS=1;
 	setb	_P1_7
-;	EFM8_JDY40_test.c:402: LCD_byte(x);
+;	EFM8_JDY40_test.c:470: LCD_byte(x);
 	mov	dpl,r2
 	lcall	_LCD_byte
-;	EFM8_JDY40_test.c:403: waitms(2);
+;	EFM8_JDY40_test.c:471: waitms(2);
 	mov	dptr,#0x0002
 	ljmp	_waitms
 ;------------------------------------------------------------
@@ -1490,53 +1621,53 @@ _WriteData:
 ;------------------------------------------------------------
 ;x                         Allocated to registers r2 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:406: void WriteCommand (unsigned char x)
+;	EFM8_JDY40_test.c:474: void WriteCommand (unsigned char x)
 ;	-----------------------------------------
 ;	 function WriteCommand
 ;	-----------------------------------------
 _WriteCommand:
 	mov	r2,dpl
-;	EFM8_JDY40_test.c:408: LCD_RS=0;
+;	EFM8_JDY40_test.c:476: LCD_RS=0;
 	clr	_P1_7
-;	EFM8_JDY40_test.c:409: LCD_byte(x);
+;	EFM8_JDY40_test.c:477: LCD_byte(x);
 	mov	dpl,r2
 	lcall	_LCD_byte
-;	EFM8_JDY40_test.c:410: waitms(5);
+;	EFM8_JDY40_test.c:478: waitms(5);
 	mov	dptr,#0x0005
 	ljmp	_waitms
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'LCD_4BIT'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:413: void LCD_4BIT (void)
+;	EFM8_JDY40_test.c:481: void LCD_4BIT (void)
 ;	-----------------------------------------
 ;	 function LCD_4BIT
 ;	-----------------------------------------
 _LCD_4BIT:
-;	EFM8_JDY40_test.c:415: LCD_E=0; // Resting state of LCD's enable is zero
+;	EFM8_JDY40_test.c:483: LCD_E=0; // Resting state of LCD's enable is zero
 	clr	_P2_0
-;	EFM8_JDY40_test.c:417: waitms(20);
+;	EFM8_JDY40_test.c:485: waitms(20);
 	mov	dptr,#0x0014
 	lcall	_waitms
-;	EFM8_JDY40_test.c:419: WriteCommand(0x33);
+;	EFM8_JDY40_test.c:487: WriteCommand(0x33);
 	mov	dpl,#0x33
 	lcall	_WriteCommand
-;	EFM8_JDY40_test.c:420: WriteCommand(0x33);
+;	EFM8_JDY40_test.c:488: WriteCommand(0x33);
 	mov	dpl,#0x33
 	lcall	_WriteCommand
-;	EFM8_JDY40_test.c:421: WriteCommand(0x32); // Change to 4-bit mode
+;	EFM8_JDY40_test.c:489: WriteCommand(0x32); // Change to 4-bit mode
 	mov	dpl,#0x32
 	lcall	_WriteCommand
-;	EFM8_JDY40_test.c:424: WriteCommand(0x28);
+;	EFM8_JDY40_test.c:492: WriteCommand(0x28);
 	mov	dpl,#0x28
 	lcall	_WriteCommand
-;	EFM8_JDY40_test.c:425: WriteCommand(0x0c);
+;	EFM8_JDY40_test.c:493: WriteCommand(0x0c);
 	mov	dpl,#0x0C
 	lcall	_WriteCommand
-;	EFM8_JDY40_test.c:426: WriteCommand(0x01); // Clear screen command (takes some time)
+;	EFM8_JDY40_test.c:494: WriteCommand(0x01); // Clear screen command (takes some time)
 	mov	dpl,#0x01
 	lcall	_WriteCommand
-;	EFM8_JDY40_test.c:427: waitms(20); // Wait for clear screen command to finsih.
+;	EFM8_JDY40_test.c:495: waitms(20); // Wait for clear screen command to finsih.
 	mov	dptr,#0x0014
 	ljmp	_waitms
 ;------------------------------------------------------------
@@ -1546,7 +1677,7 @@ _LCD_4BIT:
 ;string                    Allocated to registers r2 r3 r4 
 ;j                         Allocated to registers r5 r6 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:430: void LCDprint(char * string, unsigned char line, bit clear)
+;	EFM8_JDY40_test.c:498: void LCDprint(char * string, unsigned char line, bit clear)
 ;	-----------------------------------------
 ;	 function LCDprint
 ;	-----------------------------------------
@@ -1554,29 +1685,29 @@ _LCDprint:
 	mov	r2,dpl
 	mov	r3,dph
 	mov	r4,b
-;	EFM8_JDY40_test.c:434: WriteCommand(line==2?0xc0:0x80);
+;	EFM8_JDY40_test.c:502: WriteCommand(line==2?0xc0:0x80);
 	mov	a,#0x02
-	cjne	a,_LCDprint_PARM_2,L027013?
+	cjne	a,_LCDprint_PARM_2,L029013?
 	mov	r5,#0xC0
-	sjmp	L027014?
-L027013?:
+	sjmp	L029014?
+L029013?:
 	mov	r5,#0x80
-L027014?:
+L029014?:
 	mov	dpl,r5
 	push	ar2
 	push	ar3
 	push	ar4
 	lcall	_WriteCommand
-;	EFM8_JDY40_test.c:435: waitms(5);
+;	EFM8_JDY40_test.c:503: waitms(5);
 	mov	dptr,#0x0005
 	lcall	_waitms
 	pop	ar4
 	pop	ar3
 	pop	ar2
-;	EFM8_JDY40_test.c:436: for(j=0; string[j]!=0; j++)	WriteData(string[j]);// Write the message
+;	EFM8_JDY40_test.c:504: for(j=0; string[j]!=0; j++)	WriteData(string[j]);// Write the message
 	mov	r5,#0x00
 	mov	r6,#0x00
-L027003?:
+L029003?:
 	mov	a,r5
 	add	a,r2
 	mov	r7,a
@@ -1589,7 +1720,7 @@ L027003?:
 	mov	b,r1
 	lcall	__gptrget
 	mov	r7,a
-	jz	L027006?
+	jz	L029006?
 	mov	dpl,r7
 	push	ar2
 	push	ar3
@@ -1603,22 +1734,22 @@ L027003?:
 	pop	ar3
 	pop	ar2
 	inc	r5
-	cjne	r5,#0x00,L027003?
+	cjne	r5,#0x00,L029003?
 	inc	r6
-	sjmp	L027003?
-L027006?:
-;	EFM8_JDY40_test.c:437: if(clear) for(; j<CHARS_PER_LINE; j++) WriteData(' '); // Clear the rest of the line
-	jnb	_LCDprint_PARM_3,L027011?
+	sjmp	L029003?
+L029006?:
+;	EFM8_JDY40_test.c:505: if(clear) for(; j<CHARS_PER_LINE; j++) WriteData(' '); // Clear the rest of the line
+	jnb	_LCDprint_PARM_3,L029011?
 	mov	ar2,r5
 	mov	ar3,r6
-L027007?:
+L029007?:
 	clr	c
 	mov	a,r2
 	subb	a,#0x10
 	mov	a,r3
 	xrl	a,#0x80
 	subb	a,#0x80
-	jnc	L027011?
+	jnc	L029011?
 	mov	dpl,#0x20
 	push	ar2
 	push	ar3
@@ -1626,272 +1757,414 @@ L027007?:
 	pop	ar3
 	pop	ar2
 	inc	r2
-	cjne	r2,#0x00,L027007?
+	cjne	r2,#0x00,L029007?
 	inc	r3
-	sjmp	L027007?
-L027011?:
+	sjmp	L029007?
+L029011?:
 	ret
+;------------------------------------------------------------
+;Allocation info for local variables in function 'LCDprint2'
+;------------------------------------------------------------
+;line                      Allocated with name '_LCDprint2_PARM_2'
+;col                       Allocated with name '_LCDprint2_PARM_3'
+;string                    Allocated to registers r2 r3 r4 
+;j                         Allocated to registers r5 r6 
+;------------------------------------------------------------
+;	EFM8_JDY40_test.c:508: void LCDprint2(char * string, unsigned char line, unsigned char col)
+;	-----------------------------------------
+;	 function LCDprint2
+;	-----------------------------------------
+_LCDprint2:
+	mov	r2,dpl
+	mov	r3,dph
+	mov	r4,b
+;	EFM8_JDY40_test.c:512: WriteCommand(line==2?0xc0|col:0x80|col); // Move cursor to line and column
+	mov	a,#0x02
+	cjne	a,_LCDprint2_PARM_2,L030007?
+	mov	a,#0xC0
+	orl	a,_LCDprint2_PARM_3
+	mov	r5,a
+	sjmp	L030008?
+L030007?:
+	mov	a,#0x80
+	orl	a,_LCDprint2_PARM_3
+	mov	r5,a
+L030008?:
+	mov	dpl,r5
+	push	ar2
+	push	ar3
+	push	ar4
+	lcall	_WriteCommand
+	pop	ar4
+	pop	ar3
+	pop	ar2
+;	EFM8_JDY40_test.c:513: for(j=0; string[j]!=0; j++) WriteData(string[j]); // Write the message
+	mov	r5,#0x00
+	mov	r6,#0x00
+L030001?:
+	mov	a,r5
+	add	a,r2
+	mov	r7,a
+	mov	a,r6
+	addc	a,r3
+	mov	r0,a
+	mov	ar1,r4
+	mov	dpl,r7
+	mov	dph,r0
+	mov	b,r1
+	lcall	__gptrget
+	mov	r7,a
+	jz	L030005?
+	mov	dpl,r7
+	push	ar2
+	push	ar3
+	push	ar4
+	push	ar5
+	push	ar6
+	lcall	_WriteData
+	pop	ar6
+	pop	ar5
+	pop	ar4
+	pop	ar3
+	pop	ar2
+	inc	r5
+	cjne	r5,#0x00,L030001?
+	inc	r6
+	sjmp	L030001?
+L030005?:
+	ret
+;------------------------------------------------------------
+;Allocation info for local variables in function 'thefastestsprintf'
+;------------------------------------------------------------
+;str                       Allocated with name '_thefastestsprintf_PARM_2'
+;index                     Allocated with name '_thefastestsprintf_PARM_3'
+;num                       Allocated with name '_thefastestsprintf_num_1_129'
+;i                         Allocated with name '_thefastestsprintf_i_1_130'
+;------------------------------------------------------------
+;	EFM8_JDY40_test.c:516: void thefastestsprintf (int num, char str[], int index) {
+;	-----------------------------------------
+;	 function thefastestsprintf
+;	-----------------------------------------
+_thefastestsprintf:
+	mov	_thefastestsprintf_num_1_129,dpl
+	mov	(_thefastestsprintf_num_1_129 + 1),dph
+;	EFM8_JDY40_test.c:519: str[index] = '\0';
+	mov	a,_thefastestsprintf_PARM_3
+	add	a,_thefastestsprintf_PARM_2
+	mov	r4,a
+	mov	a,(_thefastestsprintf_PARM_3 + 1)
+	addc	a,(_thefastestsprintf_PARM_2 + 1)
+	mov	r5,a
+	mov	r6,(_thefastestsprintf_PARM_2 + 2)
+	mov	dpl,r4
+	mov	dph,r5
+	mov	b,r6
+	clr	a
+	lcall	__gptrput
+;	EFM8_JDY40_test.c:521: for (i = 3; i > 0; i--) {
+	mov	_thefastestsprintf_i_1_130,#0x03
+	clr	a
+	mov	(_thefastestsprintf_i_1_130 + 1),a
+L031001?:
+	clr	c
+	clr	a
+	subb	a,_thefastestsprintf_i_1_130
+	clr	a
+	xrl	a,#0x80
+	mov	b,(_thefastestsprintf_i_1_130 + 1)
+	xrl	b,#0x80
+	subb	a,b
+	jnc	L031004?
+;	EFM8_JDY40_test.c:522: str[index -1] = num % 10 + '0';
+	mov	a,_thefastestsprintf_PARM_3
+	add	a,#0xff
+	mov	r6,a
+	mov	a,(_thefastestsprintf_PARM_3 + 1)
+	addc	a,#0xff
+	mov	r7,a
+	mov	a,r6
+	add	a,_thefastestsprintf_PARM_2
+	mov	r0,a
+	mov	a,r7
+	addc	a,(_thefastestsprintf_PARM_2 + 1)
+	mov	r1,a
+	mov	r4,(_thefastestsprintf_PARM_2 + 2)
+	mov	__modsint_PARM_2,#0x0A
+	clr	a
+	mov	(__modsint_PARM_2 + 1),a
+	mov	dpl,_thefastestsprintf_num_1_129
+	mov	dph,(_thefastestsprintf_num_1_129 + 1)
+	push	ar4
+	push	ar6
+	push	ar7
+	push	ar0
+	push	ar1
+	lcall	__modsint
+	mov	r5,dpl
+	pop	ar1
+	pop	ar0
+	pop	ar7
+	pop	ar6
+	pop	ar4
+	mov	a,#0x30
+	add	a,r5
+	mov	dpl,r0
+	mov	dph,r1
+	mov	b,r4
+	lcall	__gptrput
+;	EFM8_JDY40_test.c:523: num/=10;
+	mov	__divsint_PARM_2,#0x0A
+	clr	a
+	mov	(__divsint_PARM_2 + 1),a
+	mov	dpl,_thefastestsprintf_num_1_129
+	mov	dph,(_thefastestsprintf_num_1_129 + 1)
+	push	ar6
+	push	ar7
+	lcall	__divsint
+	mov	_thefastestsprintf_num_1_129,dpl
+	mov	(_thefastestsprintf_num_1_129 + 1),dph
+	pop	ar7
+	pop	ar6
+;	EFM8_JDY40_test.c:524: index--;
+	mov	_thefastestsprintf_PARM_3,r6
+	mov	(_thefastestsprintf_PARM_3 + 1),r7
+;	EFM8_JDY40_test.c:521: for (i = 3; i > 0; i--) {
+	dec	_thefastestsprintf_i_1_130
+	mov	a,#0xff
+	cjne	a,_thefastestsprintf_i_1_130,L031011?
+	dec	(_thefastestsprintf_i_1_130 + 1)
+L031011?:
+	ljmp	L031001?
+L031004?:
+;	EFM8_JDY40_test.c:527: return;
+	ret
+;------------------------------------------------------------
+;Allocation info for local variables in function 'LCD_build_left'
+;------------------------------------------------------------
+;------------------------------------------------------------
+;	EFM8_JDY40_test.c:541: void LCD_build_left(void){
+;	-----------------------------------------
+;	 function LCD_build_left
+;	-----------------------------------------
+_LCD_build_left:
+;	EFM8_JDY40_test.c:542: WriteCommand(0x48);       //Load the location where we want to store
+	mov	dpl,#0x48
+	lcall	_WriteCommand
+;	EFM8_JDY40_test.c:543: WriteData(0x1f);      //Load row 1 data
+	mov	dpl,#0x1F
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:544: WriteData(0x10);      //Load row 2 data
+	mov	dpl,#0x10
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:545: WriteData(0x13);      //Load row 3 data
+	mov	dpl,#0x13
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:546: WriteData(0x17);      //Load row 4 data
+	mov	dpl,#0x17
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:547: WriteData(0x17);      //Load row 5 data
+	mov	dpl,#0x17
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:548: WriteData(0x13);      //Load row 6 data
+	mov	dpl,#0x13
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:549: WriteData(0x10);      //Load row 7 data
+	mov	dpl,#0x10
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:550: WriteData(0x1f);      //Load row 8 data
+	mov	dpl,#0x1F
+	ljmp	_WriteData
+;------------------------------------------------------------
+;Allocation info for local variables in function 'LCD_build_right'
+;------------------------------------------------------------
+;------------------------------------------------------------
+;	EFM8_JDY40_test.c:553: void LCD_build_right(void){
+;	-----------------------------------------
+;	 function LCD_build_right
+;	-----------------------------------------
+_LCD_build_right:
+;	EFM8_JDY40_test.c:554: WriteCommand(0x50);       //Load the location where we want to store
+	mov	dpl,#0x50
+	lcall	_WriteCommand
+;	EFM8_JDY40_test.c:555: WriteData(0x1f);      //Load row 1 data
+	mov	dpl,#0x1F
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:556: WriteData(0x1);      //Load row 2 data
+	mov	dpl,#0x01
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:557: WriteData(0x1d);      //Load row 3 data
+	mov	dpl,#0x1D
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:558: WriteData(0x1d);      //Load row 4 data
+	mov	dpl,#0x1D
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:559: WriteData(0x1d);      //Load row 5 data
+	mov	dpl,#0x1D
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:560: WriteData(0x1d);      //Load row 6 data
+	mov	dpl,#0x1D
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:561: WriteData(0x1);      //Load row 7 data
+	mov	dpl,#0x01
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:562: WriteData(0x1f);      //Load row 8 data
+	mov	dpl,#0x1F
+	ljmp	_WriteData
+;------------------------------------------------------------
+;Allocation info for local variables in function 'LCD_build_mid'
+;------------------------------------------------------------
+;------------------------------------------------------------
+;	EFM8_JDY40_test.c:566: void LCD_build_mid(void){
+;	-----------------------------------------
+;	 function LCD_build_mid
+;	-----------------------------------------
+_LCD_build_mid:
+;	EFM8_JDY40_test.c:567: WriteCommand(0x58);       //Load the location where we want to store
+	mov	dpl,#0x58
+	lcall	_WriteCommand
+;	EFM8_JDY40_test.c:568: WriteData(0x1f);      //Load row 1 data
+	mov	dpl,#0x1F
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:569: WriteData(0x0);      //Load row 2 data
+	mov	dpl,#0x00
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:570: WriteData(0x1f);      //Load row 3 data
+	mov	dpl,#0x1F
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:571: WriteData(0x1f);      //Load row 4 data
+	mov	dpl,#0x1F
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:572: WriteData(0x1f);      //Load row 5 data
+	mov	dpl,#0x1F
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:573: WriteData(0x1f);      //Load row 6 data
+	mov	dpl,#0x1F
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:574: WriteData(0x0);      //Load row 7 data
+	mov	dpl,#0x00
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:575: WriteData(0x1f);      //Load row 8 data
+	mov	dpl,#0x1F
+	ljmp	_WriteData
+;------------------------------------------------------------
+;Allocation info for local variables in function 'LCD_build_left_empty'
+;------------------------------------------------------------
+;------------------------------------------------------------
+;	EFM8_JDY40_test.c:578: void LCD_build_left_empty(void){
+;	-----------------------------------------
+;	 function LCD_build_left_empty
+;	-----------------------------------------
+_LCD_build_left_empty:
+;	EFM8_JDY40_test.c:579: WriteCommand(0x60);       //Load the location where we want to store
+	mov	dpl,#0x60
+	lcall	_WriteCommand
+;	EFM8_JDY40_test.c:580: WriteData(0x1f);      //Load row 1 data
+	mov	dpl,#0x1F
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:581: WriteData(0x10);      //Load row 2 data
+	mov	dpl,#0x10
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:582: WriteData(0x10);      //Load row 3 data
+	mov	dpl,#0x10
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:583: WriteData(0x10);      //Load row 4 data
+	mov	dpl,#0x10
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:584: WriteData(0x10);      //Load row 5 data
+	mov	dpl,#0x10
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:585: WriteData(0x10);      //Load row 6 data
+	mov	dpl,#0x10
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:586: WriteData(0x10);      //Load row 7 data
+	mov	dpl,#0x10
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:587: WriteData(0x1f);      //Load row 8 data
+	mov	dpl,#0x1F
+	ljmp	_WriteData
+;------------------------------------------------------------
+;Allocation info for local variables in function 'LCD_build_mid_empty'
+;------------------------------------------------------------
+;------------------------------------------------------------
+;	EFM8_JDY40_test.c:590: void LCD_build_mid_empty(void){
+;	-----------------------------------------
+;	 function LCD_build_mid_empty
+;	-----------------------------------------
+_LCD_build_mid_empty:
+;	EFM8_JDY40_test.c:591: WriteCommand(0x68);       //Load the location where we want to store
+	mov	dpl,#0x68
+	lcall	_WriteCommand
+;	EFM8_JDY40_test.c:592: WriteData(0x1f);      //Load row 1 data
+	mov	dpl,#0x1F
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:593: WriteData(0x10);      //Load row 2 data
+	mov	dpl,#0x10
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:594: WriteData(0x00);      //Load row 3 data
+	mov	dpl,#0x00
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:595: WriteData(0x00);      //Load row 4 data
+	mov	dpl,#0x00
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:596: WriteData(0x00);      //Load row 5 data
+	mov	dpl,#0x00
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:597: WriteData(0x00);      //Load row 6 data
+	mov	dpl,#0x00
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:598: WriteData(0x00);      //Load row 7 data
+	mov	dpl,#0x00
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:599: WriteData(0x1f);      //Load row 8 data
+	mov	dpl,#0x1F
+	ljmp	_WriteData
+;------------------------------------------------------------
+;Allocation info for local variables in function 'LCD_build_right_empty'
+;------------------------------------------------------------
+;------------------------------------------------------------
+;	EFM8_JDY40_test.c:602: void LCD_build_right_empty(void){
+;	-----------------------------------------
+;	 function LCD_build_right_empty
+;	-----------------------------------------
+_LCD_build_right_empty:
+;	EFM8_JDY40_test.c:603: WriteCommand(0x70);       //Load the location where we want to store
+	mov	dpl,#0x70
+	lcall	_WriteCommand
+;	EFM8_JDY40_test.c:604: WriteData(0x1f);      //Load row 1 data
+	mov	dpl,#0x1F
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:605: WriteData(0x1);      //Load row 2 data
+	mov	dpl,#0x01
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:606: WriteData(0x1);      //Load row 3 data
+	mov	dpl,#0x01
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:607: WriteData(0x1);      //Load row 4 data
+	mov	dpl,#0x01
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:608: WriteData(0x1);      //Load row 5 data
+	mov	dpl,#0x01
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:609: WriteData(0x1);      //Load row 6 data
+	mov	dpl,#0x01
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:610: WriteData(0x1);      //Load row 7 data
+	mov	dpl,#0x01
+	lcall	_WriteData
+;	EFM8_JDY40_test.c:611: WriteData(0x1f);      //Load row 8 data
+	mov	dpl,#0x1F
+	ljmp	_WriteData
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'main'
 ;------------------------------------------------------------
-;cnt                       Allocated to registers 
-;timeout_cnt               Allocated to registers r2 r3 
-;f                         Allocated to registers r2 r3 r4 r5 
-;volt_x                    Allocated to registers r2 r3 
-;volt_y                    Allocated to registers r4 r5 
 ;------------------------------------------------------------
-;	EFM8_JDY40_test.c:440: void main (void)
+;	EFM8_JDY40_test.c:615: void main (void)
 ;	-----------------------------------------
 ;	 function main
 ;	-----------------------------------------
 _main:
-;	EFM8_JDY40_test.c:454: InitADC();
-	lcall	_InitADC
-;	EFM8_JDY40_test.c:455: waitms(500);
-	mov	dptr,#0x01F4
-	lcall	_waitms
-;	EFM8_JDY40_test.c:456: printf("\r\nJDY-40 test\r\n");
-	mov	a,#__str_2
-	push	acc
-	mov	a,#(__str_2 >> 8)
-	push	acc
-	mov	a,#0x80
-	push	acc
-	lcall	_printf
-	dec	sp
-	dec	sp
-	dec	sp
-;	EFM8_JDY40_test.c:457: UART1_Init(9600);
-	mov	dptr,#0x2580
-	clr	a
-	mov	b,a
-	lcall	_UART1_Init
-;	EFM8_JDY40_test.c:458: InitPinADC(1,4); //for x remote
-	mov	_InitPinADC_PARM_2,#0x04
-	mov	dpl,#0x01
-	lcall	_InitPinADC
-;	EFM8_JDY40_test.c:459: InitPinADC(1,5); //for y remote
-	mov	_InitPinADC_PARM_2,#0x05
-	mov	dpl,#0x01
-	lcall	_InitPinADC
-;	EFM8_JDY40_test.c:482: SendATCommand("AT+DVID9944\r\n"); 
-	mov	dptr,#__str_3
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:483: SendATCommand("AT+RFID2576\r\n");
-	mov	dptr,#__str_4
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:487: SendATCommand("AT+VER\r\n");
-	mov	dptr,#__str_5
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:488: SendATCommand("AT+BAUD\r\n");
-	mov	dptr,#__str_6
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:489: SendATCommand("AT+RFID\r\n");
-	mov	dptr,#__str_7
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:490: SendATCommand("AT+DVID\r\n");
-	mov	dptr,#__str_8
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:491: SendATCommand("AT+RFC\r\n");
-	mov	dptr,#__str_9
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:492: SendATCommand("AT+POWE\r\n");
-	mov	dptr,#__str_10
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:493: SendATCommand("AT+CLSS\r\n");
-	mov	dptr,#__str_11
-	mov	b,#0x80
-	lcall	_SendATCommand
-;	EFM8_JDY40_test.c:495: printf("\r\nPress and hold the BOOT button to transmit.\r\n");
-	mov	a,#__str_12
-	push	acc
-	mov	a,#(__str_12 >> 8)
-	push	acc
-	mov	a,#0x80
-	push	acc
-	lcall	_printf
-	dec	sp
-	dec	sp
-	dec	sp
-;	EFM8_JDY40_test.c:499: while(1)
-L028013?:
-;	EFM8_JDY40_test.c:502: putchar1('M');
-	mov	dpl,#0x4D
-	lcall	_putchar1
-;	EFM8_JDY40_test.c:503: waitms(5); //wait for 10 ms for robot to get attention message
-	mov	dptr,#0x0005
-	lcall	_waitms
-;	EFM8_JDY40_test.c:505: volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
-	mov	dpl,#0x0A
-	lcall	_Volts_at_Pin
-	mov	r2,dpl
-	mov	r3,dph
-	mov	r4,b
-	mov	r5,a
-	push	ar2
-	push	ar3
-	push	ar4
-	push	ar5
-	mov	dptr,#0x0000
-	mov	b,#0xC8
-	mov	a,#0x42
-	lcall	___fsmul
-	mov	r2,dpl
-	mov	r3,dph
-	mov	r4,b
-	mov	r5,a
-	mov	a,sp
-	add	a,#0xfc
-	mov	sp,a
-	mov	dpl,r2
-	mov	dph,r3
-	mov	b,r4
-	mov	a,r5
-	lcall	___fs2sint
-	mov	r2,dpl
-	mov	r3,dph
-;	EFM8_JDY40_test.c:506: volt_y = 100*(Volts_at_Pin(QFP32_MUX_P1_5));
-	mov	dpl,#0x0B
-	push	ar2
-	push	ar3
-	lcall	_Volts_at_Pin
-	mov	r4,dpl
-	mov	r5,dph
-	mov	r6,b
-	mov	r7,a
-	push	ar4
-	push	ar5
-	push	ar6
-	push	ar7
-	mov	dptr,#0x0000
-	mov	b,#0xC8
-	mov	a,#0x42
-	lcall	___fsmul
-	mov	r4,dpl
-	mov	r5,dph
-	mov	r6,b
-	mov	r7,a
-	mov	a,sp
-	add	a,#0xfc
-	mov	sp,a
-	mov	dpl,r4
-	mov	dph,r5
-	mov	b,r6
-	mov	a,r7
-	lcall	___fs2sint
-	mov	r4,dpl
-	mov	r5,dph
-	pop	ar3
-	pop	ar2
-;	EFM8_JDY40_test.c:512: sprintf(buff, "%03d|%03d\r\n", volt_x, volt_y); // make sure that each data point is 3 digits
-	push	ar4
-	push	ar5
-	push	ar2
-	push	ar3
-	mov	a,#__str_13
-	push	acc
-	mov	a,#(__str_13 >> 8)
-	push	acc
-	mov	a,#0x80
-	push	acc
-	mov	a,#_buff
-	push	acc
-	mov	a,#(_buff >> 8)
-	push	acc
-	mov	a,#0x40
-	push	acc
-	lcall	_sprintf
-	mov	a,sp
-	add	a,#0xf6
-	mov	sp,a
-;	EFM8_JDY40_test.c:514: sendstr1(buff);
-	mov	dptr,#_buff
-	mov	b,#0x40
-	lcall	_sendstr1
-;	EFM8_JDY40_test.c:519: while(1)
-	mov	r2,#0x00
-	mov	r3,#0x00
-L028006?:
-;	EFM8_JDY40_test.c:521: if(RXU1()) break; // Got something! Get out of loop.
-	push	ar2
-	push	ar3
-	lcall	_RXU1
-	pop	ar3
-	pop	ar2
-	jc	L028007?
-;	EFM8_JDY40_test.c:522: Timer3us(100); // Check if something has arrived every 100us
-	mov	dpl,#0x64
-	push	ar2
-	push	ar3
-	lcall	_Timer3us
-	pop	ar3
-	pop	ar2
-;	EFM8_JDY40_test.c:523: timeout_cnt++;
-	inc	r2
-	cjne	r2,#0x00,L028024?
-	inc	r3
-L028024?:
-;	EFM8_JDY40_test.c:525: if(timeout_cnt>=100) break; // timeout after 100ms, get out of loop
-	clr	c
-	mov	a,r2
-	subb	a,#0x64
-	mov	a,r3
-	subb	a,#0x00
-	jc	L028006?
-L028007?:
-;	EFM8_JDY40_test.c:534: if(RXU1())
-	lcall	_RXU1
-	jc	L028026?
-	ljmp	L028013?
-L028026?:
-;	EFM8_JDY40_test.c:538: getstr1(buff);	
-	mov	dptr,#_buff
-	mov	b,#0x40
-	lcall	_getstr1
-;	EFM8_JDY40_test.c:540: if(strlen(buff)==6){
-	mov	dptr,#_buff
-	mov	b,#0x40
-	lcall	_strlen
-	mov	r2,dpl
-	mov	r3,dph
-	cjne	r2,#0x06,L028027?
-	cjne	r3,#0x00,L028027?
-	sjmp	L028028?
-L028027?:
-	ljmp	L028013?
-L028028?:
-;	EFM8_JDY40_test.c:543: f=atol(&buff[0]);
-	mov	dptr,#_buff
-	mov	b,#0x40
-	lcall	_atol
-	mov	r2,dpl
-	mov	r3,dph
-	mov	r4,b
-	mov	r5,a
-;	EFM8_JDY40_test.c:544: printf("%ld\r\n",f);
-	push	ar2
-	push	ar3
-	push	ar4
-	push	ar5
-	mov	a,#__str_14
-	push	acc
-	mov	a,#(__str_14 >> 8)
-	push	acc
-	mov	a,#0x80
-	push	acc
-	lcall	_printf
-	mov	a,sp
-	add	a,#0xf9
-	mov	sp,a
-	ljmp	L028013?
+;	EFM8_JDY40_test.c:618: }
+	ret
 	rseg R_CSEG
 
 	rseg R_XINIT
@@ -1902,75 +2175,6 @@ __str_0:
 	db 0x00
 __str_1:
 	db 'Response: %s'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_2:
-	db 0x0D
-	db 0x0A
-	db 'JDY-40 test'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_3:
-	db 'AT+DVID9944'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_4:
-	db 'AT+RFID2576'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_5:
-	db 'AT+VER'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_6:
-	db 'AT+BAUD'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_7:
-	db 'AT+RFID'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_8:
-	db 'AT+DVID'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_9:
-	db 'AT+RFC'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_10:
-	db 'AT+POWE'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_11:
-	db 'AT+CLSS'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_12:
-	db 0x0D
-	db 0x0A
-	db 'Press and hold the BOOT button to transmit.'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_13:
-	db '%03d|%03d'
-	db 0x0D
-	db 0x0A
-	db 0x00
-__str_14:
-	db '%ld'
 	db 0x0D
 	db 0x0A
 	db 0x00

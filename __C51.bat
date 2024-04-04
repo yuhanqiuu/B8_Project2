@@ -1,11 +1,11 @@
 @echo off
 ::This file was created automatically by CrossIDE to compile with C51.
 C:
-cd "\Users\Yu204\OneDrive\Documents\UBC courses\Second Year\ELEC 291\codes\project2\B8_Project2\"
-"C:\CrossIDE\Call51\Bin\c51.exe" --use-stdout  "C:\Users\Yu204\OneDrive\Documents\UBC courses\Second Year\ELEC 291\codes\project2\B8_Project2\EFM8_JDY40_test_orignial.c"
+cd "\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\"
+"C:\CrossIDE\Call51\Bin\c51.exe" --use-stdout  "C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c"
 if not exist hex2mif.exe goto done
-if exist EFM8_JDY40_test_orignial.ihx hex2mif EFM8_JDY40_test_orignial.ihx
-if exist EFM8_JDY40_test_orignial.hex hex2mif EFM8_JDY40_test_orignial.hex
+if exist speaktest.ihx hex2mif speaktest.ihx
+if exist speaktest.hex hex2mif speaktest.hex
 :done
 echo done
-echo Crosside_Action Set_Hex_File C:\Users\Yu204\OneDrive\Documents\UBC courses\Second Year\ELEC 291\codes\project2\B8_Project2\EFM8_JDY40_test_orignial.hex
+echo Crosside_Action Set_Hex_File C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.hex
