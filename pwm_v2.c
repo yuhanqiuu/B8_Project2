@@ -491,6 +491,51 @@ void SendATCommand (char * s)
 	delayms(10);
 	printf("Response: %s\n", buff);
 }
+
+int LevelSender(int freq)
+{
+	int speaker_freq, difference; //assume test_freq is the freq got robot, speaker_freq default at 3000
+	
+	int default_metal_freq = 57800;
+	//for checking
+	//difference = 600;
+
+		difference = abs(freq - default_metal_freq);
+
+		//check how much the metal freq increased
+		if((difference>=50) && (difference<100)){ // speaker plays 3000 freq
+			
+			speaker_freq = 1; //level 1
+
+		}
+		else if((difference>=100) && (difference<150) ){
+			speaker_freq = 2; //level 2
+
+		}
+		else if((difference>=150) && (difference<200) ){
+			speaker_freq = 3; //level 3
+
+		}
+		else if((difference>=200) && (difference<250) ){
+			speaker_freq = 4; //level 4
+		}
+		else if((difference>=250) && (difference<300) ){
+			speaker_freq = 5; //level 5
+		}
+		else if(difference>=300){
+			speaker_freq = 6; //level 6
+
+		}
+		else{
+			// do nothing
+			speaker_freq = 0; //level 0
+		}
+		return speaker_freq;
+		
+	}
+	
+	
+
 // In order to keep this as nimble as possible, avoid
 // using floating point or printf() on any of its forms!
 void main(void)
@@ -508,6 +553,7 @@ void main(void)
 	int timeout_cnt=0;
 	char holder[5];
 	int x, y=250;
+	unsigned long int speaker_freq;
     
 	//int i = 0;
 	
@@ -597,19 +643,23 @@ void main(void)
                 {
                     f=((SYSCLK/2L)*100L)/count;
                     //printf("f = %d\r\n",f); //just for testing
+					speaker_freq = LevelSender(f);
+					
                 }
                 else
                 {
                     uart_puts("NO SIGNAL                     \r");
                 }
-				thefastestsprintf(f,buff); 
-				//buff[5] = '\r';
-				//buff[6] = '\n';
+				//thefastestsprintf(speaker_freq,buff); 
+				holder[0] = speaker_freq + '0';
+				holder[1] = '\r';
+				holder[2] = '\n';
+				holder[3] = '\0';
 				//sprintf(buff,"12345\r\n");
-				//printf("length=%d, string f=%s\r\n",strlen(buff),buff); //for testing
+				printf("freq=%d, level=%s\r\n",f,holder); //for testing
 				//constantly send the frequency value until the remote receives the correct value
 				
-				SerialTransmit1(buff);
+				SerialTransmit1(holder);
 		 	    }
 			}
 		}
