@@ -112,6 +112,7 @@ unsigned int mapFrequencySpeak(unsigned long int difference)
 {
     // Example mapping function
     // This function maps the range of test_freq to a range of speaker frequencies
+    int speaker_freq = 523;
 
    if((difference>=500) && (difference<700)){ // speaker plays 3000 freq
 			
@@ -119,7 +120,6 @@ unsigned int mapFrequencySpeak(unsigned long int difference)
 			TR2=0; // Stop timer 2
 			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
 			TR2=1; // Start timer 2
-			delay(50000);
 			difference =750;
 			
 		}
@@ -180,6 +180,7 @@ void main (void)
 	// default_metal_freq = 57300
 	//for checking
 	difference = 600;
+	speaker_freq = 523;
 	while(1)
 	{		
 		//difference = test_freq-default_metal_freq;
