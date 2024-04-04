@@ -11,23 +11,30 @@
 #include <stdio.h>
 
 #define SYSCLK 72000000L // SYSCLK frequency in Hz
-
+#define TIMER_0_FREQ 1000L
+#define TIMER_1_FREQ 2000L
 #define TIMER_2_FREQ 3000L
-#define default_metal_freq 57300L
+#define TIMER_3_FREQ 4000L
+#define TIMER_4_FREQ 5000L
+#define TIMER_5_FREQ 6000L
+#define PCA_0_FREQ 7000L
+#define PCA_1_FREQ 8000L
+#define PCA_2_FREQ 9000L
+#define PCA_3_FREQ 10000L
+#define PCA_4_FREQ 11000L
 
+#define TIMER_OUT_0 P2_0
+#define TIMER_OUT_1 P1_7
 #define TIMER_OUT_2 P1_6
-
-// strength of metal. different level will have the speaker play different frequency
-#define Level_1 1000L
-#define Level_2 2000L
-#define Level_3 3000L
-#define Level_4 4000L
-#define Level_5 5000L
-#define Level_6 6000L
-// volatile unsigned int TickCount=0;
-
-
-//unsigned long int TIMER_2_FREQ = 3000;
+#define TIMER_OUT_3 P1_5
+#define TIMER_OUT_4 P1_4
+#define TIMER_OUT_5 P1_3
+#define MAIN_OUT    P0_1 // Updated in the main program
+#define PCA_OUT_0   P1_2
+#define PCA_OUT_1   P1_1
+#define PCA_OUT_2   P1_0
+#define PCA_OUT_3   P0_7
+#define PCA_OUT_4   P0_6
 
 char _c51_external_startup (void)
 {
@@ -85,6 +92,28 @@ char _c51_external_startup (void)
 	XBR0     = 0x00;                     
 	XBR1     = 0X00;
 	XBR2     = 0x40; // Enable crossbar and weak pull-ups
+	
+	// Initialize timer 0 for periodic interrupts
+	TR0=0;
+	TF0=0;
+	CKCON0|=0b_0000_0100; // Timer 0 uses the system clock
+	TMOD&=0xf0;
+	TMOD|=0x01; // Timer 0 in mode 1: 16-bit timer
+	// Initialize reload value
+	TMR0=65536L-(SYSCLK/(2*TIMER_0_FREQ));
+	ET0=1;     // Enable Timer0 interrupts
+	TR0=1;     // Start Timer0
+
+	// Initialize timer 1 for periodic interrupts
+	TR1=0;
+	TF1=0;
+	CKCON0|=0b_0000_1000; // Timer 1 uses the system clock
+	TMOD&=0x0f;
+	TMOD|=0x10; // Timer 1 in mode 1: 16-bit timer
+	// Initialize reload value
+	TMR1=65536L-(SYSCLK/(2*TIMER_1_FREQ));
+	ET1=1;     // Enable Timer1 interrupts
+	TR1=1;     // Start Timer1
 
 	// Initialize timer 2 for periodic interrupts
 	TMR2CN0=0x00;   // Stop Timer2; Clear TF2;
@@ -94,146 +123,164 @@ char _c51_external_startup (void)
 	ET2=1;         // Enable Timer2 interrupts
 	TR2=1;         // Start Timer2 (TMR2CN is bit addressable)
 
+	// Initialize timer 3 for periodic interrupts
+	TMR3CN0=0x00;   // Stop Timer3; Clear TF3;
+	CKCON0|=0b_0100_0000; // Timer 3 uses the system clock
+	TMR3RL=(0x10000L-(SYSCLK/(2*TIMER_3_FREQ))); // Initialize reload value
+	TMR3=0xffff;   // Set to reload immediately
+	EIE1|=0b_1000_0000;     // Enable Timer3 interrupts
+	TMR3CN0|=0b_0000_0100;  // Start Timer3 (TMR3CN0 is not bit addressable)
+
+	// Initialize timer 4 for periodic interrupts
+	SFRPAGE=0x10;
+	TMR4CN0=0x00;   // Stop Timer4; Clear TF4; WARNING: lives in SFR page 0x10
+	CKCON1|=0b_0000_0001; // Timer 4 uses the system clock
+	TMR4RL=(0x10000L-(SYSCLK/(2*TIMER_4_FREQ))); // Initialize reload value
+	TMR4=0xffff;   // Set to reload immediately
+	EIE2|=0b_0000_0100;     // Enable Timer4 interrupts
+	TR4=1;
+
+	// Initialize timer 5 for periodic interrupts
+	SFRPAGE=0x10;
+	TMR5CN0=0x00;   // Stop Timer5; Clear TF5; WARNING: lives in SFR page 0x10
+	CKCON1|=0b_0000_0100; // Timer 5 uses the system clock
+	TMR5RL=(0x10000L-(SYSCLK/(2*TIMER_5_FREQ))); // Initialize reload value
+	TMR5=0xffff;   // Set to reload immediately
+	EIE2|=0b_0000_1000; // Enable Timer5 interrupts
+	TR5=1;         // Start Timer5 (TMR5CN0 is bit addressable)
+
+	// Initialize the Prgramable Counter Array to generate the requested frequencies
+	SFRPAGE=0x0;
+	PCA0MD=0x00; // Disable and clear everything in the PCA
+	PCA0L=0; // Initialize the PCA counter to zero
+	PCA0H=0;
+	PCA0MD=0b_0000_1000; // Configure PCA.  System CLK is the frequency input for the PCA
+	// Enable all PCS modules comparators and to generate interrupts
+	PCA0CPM0=PCA0CPM1=PCA0CPM2=PCA0CPM3=PCA0CPM4=0b_0100_1001; // ECOM|MAT|ECCF;
+	// The frequency for PCA channel 0
+	PCA0CPL0=(SYSCLK/(2*PCA_0_FREQ))%0x100; //Always write low byte first!
+	PCA0CPH0=(SYSCLK/(2*PCA_0_FREQ))/0x100;
+	// The frequency for PCA channel 1
+	PCA0CPL1=(SYSCLK/(2*PCA_1_FREQ))%0x100; //Always write low byte first!
+	PCA0CPH1=(SYSCLK/(2*PCA_1_FREQ))/0x100;
+	// The frequency for PCA channel 2
+	PCA0CPL2=(SYSCLK/(2*PCA_2_FREQ))%0x100; //Always write low byte first!
+	PCA0CPH2=(SYSCLK/(2*PCA_2_FREQ))/0x100;
+	// The frequency for PCA channel 3
+	PCA0CPL3=(SYSCLK/(2*PCA_3_FREQ))%0x100; //Always write low byte first!
+	PCA0CPH3=(SYSCLK/(2*PCA_3_FREQ))/0x100;
+	// The frequency for PCA channel 4
+	PCA0CPL4=(SYSCLK/(2*PCA_4_FREQ))%0x100; //Always write low byte first!
+	PCA0CPH4=(SYSCLK/(2*PCA_4_FREQ))/0x100;
+	CR=1; // Enable PCA counter
+	EIE1|=0b_0001_0000; // Enable PCA interrupts
+	
 	EA=1; // Enable interrupts
 	
 	return 0;
 }
 
+void Timer0_ISR (void) interrupt INTERRUPT_TIMER0
+{
+	SFRPAGE=0x0;
+	// Timer 0 in 16-bit mode doesn't have auto reload
+	TMR0=0x10000L-(SYSCLK/(2*TIMER_0_FREQ));
+	TIMER_OUT_0=!TIMER_OUT_0;
+}
+
+void Timer1_ISR (void) interrupt INTERRUPT_TIMER1
+{
+	SFRPAGE=0x0;
+	// Timer 1 in 16-bit mode doesn't have auto reload
+	TMR1=0x10000L-(SYSCLK/(2*TIMER_1_FREQ));
+	TIMER_OUT_1=!TIMER_OUT_1;
+}
 
 void Timer2_ISR (void) interrupt INTERRUPT_TIMER2
 {
-	SFRPAGE=0x0;		
+	SFRPAGE=0x0;
 	TF2H = 0; // Clear Timer2 interrupt flag
 	TIMER_OUT_2=!TIMER_OUT_2;
-	
 }
 
-unsigned int mapFrequencySpeak(unsigned long int difference)
+void Timer3_ISR (void) interrupt INTERRUPT_TIMER3
 {
-    // Example mapping function
-    // This function maps the range of test_freq to a range of speaker frequencies
-    int speaker_freq = 523;
-
-   if((difference>=500) && (difference<700)){ // speaker plays 3000 freq
-			
-			speaker_freq = Level_1; //level 1
-			TR2=0; // Stop timer 2
-			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-			TR2=1; // Start timer 2
-			difference =750;
-			
-		}
-		else if((difference>=700) && (difference<800) ){
-			speaker_freq = Level_2; //level 2
-			TR2=0; // Stop timer 2
-			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-			TR2=1; // Start timer 2
-
-		}
-		else if((difference>=800) && (difference<900) ){
-			speaker_freq = Level_3; //level 3
-			TR2=0; // Stop timer 2
-			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-			TR2=1; // Start timer 2
-		}
-		else if((difference>=900) && (difference<1000) ){
-			speaker_freq = Level_4; //level 4
-			TR2=0; // Stop timer 2
-			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-			TR2=1; // Start timer 2
-		}
-		else if((difference>=1000) && (difference<1100) ){
-			speaker_freq = Level_5; //level 5
-			TR2=0; // Stop timer 2
-			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-			TR2=1; // Start timer 2
-		}
-		else if(difference>=1100){
-			speaker_freq = Level_6; //level 6
-			TR2=0; // Stop timer 2
-			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-			TR2=1; // Start timer 2
-		}
-		else{
-			// do nothing
-			
-
-		}
-	
-
+	SFRPAGE=0x0;
+	TMR3CN0&=0b_0011_1111; // Clear Timer3 interrupt flags
+	TIMER_OUT_3=!TIMER_OUT_3;
 }
 
-void delay (unsigned int x)
+void Timer4_ISR (void) interrupt INTERRUPT_TIMER4
 {
-	unsigned char j;
-	while(--x)
+	SFRPAGE=0x10;
+	TF4H = 0; // Clear Timer4 interrupt flag
+	TIMER_OUT_4=!TIMER_OUT_4;
+}
+
+void Timer5_ISR (void) interrupt INTERRUPT_TIMER5
+{
+	SFRPAGE=0x10;
+	TF5H = 0; // Clear Timer5 interrupt flag
+	TIMER_OUT_5=!TIMER_OUT_5;
+}
+
+void PCA_ISR (void) interrupt INTERRUPT_PCA0
+{
+	unsigned int j;
+	
+	SFRPAGE=0x0;
+	
+	if (CCF0)
 	{
-		for(j=0; j<100; j++);
+		j=(PCA0CPH0*0x100+PCA0CPL0)+(SYSCLK/(2L*PCA_0_FREQ));
+		PCA0CPL0=j%0x100; //Always write low byte first!
+		PCA0CPH0=j/0x100;
+		CCF0=0;
+		PCA_OUT_0=!PCA_OUT_0;
 	}
+	if (CCF1)
+	{
+		j=(PCA0CPH1*0x100+PCA0CPL1)+(SYSCLK/(2L*PCA_1_FREQ));
+		PCA0CPL1=j%0x100; //Always write low byte first!
+		PCA0CPH1=j/0x100;
+		CCF1=0;
+		PCA_OUT_1=!PCA_OUT_1;
+	}
+	if (CCF2)
+	{
+		j=(PCA0CPH2*0x100+PCA0CPL2)+(SYSCLK/(2L*PCA_2_FREQ));
+		PCA0CPL2=j%0x100; //Always write low byte first!
+		PCA0CPH2=j/0x100;
+		CCF2=0;
+		PCA_OUT_2=!PCA_OUT_2;
+	}
+	if (CCF3)
+	{
+		j=(PCA0CPH3*0x100+PCA0CPL3)+(SYSCLK/(2L*PCA_3_FREQ));
+		PCA0CPL3=j%0x100; //Always write low byte first!
+		PCA0CPH3=j/0x100;
+		CCF3=0;
+		PCA_OUT_3=!PCA_OUT_3;
+	}
+	if (CCF4)
+	{
+		j=(PCA0CPH4*0x100+PCA0CPL4)+(SYSCLK/(2L*PCA_4_FREQ));
+		PCA0CPL4=j%0x100; //Always write low byte first!
+		PCA0CPH4=j/0x100;
+		CCF4=0;
+		PCA_OUT_4=!PCA_OUT_4;
+	}
+
+	CF=0;
 }
 
 void main (void)
 {
     unsigned int j;
-	unsigned long int test_freq,speaker_freq, difference; //assume test_freq is the freq got robot, speaker_freq default at 3000
-	test_freq = 58000; // change this value manually to check for speaker	
-	// default_metal_freq = 57300
-	//for checking
-	difference = 600;
-	speaker_freq = 523;
 	while(1)
-	{		
-		//difference = test_freq-default_metal_freq;
-
-		
-		//check how much the metal freq increased
-		if((difference>=500) && (difference<700)){ // speaker plays 3000 freq
-			
-			speaker_freq = Level_1; //level 1
-			TR2=0; // Stop timer 2
-			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-			TR2=1; // Start timer 2
-			delay(50000);
-			difference =750;
-			
-		}
-		else if((difference>=700) && (difference<800) ){
-			speaker_freq = Level_2; //level 2
-			TR2=0; // Stop timer 2
-			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-			TR2=1; // Start timer 2
-			delay(50000);
-			difference =850;
-
-		}
-		else if((difference>=800) && (difference<900) ){
-			speaker_freq = Level_3; //level 3
-			TR2=0; // Stop timer 2
-			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-			TR2=1; // Start timer 2
-		}
-		else if((difference>=900) && (difference<1000) ){
-			speaker_freq = Level_4; //level 4
-			TR2=0; // Stop timer 2
-			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-			TR2=1; // Start timer 2
-		}
-		else if((difference>=1000) && (difference<1100) ){
-			speaker_freq = Level_5; //level 5
-			TR2=0; // Stop timer 2
-			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-			TR2=1; // Start timer 2
-		}
-		else if(difference>=1100){
-			speaker_freq = Level_6; //level 6
-			TR2=0; // Stop timer 2
-			TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-			TR2=1; // Start timer 2
-		}
-		else{
-			// do nothing
-			delay(50000);
-
-		}
+	{
+	    // Everybody is interrupting, so it is imposible to obtain a perfect square wave
+		MAIN_OUT=!MAIN_OUT;
+		for (j=0; j<1000; j++);
 	}
 }

@@ -4,7 +4,6 @@
 #include <EFM8LB1.h>
 #include <stdlib.h>
 #include <stdio.h>
-
 #include <string.h>
 
 #define SYSCLK 72000000L
@@ -14,6 +13,7 @@
 #define DEFAULT_F 15500L
 
 #define TIMER_OUT_2 P3_3 //speaker connnect to pin 3.3
+#define TIMER_OUT_4 P3_2 //timer 4 pin out
 
 #define VDD 4.85 // The measured value of VDD in volts
 
@@ -32,6 +32,10 @@
 #define CHARS_PER_LINE 16
 
 #define METAL_DECTECT P3_4
+
+#define PCA_OUT_4   P0_6
+#define PCA_4_FREQ 11000L
+#define TIMER_4_FREQ 5000L
 
 idata char buff[20];
 
@@ -84,10 +88,21 @@ char _c51_external_startup (void)
 	#endif
 	
 	P0MDOUT |= 0x11; // Enable UART0 TX (P0.4) and UART1 TX (P0.0) as push-pull outputs
-	P2MDOUT |= 0x01; // P2.0 in push-pull mode
+	P2MDOUT |= 0x00; // P2.0 in push-pull mode
 	XBR0     = 0x01; // Enable UART0 on P0.4(TX) and P0.5(RX)                     
 	XBR1     = 0X00;
 	XBR2     = 0x41; // Enable crossbar and uart 1
+	// Configure the pins used for square output
+	// P2MDOUT|=0x11;
+	// P0MDOUT |= 0x01; // Enable UART0 TX as push-pull output
+	// XBR0     = 0x01; // Enable UART0 on P0.4(TX) and P0.5(RX)                     
+	// XBR1     = 0X00; 
+	// XBR2     = 0x41; // Enable crossbar and weak pull-ups
+	// P2MDOUT|=0b_0000_0011;
+	// P0MDOUT |= 0x10; // Enable UART0 TX as push-pull output
+	// XBR0     = 0x01; // Enable UART0 on P0.4(TX) and P0.5(RX)                     
+	// XBR1     = 0x10; // Enable T0 on P0.0
+	// XBR2     = 0x40; // Enable crossbar and weak pull-ups
 
 	// Configure Uart 0
 	#if (((SYSCLK/BAUDRATE)/(2L*12L))>0xFFL)
@@ -100,8 +115,51 @@ char _c51_external_startup (void)
 	TMOD |=  0x20;                       
 	TR1 = 1; // START Timer1
 	TI = 1;  // Indicate TX0 ready
+
+	// //Initialize timer 2 for periodic interrupts
+	// TMR2CN0=0x00;   // Stop Timer2; Clear TF2;
+	// CKCON0|=0b_0001_0000;
+	// TMR2RL=(-(SYSCLK/(2*DEFAULT_F))); // Initialize reload value
+	// TMR2=0xffff;   // Set to reload immediately
+	// ET2=1;         // Enable Timer2 interrupts
+	// TR2=1;         // Start Timer2
+	// EA=1; // Global interrupt enable
+
+
+	// Initialize timer 4 for periodic interrupts
+	SFRPAGE=0x10;
+	TMR4CN0=0x00;   // Stop Timer4; Clear TF4; WARNING: lives in SFR page 0x10
+	CKCON1|=0b_0000_0001; // Timer 4 uses the system clock
+	TMR4RL=(0x10000L-(SYSCLK/(2*TIMER_4_FREQ))); // Initialize reload value
+	TMR4=0xffff;   // Set to reload immediately
+	EIE2|=0b_0000_0100;     // Enable Timer4 interrupts
+	TR4=1;
   	
 	return 0;
+}
+
+void Timer4_ISR (void) interrupt INTERRUPT_TIMER4
+{
+	SFRPAGE=0x10;
+	TF4H = 0; // Clear Timer4 interrupt flag
+	TIMER_OUT_4=!TIMER_OUT_4;
+}
+
+void PCA_ISR (void) interrupt INTERRUPT_PCA0
+{
+	unsigned int j;
+	
+	SFRPAGE=0x0;
+	if (CCF4)
+	{
+		j=(PCA0CPH4*0x100+PCA0CPL4)+(SYSCLK/(2L*PCA_4_FREQ));
+		PCA0CPL4=j%0x100; //Always write low byte first!
+		PCA0CPH4=j/0x100;
+		CCF4=0;
+		PCA_OUT_4=!PCA_OUT_4;
+	}
+
+	CF=0;
 }
 
 void InitADC (void)
@@ -174,16 +232,16 @@ void TIMER0_Init(void)
 
 // initalize timer2 for speaker
 
-void TIMER2_Init(void){
-	// Initialize timer 2 for periodic interrupts
-	TMR2CN0=0x00;   // Stop Timer2; Clear TF2;
-	CKCON0|=0b_0001_0000;
-	TMR2RL=(-(SYSCLK/(2*DEFAULT_F))); // Initialize reload value
-	TMR2=0xffff;   // Set to reload immediately
-	ET2=1;         // Enable Timer2 interrupts
-	TR2=1;         // Start Timer2
-	EA=1; // Global interrupt enable
-}
+// void TIMER2_Init(void){
+// 	// Initialize timer 2 for periodic interrupts
+// 	TMR2CN0=0x00;   // Stop Timer2; Clear TF2;
+// 	CKCON0|=0b_0001_0000;
+// 	TMR2RL=(-(SYSCLK/(2*DEFAULT_F))); // Initialize reload value
+// 	TMR2=0xffff;   // Set to reload immediately
+// 	ET2=1;         // Enable Timer2 interrupts
+// 	TR2=1;         // Start Timer2
+// 	EA=1; // Global interrupt enable
+// }
 
 void Timer2_ISR (void) //interrupt INTERRUPT_TIMER2
 {
@@ -469,135 +527,92 @@ void thefastestsprintf (int num, char str[], int index) {
 	return;
 }
 
+// void WriteData(unsigned char var)
+// {	
+//      LCD_data = var;      //Function set: 2 Line, 8-bit, 5x7 dots
+//      LCD_RS   = 1;        //Selected data register
+//      LCD_rw   = 0;        //We are writing
+//      LCD_E   = 1;        //Enable H->L
+//      LCD_E   = 0;
+// 	 Timer3us(10);
+     
+// }
+
+void LCD_build_left(void){
+	WriteCommand(0x48);       //Load the location where we want to store
+	WriteData(0x1f);      //Load row 1 data
+	WriteData(0x10);      //Load row 2 data
+	WriteData(0x13);      //Load row 3 data
+	WriteData(0x17);      //Load row 4 data
+	WriteData(0x17);      //Load row 5 data
+	WriteData(0x13);      //Load row 6 data
+	WriteData(0x10);      //Load row 7 data
+	WriteData(0x1f);      //Load row 8 data
+}
+
+void LCD_build_right(void){
+	WriteCommand(0x50);       //Load the location where we want to store
+	WriteData(0x1f);      //Load row 1 data
+	WriteData(0x1);      //Load row 2 data
+	WriteData(0x1d);      //Load row 3 data
+	WriteData(0x1d);      //Load row 4 data
+	WriteData(0x1d);      //Load row 5 data
+	WriteData(0x1d);      //Load row 6 data
+	WriteData(0x1);      //Load row 7 data
+	WriteData(0x1f);      //Load row 8 data
+}
+
+
+void LCD_build_mid(void){
+	WriteCommand(0x58);       //Load the location where we want to store
+	WriteData(0x1f);      //Load row 1 data
+	WriteData(0x0);      //Load row 2 data
+	WriteData(0x1f);      //Load row 3 data
+	WriteData(0x1f);      //Load row 4 data
+	WriteData(0x1f);      //Load row 5 data
+	WriteData(0x1f);      //Load row 6 data
+	WriteData(0x0);      //Load row 7 data
+	WriteData(0x1f);      //Load row 8 data
+}
+
+void LCD_build_left_empty(void){
+	WriteCommand(0x60);       //Load the location where we want to store
+	WriteData(0x1f);      //Load row 1 data
+	WriteData(0x10);      //Load row 2 data
+	WriteData(0x10);      //Load row 3 data
+	WriteData(0x10);      //Load row 4 data
+	WriteData(0x10);      //Load row 5 data
+	WriteData(0x10);      //Load row 6 data
+	WriteData(0x10);      //Load row 7 data
+	WriteData(0x1f);      //Load row 8 data
+}
+
+void LCD_build_mid_empty(void){
+	WriteCommand(0x68);       //Load the location where we want to store
+	WriteData(0x1f);      //Load row 1 data
+	WriteData(0x10);      //Load row 2 data
+	WriteData(0x00);      //Load row 3 data
+	WriteData(0x00);      //Load row 4 data
+	WriteData(0x00);      //Load row 5 data
+	WriteData(0x00);      //Load row 6 data
+	WriteData(0x00);      //Load row 7 data
+	WriteData(0x1f);      //Load row 8 data
+}
+
+void LCD_build_right_empty(void){
+	WriteCommand(0x70);       //Load the location where we want to store
+	WriteData(0x1f);      //Load row 1 data
+	WriteData(0x1);      //Load row 2 data
+	WriteData(0x1);      //Load row 3 data
+	WriteData(0x1);      //Load row 4 data
+	WriteData(0x1);      //Load row 5 data
+	WriteData(0x1);      //Load row 6 data
+	WriteData(0x1);      //Load row 7 data
+	WriteData(0x1f);      //Load row 8 data
+}
+
+
 void main (void)
 {
-	unsigned int cnt;
-	unsigned int timeout_cnt;
-	unsigned int level,speaker_f;
-	int volt_x;
-	int volt_y;
-
-	LCD_4BIT();
-	// float strength = 0.0; //display the â€œstrengthâ€ of the signal of the metal detector in the robot
-	// the period of oscillator i assume, nvm i think it's teh same as freqency
-	//float frequency;
-	//char buff1[17]; // for lcd display
-	        //123456789ABCDEFGH
-	LCDprint("Strength = x",1,0);
-	LCDprint("Battery: xx %", 2,0);
-
-	// use p2.4 for joystick vry, p2.5 for vrx
-	InitADC();
-	waitms(500);
-	printf("\r\nJDY-40 test\r\n");
-	UART1_Init(9600);
-	InitPinADC(1,4); //for x remote
-	InitPinADC(1,5); //for y remote
-
-	//TIMER2_Init();
-
-	// To configure the device (shown here using default values).
-	// For some changes to take effect, the JDY-40 needs to be power cycled.
-	// Communication can only happen between devices with the
-	// same RFID and DVID in the same channel.
 	
-	//SendATCommand("AT+BAUD4\r\n");
-	//SendATCommand("AT+RFID8899\r\n");
-	//SendATCommand("AT+DVID1122\r\n"); // Default device ID.
-	//SendATCommand("AT+RFC001\r\n");
-	//SendATCommand("AT+POWE9\r\n");
-	//SendATCommand("AT+CLSSA0\r\n");
-	
-	// We should select an unique device ID.  The device ID can be a hex
-	// number from 0x0000 to 0xFFFF.  In this case is set to 0xABBA
-	SendATCommand("AT+DVID9944\r\n"); 
-	SendATCommand("AT+RFID2576\r\n");
- 
-
-	// To check configuration
-	SendATCommand("AT+VER\r\n");
-	SendATCommand("AT+BAUD\r\n");
-	SendATCommand("AT+RFID\r\n");
-	SendATCommand("AT+DVID\r\n");
-	SendATCommand("AT+RFC\r\n");
-	SendATCommand("AT+POWE\r\n");
-	SendATCommand("AT+CLSS\r\n");
-	
-	printf("\r\nPress and hold the BOOT button to transmit.\r\n");
-	
-	cnt=0;
-	timeout_cnt=0;
-
-	while(1)
-	{	
-		//send attention code
-		putchar1('M');
-		Timer3us(10000); //wait for 10 ms for robot to get attention message
-		// read the voltage from the remote control 
-		volt_x = 100*(Volts_at_Pin(QFP32_MUX_P1_4));
-		volt_y = 100*(Volts_at_Pin(QFP32_MUX_P1_5));
-		printf("x: %d\r\n",volt_x);
-		printf("y: %d\r\n",volt_y);
-		//waitms(200);
-		//buff[0]=NULL;
-		// after 10ms, send the joystick control data to the robot.
-		//sprintf(buff, "%03d|%03d\r\n", volt_x, volt_y); // make sure that each data point is 3 digits
-		thefastestsprintf(volt_x,buff,3); 
-		buff[3] = '|';
-		thefastestsprintf(volt_y,buff,7); 
-		//printf("%s\r\n",buff);
-		buff[7] = '\r';
-		buff[8] = '\n';
-		//printf("%d\n",strlen(buff));
-		sendstr1(buff);
-		//printf("%s\r\n",buff);
-		
-		// timeout
-		timeout_cnt=0;
-		while(1)
-		{
-			if(RXU1()) break; // Got something! Get out of loop.
-			Timer3us(10); // Check if something has arrived every 10us
-			timeout_cnt++;
-
-			if(timeout_cnt>=800) break; // timeout after 5ms, get out of loop
-		} 
-		
-
-		// speaker play sounds if metal was detected -> frequency increase
-		// frequency get from the robot.
-		
-		// if read 
-		if(RXU1())
-		{	
-			//get freq level from robot (from lvl 1-6), get them in buffer
-			// check if the recive the complete data, else wait longer
-			getstr1(buff);	
-			//printf("received\r\n");
-			//printf("string=%s\r\n",buff); 
-
-			level = atoi(&buff[0]);
-
-			if(level == 1) {
-				speaker_pulse();
-			}
-			
-			if(level >= 0 && level <= 6){ //check if the signal is in the range
-				//printf("string=%s\r\n",buff);
-				//change string to long int
-				speaker_f = level*1000;
-				//printf("%ld\r\n",f);
-
-				// speaker beeps
-				TR2=0; // Stop timer 2
-				TMR2RL=0x10000L-(SYSCLK/(2*speaker_f)); // Change reload value for new frequency
-				TR2=1; // Start timer 2
-				buff[1] = '\0';
-				LCDprint2(buff,1,11);
-			}
-			
-		}
-		//waitms_or_RI1(10);
-
-	}
 }

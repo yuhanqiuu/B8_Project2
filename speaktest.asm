@@ -1,7 +1,7 @@
 ;--------------------------------------------------------
 ; File Created by C51
 ; Version 1.0.0 #1170 (Feb 16 2022) (MSVC)
-; This file was generated Wed Apr 03 20:16:35 2024
+; This file was generated Wed Apr 03 20:28:06 2024
 ;--------------------------------------------------------
 $name speaktest
 $optc51 --model-small
@@ -24,9 +24,13 @@ $optc51 --model-small
 ; Public variables in this module
 ;--------------------------------------------------------
 	public _main
-	public _delay
-	public _mapFrequencySpeak
+	public _PCA_ISR
+	public _Timer5_ISR
+	public _Timer4_ISR
+	public _Timer3_ISR
 	public _Timer2_ISR
+	public _Timer1_ISR
+	public _Timer0_ISR
 	public __c51_external_startup
 ;--------------------------------------------------------
 ; Special Function Registers
@@ -480,7 +484,6 @@ _TFRQ           BIT 0xdf
 ; overlayable items in internal ram 
 ;--------------------------------------------------------
 	rseg	R_OSEG
-	rseg	R_OSEG
 ;--------------------------------------------------------
 ; indirectly addressable internal ram data
 ;--------------------------------------------------------
@@ -517,8 +520,20 @@ _TFRQ           BIT 0xdf
 ;--------------------------------------------------------
 	CSEG at 0x0000
 	ljmp	_crt0
+	CSEG at 0x000b
+	ljmp	_Timer0_ISR
+	CSEG at 0x001b
+	ljmp	_Timer1_ISR
 	CSEG at 0x002b
 	ljmp	_Timer2_ISR
+	CSEG at 0x005b
+	ljmp	_PCA_ISR
+	CSEG at 0x0073
+	ljmp	_Timer3_ISR
+	CSEG at 0x008b
+	ljmp	_Timer4_ISR
+	CSEG at 0x0093
+	ljmp	_Timer5_ISR
 ;--------------------------------------------------------
 ; global & static initialisations
 ;--------------------------------------------------------
@@ -538,90 +553,254 @@ _TFRQ           BIT 0xdf
 ;Allocation info for local variables in function '_c51_external_startup'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:32: char _c51_external_startup (void)
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:39: char _c51_external_startup (void)
 ;	-----------------------------------------
 ;	 function _c51_external_startup
 ;	-----------------------------------------
 __c51_external_startup:
 	using	0
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:35: SFRPAGE = 0x00;
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:42: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:36: WDTCN = 0xDE; //First key
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:43: WDTCN = 0xDE; //First key
 	mov	_WDTCN,#0xDE
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:37: WDTCN = 0xAD; //Second key
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:44: WDTCN = 0xAD; //Second key
 	mov	_WDTCN,#0xAD
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:39: VDM0CN=0x80;       // enable VDD monitor
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:46: VDM0CN=0x80;       // enable VDD monitor
 	mov	_VDM0CN,#0x80
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:40: RSTSRC=0x02|0x04;  // Enable reset on missing clock detector and VDD
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:47: RSTSRC=0x02|0x04;  // Enable reset on missing clock detector and VDD
 	mov	_RSTSRC,#0x06
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:47: SFRPAGE = 0x10;
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:54: SFRPAGE = 0x10;
 	mov	_SFRPAGE,#0x10
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:48: PFE0CN  = 0x20; // SYSCLK < 75 MHz.
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:55: PFE0CN  = 0x20; // SYSCLK < 75 MHz.
 	mov	_PFE0CN,#0x20
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:49: SFRPAGE = 0x00;
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:56: SFRPAGE = 0x00;
 	mov	_SFRPAGE,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:70: CLKSEL = 0x00;
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:77: CLKSEL = 0x00;
 	mov	_CLKSEL,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:71: CLKSEL = 0x00;
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:78: CLKSEL = 0x00;
 	mov	_CLKSEL,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:72: while ((CLKSEL & 0x80) == 0);
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:79: while ((CLKSEL & 0x80) == 0);
 L002001?:
 	mov	a,_CLKSEL
 	jnb	acc.7,L002001?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:73: CLKSEL = 0x03;
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:80: CLKSEL = 0x03;
 	mov	_CLKSEL,#0x03
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:74: CLKSEL = 0x03;
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:81: CLKSEL = 0x03;
 	mov	_CLKSEL,#0x03
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:75: while ((CLKSEL & 0x80) == 0);
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:82: while ((CLKSEL & 0x80) == 0);
 L002004?:
 	mov	a,_CLKSEL
 	jnb	acc.7,L002004?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:81: P0MDOUT|=0b_1100_0010;
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:88: P0MDOUT|=0b_1100_0010;
 	orl	_P0MDOUT,#0xC2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:82: P1MDOUT|=0b_1111_1111;
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:89: P1MDOUT|=0b_1111_1111;
 	mov	a,_P1MDOUT
 	mov	_P1MDOUT,#0xFF
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:83: P2MDOUT|=0b_0000_0001;
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:90: P2MDOUT|=0b_0000_0001;
 	orl	_P2MDOUT,#0x01
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:85: XBR0     = 0x00;                     
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:92: XBR0     = 0x00;                     
 	mov	_XBR0,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:86: XBR1     = 0X00;
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:93: XBR1     = 0X00;
 	mov	_XBR1,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:87: XBR2     = 0x40; // Enable crossbar and weak pull-ups
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:94: XBR2     = 0x40; // Enable crossbar and weak pull-ups
 	mov	_XBR2,#0x40
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:90: TMR2CN0=0x00;   // Stop Timer2; Clear TF2;
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:97: TR0=0;
+	clr	_TR0
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:98: TF0=0;
+	clr	_TF0
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:99: CKCON0|=0b_0000_0100; // Timer 0 uses the system clock
+	orl	_CKCON0,#0x04
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:100: TMOD&=0xf0;
+	anl	_TMOD,#0xF0
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:101: TMOD|=0x01; // Timer 0 in mode 1: 16-bit timer
+	orl	_TMOD,#0x01
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:103: TMR0=65536L-(SYSCLK/(2*TIMER_0_FREQ));
+	mov	_TMR0,#0x60
+	mov	(_TMR0 >> 8),#0x73
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:104: ET0=1;     // Enable Timer0 interrupts
+	setb	_ET0
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:105: TR0=1;     // Start Timer0
+	setb	_TR0
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:108: TR1=0;
+	clr	_TR1
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:109: TF1=0;
+	clr	_TF1
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:110: CKCON0|=0b_0000_1000; // Timer 1 uses the system clock
+	orl	_CKCON0,#0x08
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:111: TMOD&=0x0f;
+	anl	_TMOD,#0x0F
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:112: TMOD|=0x10; // Timer 1 in mode 1: 16-bit timer
+	orl	_TMOD,#0x10
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:114: TMR1=65536L-(SYSCLK/(2*TIMER_1_FREQ));
+	mov	_TMR1,#0xB0
+	mov	(_TMR1 >> 8),#0xB9
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:115: ET1=1;     // Enable Timer1 interrupts
+	setb	_ET1
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:116: TR1=1;     // Start Timer1
+	setb	_TR1
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:119: TMR2CN0=0x00;   // Stop Timer2; Clear TF2;
 	mov	_TMR2CN0,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:91: CKCON0|=0b_0001_0000; // Timer 2 uses the system clock
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:120: CKCON0|=0b_0001_0000; // Timer 2 uses the system clock
 	orl	_CKCON0,#0x10
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:92: TMR2RL=(0x10000L-(SYSCLK/(2*TIMER_2_FREQ))); // Initialize reload value
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:121: TMR2RL=(0x10000L-(SYSCLK/(2*TIMER_2_FREQ))); // Initialize reload value
 	mov	_TMR2RL,#0x20
 	mov	(_TMR2RL >> 8),#0xD1
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:93: TMR2=0xffff;   // Set to reload immediately
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:122: TMR2=0xffff;   // Set to reload immediately
 	mov	_TMR2,#0xFF
 	mov	(_TMR2 >> 8),#0xFF
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:94: ET2=1;         // Enable Timer2 interrupts
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:123: ET2=1;         // Enable Timer2 interrupts
 	setb	_ET2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:95: TR2=1;         // Start Timer2 (TMR2CN is bit addressable)
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:124: TR2=1;         // Start Timer2 (TMR2CN is bit addressable)
 	setb	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:97: EA=1; // Enable interrupts
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:127: TMR3CN0=0x00;   // Stop Timer3; Clear TF3;
+	mov	_TMR3CN0,#0x00
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:128: CKCON0|=0b_0100_0000; // Timer 3 uses the system clock
+	orl	_CKCON0,#0x40
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:129: TMR3RL=(0x10000L-(SYSCLK/(2*TIMER_3_FREQ))); // Initialize reload value
+	mov	_TMR3RL,#0xD8
+	mov	(_TMR3RL >> 8),#0xDC
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:130: TMR3=0xffff;   // Set to reload immediately
+	mov	_TMR3,#0xFF
+	mov	(_TMR3 >> 8),#0xFF
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:131: EIE1|=0b_1000_0000;     // Enable Timer3 interrupts
+	orl	_EIE1,#0x80
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:132: TMR3CN0|=0b_0000_0100;  // Start Timer3 (TMR3CN0 is not bit addressable)
+	orl	_TMR3CN0,#0x04
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:135: SFRPAGE=0x10;
+	mov	_SFRPAGE,#0x10
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:136: TMR4CN0=0x00;   // Stop Timer4; Clear TF4; WARNING: lives in SFR page 0x10
+	mov	_TMR4CN0,#0x00
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:137: CKCON1|=0b_0000_0001; // Timer 4 uses the system clock
+	orl	_CKCON1,#0x01
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:138: TMR4RL=(0x10000L-(SYSCLK/(2*TIMER_4_FREQ))); // Initialize reload value
+	mov	_TMR4RL,#0xE0
+	mov	(_TMR4RL >> 8),#0xE3
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:139: TMR4=0xffff;   // Set to reload immediately
+	mov	_TMR4,#0xFF
+	mov	(_TMR4 >> 8),#0xFF
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:140: EIE2|=0b_0000_0100;     // Enable Timer4 interrupts
+	orl	_EIE2,#0x04
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:141: TR4=1;
+	setb	_TR4
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:144: SFRPAGE=0x10;
+	mov	_SFRPAGE,#0x10
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:145: TMR5CN0=0x00;   // Stop Timer5; Clear TF5; WARNING: lives in SFR page 0x10
+	mov	_TMR5CN0,#0x00
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:146: CKCON1|=0b_0000_0100; // Timer 5 uses the system clock
+	orl	_CKCON1,#0x04
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:147: TMR5RL=(0x10000L-(SYSCLK/(2*TIMER_5_FREQ))); // Initialize reload value
+	mov	_TMR5RL,#0x90
+	mov	(_TMR5RL >> 8),#0xE8
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:148: TMR5=0xffff;   // Set to reload immediately
+	mov	_TMR5,#0xFF
+	mov	(_TMR5 >> 8),#0xFF
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:149: EIE2|=0b_0000_1000; // Enable Timer5 interrupts
+	orl	_EIE2,#0x08
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:150: TR5=1;         // Start Timer5 (TMR5CN0 is bit addressable)
+	setb	_TR5
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:153: SFRPAGE=0x0;
+	mov	_SFRPAGE,#0x00
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:154: PCA0MD=0x00; // Disable and clear everything in the PCA
+	mov	_PCA0MD,#0x00
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:155: PCA0L=0; // Initialize the PCA counter to zero
+	mov	_PCA0L,#0x00
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:156: PCA0H=0;
+	mov	_PCA0H,#0x00
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:157: PCA0MD=0b_0000_1000; // Configure PCA.  System CLK is the frequency input for the PCA
+	mov	_PCA0MD,#0x08
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:159: PCA0CPM0=PCA0CPM1=PCA0CPM2=PCA0CPM3=PCA0CPM4=0b_0100_1001; // ECOM|MAT|ECCF;
+	mov	_PCA0CPM4,#0x49
+	mov	_PCA0CPM3,#0x49
+	mov	_PCA0CPM2,#0x49
+	mov	_PCA0CPM1,#0x49
+	mov	_PCA0CPM0,#0x49
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:161: PCA0CPL0=(SYSCLK/(2*PCA_0_FREQ))%0x100; //Always write low byte first!
+	mov	_PCA0CPL0,#0x16
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:162: PCA0CPH0=(SYSCLK/(2*PCA_0_FREQ))/0x100;
+	mov	_PCA0CPH0,#0x14
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:164: PCA0CPL1=(SYSCLK/(2*PCA_1_FREQ))%0x100; //Always write low byte first!
+	mov	_PCA0CPL1,#0x94
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:165: PCA0CPH1=(SYSCLK/(2*PCA_1_FREQ))/0x100;
+	mov	_PCA0CPH1,#0x11
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:167: PCA0CPL2=(SYSCLK/(2*PCA_2_FREQ))%0x100; //Always write low byte first!
+	mov	_PCA0CPL2,#0xA0
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:168: PCA0CPH2=(SYSCLK/(2*PCA_2_FREQ))/0x100;
+	mov	_PCA0CPH2,#0x0F
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:170: PCA0CPL3=(SYSCLK/(2*PCA_3_FREQ))%0x100; //Always write low byte first!
+	mov	_PCA0CPL3,#0x10
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:171: PCA0CPH3=(SYSCLK/(2*PCA_3_FREQ))/0x100;
+	mov	_PCA0CPH3,#0x0E
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:173: PCA0CPL4=(SYSCLK/(2*PCA_4_FREQ))%0x100; //Always write low byte first!
+	mov	_PCA0CPL4,#0xC8
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:174: PCA0CPH4=(SYSCLK/(2*PCA_4_FREQ))/0x100;
+	mov	_PCA0CPH4,#0x0C
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:175: CR=1; // Enable PCA counter
+	setb	_CR
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:176: EIE1|=0b_0001_0000; // Enable PCA interrupts
+	orl	_EIE1,#0x10
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:178: EA=1; // Enable interrupts
 	setb	_EA
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:99: return 0;
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:180: return 0;
 	mov	dpl,#0x00
 	ret
+;------------------------------------------------------------
+;Allocation info for local variables in function 'Timer0_ISR'
+;------------------------------------------------------------
+;------------------------------------------------------------
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:183: void Timer0_ISR (void) interrupt INTERRUPT_TIMER0
+;	-----------------------------------------
+;	 function Timer0_ISR
+;	-----------------------------------------
+_Timer0_ISR:
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:185: SFRPAGE=0x0;
+	mov	_SFRPAGE,#0x00
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:187: TMR0=0x10000L-(SYSCLK/(2*TIMER_0_FREQ));
+	mov	_TMR0,#0x60
+	mov	(_TMR0 >> 8),#0x73
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:188: TIMER_OUT_0=!TIMER_OUT_0;
+	cpl	_P2_0
+	reti
+;	eliminated unneeded push/pop psw
+;	eliminated unneeded push/pop dpl
+;	eliminated unneeded push/pop dph
+;	eliminated unneeded push/pop b
+;	eliminated unneeded push/pop acc
+;------------------------------------------------------------
+;Allocation info for local variables in function 'Timer1_ISR'
+;------------------------------------------------------------
+;------------------------------------------------------------
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:191: void Timer1_ISR (void) interrupt INTERRUPT_TIMER1
+;	-----------------------------------------
+;	 function Timer1_ISR
+;	-----------------------------------------
+_Timer1_ISR:
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:193: SFRPAGE=0x0;
+	mov	_SFRPAGE,#0x00
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:195: TMR1=0x10000L-(SYSCLK/(2*TIMER_1_FREQ));
+	mov	_TMR1,#0xB0
+	mov	(_TMR1 >> 8),#0xB9
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:196: TIMER_OUT_1=!TIMER_OUT_1;
+	cpl	_P1_7
+	reti
+;	eliminated unneeded push/pop psw
+;	eliminated unneeded push/pop dpl
+;	eliminated unneeded push/pop dph
+;	eliminated unneeded push/pop b
+;	eliminated unneeded push/pop acc
 ;------------------------------------------------------------
 ;Allocation info for local variables in function 'Timer2_ISR'
 ;------------------------------------------------------------
 ;------------------------------------------------------------
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:103: void Timer2_ISR (void) interrupt INTERRUPT_TIMER2
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:199: void Timer2_ISR (void) interrupt INTERRUPT_TIMER2
 ;	-----------------------------------------
 ;	 function Timer2_ISR
 ;	-----------------------------------------
 _Timer2_ISR:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:105: SFRPAGE=0x0;		
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:201: SFRPAGE=0x0;
 	mov	_SFRPAGE,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:106: TF2H = 0; // Clear Timer2 interrupt flag
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:202: TF2H = 0; // Clear Timer2 interrupt flag
 	clr	_TF2H
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:107: TIMER_OUT_2=!TIMER_OUT_2;
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:203: TIMER_OUT_2=!TIMER_OUT_2;
 	cpl	_P1_6
 	reti
 ;	eliminated unneeded push/pop psw
@@ -630,428 +809,341 @@ _Timer2_ISR:
 ;	eliminated unneeded push/pop b
 ;	eliminated unneeded push/pop acc
 ;------------------------------------------------------------
-;Allocation info for local variables in function 'mapFrequencySpeak'
+;Allocation info for local variables in function 'Timer3_ISR'
 ;------------------------------------------------------------
-;difference                Allocated to registers r2 r3 r4 r5 
-;speaker_freq              Allocated to registers 
 ;------------------------------------------------------------
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:111: unsigned int mapFrequencySpeak(unsigned long int difference)
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:206: void Timer3_ISR (void) interrupt INTERRUPT_TIMER3
 ;	-----------------------------------------
-;	 function mapFrequencySpeak
+;	 function Timer3_ISR
 ;	-----------------------------------------
-_mapFrequencySpeak:
-	mov	r2,dpl
-	mov	r3,dph
-	mov	r4,b
-	mov	r5,a
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:117: if((difference>=500) && (difference<700)){ // speaker plays 3000 freq
-	clr	c
-	mov	a,r2
-	subb	a,#0xF4
-	mov	a,r3
-	subb	a,#0x01
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jc	L004020?
-	mov	a,r2
-	subb	a,#0xBC
-	mov	a,r3
-	subb	a,#0x02
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jnc	L004020?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:120: TR2=0; // Stop timer 2
-	clr	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:121: TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-	mov	_TMR2RL,#0x60
-	mov	(_TMR2RL >> 8),#0x73
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:122: TR2=1; // Start timer 2
-	setb	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:123: difference =750;
-	ret
-L004020?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:126: else if((difference>=700) && (difference<800) ){
-	clr	c
-	mov	a,r2
-	subb	a,#0xBC
-	mov	a,r3
-	subb	a,#0x02
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jc	L004016?
-	mov	a,r2
-	subb	a,#0x20
-	mov	a,r3
-	subb	a,#0x03
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jnc	L004016?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:128: TR2=0; // Stop timer 2
-	clr	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:129: TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-	mov	_TMR2RL,#0xB0
-	mov	(_TMR2RL >> 8),#0xB9
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:130: TR2=1; // Start timer 2
-	setb	_TR2
-	ret
-L004016?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:133: else if((difference>=800) && (difference<900) ){
-	clr	c
-	mov	a,r2
-	subb	a,#0x20
-	mov	a,r3
-	subb	a,#0x03
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jc	L004012?
-	mov	a,r2
-	subb	a,#0x84
-	mov	a,r3
-	subb	a,#0x03
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jnc	L004012?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:135: TR2=0; // Stop timer 2
-	clr	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:136: TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-	mov	_TMR2RL,#0x20
-	mov	(_TMR2RL >> 8),#0xD1
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:137: TR2=1; // Start timer 2
-	setb	_TR2
-	ret
-L004012?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:139: else if((difference>=900) && (difference<1000) ){
-	clr	c
-	mov	a,r2
-	subb	a,#0x84
-	mov	a,r3
-	subb	a,#0x03
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jc	L004008?
-	mov	a,r2
-	subb	a,#0xE8
-	mov	a,r3
-	subb	a,#0x03
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jnc	L004008?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:141: TR2=0; // Stop timer 2
-	clr	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:142: TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-	mov	_TMR2RL,#0xD8
-	mov	(_TMR2RL >> 8),#0xDC
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:143: TR2=1; // Start timer 2
-	setb	_TR2
-	ret
-L004008?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:145: else if((difference>=1000) && (difference<1100) ){
-	clr	c
-	mov	a,r2
-	subb	a,#0xE8
-	mov	a,r3
-	subb	a,#0x03
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jc	L004004?
-	mov	a,r2
-	subb	a,#0x4C
-	mov	a,r3
-	subb	a,#0x04
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jnc	L004004?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:147: TR2=0; // Stop timer 2
-	clr	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:148: TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-	mov	_TMR2RL,#0xE0
-	mov	(_TMR2RL >> 8),#0xE3
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:149: TR2=1; // Start timer 2
-	setb	_TR2
-	ret
-L004004?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:151: else if(difference>=1100){
-	clr	c
-	mov	a,r2
-	subb	a,#0x4C
-	mov	a,r3
-	subb	a,#0x04
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jc	L004023?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:153: TR2=0; // Stop timer 2
-	clr	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:154: TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-	mov	_TMR2RL,#0x90
-	mov	(_TMR2RL >> 8),#0xE8
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:155: TR2=1; // Start timer 2
-	setb	_TR2
-L004023?:
-	ret
+_Timer3_ISR:
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:208: SFRPAGE=0x0;
+	mov	_SFRPAGE,#0x00
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:209: TMR3CN0&=0b_0011_1111; // Clear Timer3 interrupt flags
+	anl	_TMR3CN0,#0x3F
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:210: TIMER_OUT_3=!TIMER_OUT_3;
+	cpl	_P1_5
+	reti
+;	eliminated unneeded push/pop psw
+;	eliminated unneeded push/pop dpl
+;	eliminated unneeded push/pop dph
+;	eliminated unneeded push/pop b
+;	eliminated unneeded push/pop acc
 ;------------------------------------------------------------
-;Allocation info for local variables in function 'delay'
+;Allocation info for local variables in function 'Timer4_ISR'
 ;------------------------------------------------------------
-;x                         Allocated to registers r2 r3 
-;j                         Allocated to registers r4 
 ;------------------------------------------------------------
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:166: void delay (unsigned int x)
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:213: void Timer4_ISR (void) interrupt INTERRUPT_TIMER4
 ;	-----------------------------------------
-;	 function delay
+;	 function Timer4_ISR
 ;	-----------------------------------------
-_delay:
-	mov	r2,dpl
-	mov	r3,dph
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:169: while(--x)
-L005001?:
-	dec	r2
-	cjne	r2,#0xff,L005014?
-	dec	r3
-L005014?:
-	mov	a,r2
-	orl	a,r3
-	jz	L005007?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:171: for(j=0; j<100; j++);
-	mov	r4,#0x64
-L005006?:
-	djnz	r4,L005006?
-	sjmp	L005001?
-L005007?:
-	ret
+_Timer4_ISR:
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:215: SFRPAGE=0x10;
+	mov	_SFRPAGE,#0x10
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:216: TF4H = 0; // Clear Timer4 interrupt flag
+	clr	_TF4H
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:217: TIMER_OUT_4=!TIMER_OUT_4;
+	cpl	_P1_4
+	reti
+;	eliminated unneeded push/pop psw
+;	eliminated unneeded push/pop dpl
+;	eliminated unneeded push/pop dph
+;	eliminated unneeded push/pop b
+;	eliminated unneeded push/pop acc
 ;------------------------------------------------------------
-;Allocation info for local variables in function 'main'
+;Allocation info for local variables in function 'Timer5_ISR'
 ;------------------------------------------------------------
-;j                         Allocated with name '_main_j_1_59'
-;test_freq                 Allocated to registers 
-;speaker_freq              Allocated to registers 
-;difference                Allocated to registers r2 r3 r4 r5 
 ;------------------------------------------------------------
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:175: void main (void)
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:220: void Timer5_ISR (void) interrupt INTERRUPT_TIMER5
 ;	-----------------------------------------
-;	 function main
+;	 function Timer5_ISR
 ;	-----------------------------------------
-_main:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:182: difference = 600;
-	mov	r2,#0x58
-	mov	r3,#0x02
-	mov	r4,#0x00
-	mov	r5,#0x00
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:184: while(1)
-L006025?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:190: if((difference>=500) && (difference<700)){ // speaker plays 3000 freq
-	clr	c
-	mov	a,r2
-	subb	a,#0xF4
-	mov	a,r3
-	subb	a,#0x01
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jc	L006021?
-	mov	a,r2
-	subb	a,#0xBC
-	mov	a,r3
-	subb	a,#0x02
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jnc	L006021?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:193: TR2=0; // Stop timer 2
-	clr	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:194: TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-	mov	_TMR2RL,#0x60
-	mov	(_TMR2RL >> 8),#0x73
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:195: TR2=1; // Start timer 2
-	setb	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:196: delay(50000);
-	mov	dptr,#0xC350
-	lcall	_delay
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:197: difference =750;
-	mov	r2,#0xEE
-	mov	r3,#0x02
-	mov	r4,#0x00
-	mov	r5,#0x00
-	sjmp	L006025?
-L006021?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:200: else if((difference>=700) && (difference<800) ){
-	clr	c
-	mov	a,r2
-	subb	a,#0xBC
-	mov	a,r3
-	subb	a,#0x02
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jc	L006017?
-	mov	a,r2
-	subb	a,#0x20
-	mov	a,r3
-	subb	a,#0x03
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jnc	L006017?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:202: TR2=0; // Stop timer 2
-	clr	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:203: TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-	mov	_TMR2RL,#0xB0
-	mov	(_TMR2RL >> 8),#0xB9
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:204: TR2=1; // Start timer 2
-	setb	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:205: delay(50000);
-	mov	dptr,#0xC350
-	lcall	_delay
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:206: difference =850;
-	mov	r2,#0x52
-	mov	r3,#0x03
-	mov	r4,#0x00
-	mov	r5,#0x00
-	sjmp	L006025?
-L006017?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:209: else if((difference>=800) && (difference<900) ){
-	clr	c
-	mov	a,r2
-	subb	a,#0x20
-	mov	a,r3
-	subb	a,#0x03
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jc	L006013?
-	mov	a,r2
-	subb	a,#0x84
-	mov	a,r3
-	subb	a,#0x03
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jnc	L006013?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:211: TR2=0; // Stop timer 2
-	clr	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:212: TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-	mov	_TMR2RL,#0x20
-	mov	(_TMR2RL >> 8),#0xD1
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:213: TR2=1; // Start timer 2
-	setb	_TR2
-	ljmp	L006025?
-L006013?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:215: else if((difference>=900) && (difference<1000) ){
-	clr	c
-	mov	a,r2
-	subb	a,#0x84
-	mov	a,r3
-	subb	a,#0x03
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jc	L006009?
-	mov	a,r2
-	subb	a,#0xE8
-	mov	a,r3
-	subb	a,#0x03
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jnc	L006009?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:217: TR2=0; // Stop timer 2
-	clr	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:218: TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-	mov	_TMR2RL,#0xD8
-	mov	(_TMR2RL >> 8),#0xDC
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:219: TR2=1; // Start timer 2
-	setb	_TR2
-	ljmp	L006025?
-L006009?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:221: else if((difference>=1000) && (difference<1100) ){
-	clr	c
-	mov	a,r2
-	subb	a,#0xE8
-	mov	a,r3
-	subb	a,#0x03
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jc	L006005?
-	mov	a,r2
-	subb	a,#0x4C
-	mov	a,r3
-	subb	a,#0x04
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jnc	L006005?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:223: TR2=0; // Stop timer 2
-	clr	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:224: TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-	mov	_TMR2RL,#0xE0
-	mov	(_TMR2RL >> 8),#0xE3
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:225: TR2=1; // Start timer 2
-	setb	_TR2
-	ljmp	L006025?
-L006005?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:227: else if(difference>=1100){
-	clr	c
-	mov	a,r2
-	subb	a,#0x4C
-	mov	a,r3
-	subb	a,#0x04
-	mov	a,r4
-	subb	a,#0x00
-	mov	a,r5
-	subb	a,#0x00
-	jc	L006002?
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:229: TR2=0; // Stop timer 2
-	clr	_TR2
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:230: TMR2RL=0x10000L-(SYSCLK/(2*speaker_freq)); // Change reload value for new frequency
-	mov	_TMR2RL,#0x90
-	mov	(_TMR2RL >> 8),#0xE8
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:231: TR2=1; // Start timer 2
-	setb	_TR2
-	ljmp	L006025?
-L006002?:
-;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:235: delay(50000);
-	mov	dptr,#0xC350
+_Timer5_ISR:
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:222: SFRPAGE=0x10;
+	mov	_SFRPAGE,#0x10
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:223: TF5H = 0; // Clear Timer5 interrupt flag
+	clr	_TF5H
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:224: TIMER_OUT_5=!TIMER_OUT_5;
+	cpl	_P1_3
+	reti
+;	eliminated unneeded push/pop psw
+;	eliminated unneeded push/pop dpl
+;	eliminated unneeded push/pop dph
+;	eliminated unneeded push/pop b
+;	eliminated unneeded push/pop acc
+;------------------------------------------------------------
+;Allocation info for local variables in function 'PCA_ISR'
+;------------------------------------------------------------
+;j                         Allocated to registers r2 r3 
+;------------------------------------------------------------
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:227: void PCA_ISR (void) interrupt INTERRUPT_PCA0
+;	-----------------------------------------
+;	 function PCA_ISR
+;	-----------------------------------------
+_PCA_ISR:
+	push	acc
 	push	ar2
 	push	ar3
 	push	ar4
 	push	ar5
-	lcall	_delay
+	push	ar6
+	push	ar7
+	push	psw
+	mov	psw,#0x00
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:231: SFRPAGE=0x0;
+	mov	_SFRPAGE,#0x00
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:233: if (CCF0)
+	jnb	_CCF0,L009002?
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:235: j=(PCA0CPH0*0x100+PCA0CPL0)+(SYSCLK/(2L*PCA_0_FREQ));
+	mov	r3,_PCA0CPH0
+	mov	r2,#0x00
+	mov	r4,_PCA0CPL0
+	mov	r5,#0x00
+	mov	a,r4
+	add	a,r2
+	mov	r2,a
+	mov	a,r5
+	addc	a,r3
+	mov	r3,a
+	rlc	a
+	subb	a,acc
+	mov	r4,a
+	mov	r5,a
+	mov	a,#0x16
+	add	a,r2
+	mov	r2,a
+	mov	a,#0x14
+	addc	a,r3
+	mov	r3,a
+	clr	a
+	addc	a,r4
+	clr	a
+	addc	a,r5
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:236: PCA0CPL0=j%0x100; //Always write low byte first!
+	mov	ar4,r2
+	mov	_PCA0CPL0,r4
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:237: PCA0CPH0=j/0x100;
+	mov	ar4,r3
+	mov	r5,#0x00
+	mov	_PCA0CPH0,r4
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:238: CCF0=0;
+	clr	_CCF0
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:239: PCA_OUT_0=!PCA_OUT_0;
+	cpl	_P1_2
+L009002?:
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:241: if (CCF1)
+	jnb	_CCF1,L009004?
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:243: j=(PCA0CPH1*0x100+PCA0CPL1)+(SYSCLK/(2L*PCA_1_FREQ));
+	mov	r5,_PCA0CPH1
+	mov	r4,#0x00
+	mov	r6,_PCA0CPL1
+	mov	r7,#0x00
+	mov	a,r6
+	add	a,r4
+	mov	r4,a
+	mov	a,r7
+	addc	a,r5
+	mov	r5,a
+	rlc	a
+	subb	a,acc
+	mov	r6,a
+	mov	r7,a
+	mov	a,#0x94
+	add	a,r4
+	mov	r4,a
+	mov	a,#0x11
+	addc	a,r5
+	mov	r5,a
+	clr	a
+	addc	a,r6
+	mov	r6,a
+	clr	a
+	addc	a,r7
+	mov	r7,a
+	mov	ar2,r4
+	mov	ar3,r5
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:244: PCA0CPL1=j%0x100; //Always write low byte first!
+	mov	ar4,r2
+	mov	_PCA0CPL1,r4
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:245: PCA0CPH1=j/0x100;
+	mov	ar4,r3
+	mov	r5,#0x00
+	mov	_PCA0CPH1,r4
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:246: CCF1=0;
+	clr	_CCF1
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:247: PCA_OUT_1=!PCA_OUT_1;
+	cpl	_P1_1
+L009004?:
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:249: if (CCF2)
+	jnb	_CCF2,L009006?
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:251: j=(PCA0CPH2*0x100+PCA0CPL2)+(SYSCLK/(2L*PCA_2_FREQ));
+	mov	r5,_PCA0CPH2
+	mov	r4,#0x00
+	mov	r6,_PCA0CPL2
+	mov	r7,#0x00
+	mov	a,r6
+	add	a,r4
+	mov	r4,a
+	mov	a,r7
+	addc	a,r5
+	mov	r5,a
+	rlc	a
+	subb	a,acc
+	mov	r6,a
+	mov	r7,a
+	mov	a,#0xA0
+	add	a,r4
+	mov	r4,a
+	mov	a,#0x0F
+	addc	a,r5
+	mov	r5,a
+	clr	a
+	addc	a,r6
+	mov	r6,a
+	clr	a
+	addc	a,r7
+	mov	r7,a
+	mov	ar2,r4
+	mov	ar3,r5
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:252: PCA0CPL2=j%0x100; //Always write low byte first!
+	mov	ar4,r2
+	mov	_PCA0CPL2,r4
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:253: PCA0CPH2=j/0x100;
+	mov	ar4,r3
+	mov	r5,#0x00
+	mov	_PCA0CPH2,r4
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:254: CCF2=0;
+	clr	_CCF2
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:255: PCA_OUT_2=!PCA_OUT_2;
+	cpl	_P1_0
+L009006?:
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:257: if (CCF3)
+	jnb	_CCF3,L009008?
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:259: j=(PCA0CPH3*0x100+PCA0CPL3)+(SYSCLK/(2L*PCA_3_FREQ));
+	mov	r5,_PCA0CPH3
+	mov	r4,#0x00
+	mov	r6,_PCA0CPL3
+	mov	r7,#0x00
+	mov	a,r6
+	add	a,r4
+	mov	r4,a
+	mov	a,r7
+	addc	a,r5
+	mov	r5,a
+	rlc	a
+	subb	a,acc
+	mov	r6,a
+	mov	r7,a
+	mov	a,#0x10
+	add	a,r4
+	mov	r4,a
+	mov	a,#0x0E
+	addc	a,r5
+	mov	r5,a
+	clr	a
+	addc	a,r6
+	mov	r6,a
+	clr	a
+	addc	a,r7
+	mov	r7,a
+	mov	ar2,r4
+	mov	ar3,r5
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:260: PCA0CPL3=j%0x100; //Always write low byte first!
+	mov	ar4,r2
+	mov	_PCA0CPL3,r4
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:261: PCA0CPH3=j/0x100;
+	mov	ar4,r3
+	mov	r5,#0x00
+	mov	_PCA0CPH3,r4
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:262: CCF3=0;
+	clr	_CCF3
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:263: PCA_OUT_3=!PCA_OUT_3;
+	cpl	_P0_7
+L009008?:
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:265: if (CCF4)
+	jnb	_CCF4,L009010?
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:267: j=(PCA0CPH4*0x100+PCA0CPL4)+(SYSCLK/(2L*PCA_4_FREQ));
+	mov	r5,_PCA0CPH4
+	mov	r4,#0x00
+	mov	r6,_PCA0CPL4
+	mov	r7,#0x00
+	mov	a,r6
+	add	a,r4
+	mov	r4,a
+	mov	a,r7
+	addc	a,r5
+	mov	r5,a
+	rlc	a
+	subb	a,acc
+	mov	r6,a
+	mov	r7,a
+	mov	a,#0xC8
+	add	a,r4
+	mov	r4,a
+	mov	a,#0x0C
+	addc	a,r5
+	mov	r5,a
+	clr	a
+	addc	a,r6
+	mov	r6,a
+	clr	a
+	addc	a,r7
+	mov	r7,a
+	mov	ar2,r4
+	mov	ar3,r5
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:268: PCA0CPL4=j%0x100; //Always write low byte first!
+	mov	ar4,r2
+	mov	r5,#0x00
+	mov	_PCA0CPL4,r4
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:269: PCA0CPH4=j/0x100;
+	mov	ar2,r3
+	mov	r3,#0x00
+	mov	_PCA0CPH4,r2
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:270: CCF4=0;
+	clr	_CCF4
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:271: PCA_OUT_4=!PCA_OUT_4;
+	cpl	_P0_6
+L009010?:
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:274: CF=0;
+	clr	_CF
+	pop	psw
+	pop	ar7
+	pop	ar6
 	pop	ar5
 	pop	ar4
 	pop	ar3
 	pop	ar2
-	ljmp	L006025?
+	pop	acc
+	reti
+;	eliminated unneeded push/pop dpl
+;	eliminated unneeded push/pop dph
+;	eliminated unneeded push/pop b
+;------------------------------------------------------------
+;Allocation info for local variables in function 'main'
+;------------------------------------------------------------
+;j                         Allocated to registers r2 r3 
+;------------------------------------------------------------
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:277: void main (void)
+;	-----------------------------------------
+;	 function main
+;	-----------------------------------------
+_main:
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:280: while(1)
+L010002?:
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:283: MAIN_OUT=!MAIN_OUT;
+	cpl	_P0_1
+;	C:\Users\qiuyu\OneDrive\Documents\GitHub\B8_Project2\speaktest.c:284: for (j=0; j<1000; j++);
+	mov	r2,#0xE8
+	mov	r3,#0x03
+L010006?:
+	dec	r2
+	cjne	r2,#0xff,L010013?
+	dec	r3
+L010013?:
+	mov	a,r2
+	orl	a,r3
+	jnz	L010006?
+	sjmp	L010002?
 	rseg R_CSEG
 
 	rseg R_XINIT
