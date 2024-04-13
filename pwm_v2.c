@@ -454,35 +454,6 @@ void delayms(int len)
 	while(len--) wait_1ms();
 }
 
-// void tostring(char str[], int num)
-// {
-//     int i, rem, len = 0, n;
- 
-//     n = num;
-//     while (n != 0)
-//     {
-//         len++;
-//         n /= 10;
-//     }
-//     for (i = 0; i < len; i++)
-//     {
-//         rem = num % 10;
-//         num = num / 10;
-//         str[len - (i + 1)] = rem + '0';
-//     }
-//     str[len] = '\r';
-// 	str[len+1] = '\n';
-// 	str[len+2] = '\0';
-// }
-
-// int gety (char space, char arr[]) {
-// 	int i = 0;
-
-// 	while(arr[i] != ' ') {
-// 		i++;
-// 	}
-// 	return i;
-// }
 
 void SendATCommand (char * s)
 {
@@ -521,16 +492,7 @@ int LevelSender(int freq, int init_freq)
 			speaker_freq = 3; //level 3
 
 		}
-		// else if((difference>=550) && (difference<700) ){
-		// 	speaker_freq = 4; //level 4
-		// }
-		// else if((difference>=700) && (difference<850) ){
-		// 	speaker_freq = 5; //level 5
-		// }
-		// else if(difference>=850){
-		// 	speaker_freq = 6; //level 6
-
-		// }
+	
 		else{
 			// do nothing
 			speaker_freq = 0; //level 0
